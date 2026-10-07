@@ -1,0 +1,3811 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>手撕练习场</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  /* layout: workbench — rail (today's plan, question list, history) | brief (task, explanation, answer) | bench (editor over test console) */
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --surface-2: #f4f6f9;
+    --ink: #141a24;
+    --muted: #5a6475;
+    --faint: #8b94a3;
+    --line: #d9dee6;
+    --accent: #2a55c9;
+    --accent-soft: rgba(42, 85, 201, 0.12);
+    --on-accent: #ffffff;
+    --ok: #1e8a4b;
+    --ok-soft: rgba(30, 138, 75, 0.12);
+    --bad: #c43240;
+    --bad-soft: rgba(196, 50, 64, 0.1);
+    --warn: #a95b08;
+    --warn-soft: rgba(169, 91, 8, 0.12);
+    --code-bg: #fbfcfd;
+    --select: rgba(42, 85, 201, 0.18);
+    --active-line: rgba(42, 85, 201, 0.05);
+    --t-k: #7a3eb1;
+    --t-s: #1e7a45;
+    --t-c: #8a93a3;
+    --t-n: #b5561a;
+    --t-def: #1f5fbf;
+    --t-prop: #2f4b80;
+    --heat-0: #e3e7ee;
+    --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --surface: #151b24;
+      --surface-2: #1b2230;
+      --ink: #e4e9f0;
+      --muted: #9ba6b7;
+      --faint: #6b7586;
+      --line: #29323f;
+      --accent: #7c9cff;
+      --accent-soft: rgba(124, 156, 255, 0.16);
+      --on-accent: #0d1117;
+      --ok: #4cc47f;
+      --ok-soft: rgba(76, 196, 127, 0.15);
+      --bad: #ff6b76;
+      --bad-soft: rgba(255, 107, 118, 0.13);
+      --warn: #f0a050;
+      --warn-soft: rgba(240, 160, 80, 0.14);
+      --code-bg: #10151d;
+      --select: rgba(124, 156, 255, 0.26);
+      --active-line: rgba(124, 156, 255, 0.06);
+      --t-k: #c79bff;
+      --t-s: #7fd6a0;
+      --t-c: #6b7586;
+      --t-n: #ffb27a;
+      --t-def: #82b1ff;
+      --t-prop: #a9c1f0;
+      --heat-0: #1e2632;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0d1117;
+    --surface: #151b24;
+    --surface-2: #1b2230;
+    --ink: #e4e9f0;
+    --muted: #9ba6b7;
+    --faint: #6b7586;
+    --line: #29323f;
+    --accent: #7c9cff;
+    --accent-soft: rgba(124, 156, 255, 0.16);
+    --on-accent: #0d1117;
+    --ok: #4cc47f;
+    --ok-soft: rgba(76, 196, 127, 0.15);
+    --bad: #ff6b76;
+    --bad-soft: rgba(255, 107, 118, 0.13);
+    --warn: #f0a050;
+    --warn-soft: rgba(240, 160, 80, 0.14);
+    --code-bg: #10151d;
+    --select: rgba(124, 156, 255, 0.26);
+    --active-line: rgba(124, 156, 255, 0.06);
+    --t-k: #c79bff;
+    --t-s: #7fd6a0;
+    --t-c: #6b7586;
+    --t-n: #ffb27a;
+    --t-def: #82b1ff;
+    --t-prop: #a9c1f0;
+    --heat-0: #1e2632;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+  button, select { font: inherit; }
+  code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+  :where(p, li, dd, td) code {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0 4px;
+  }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .app { max-width: 1520px; margin: 0 auto; padding-inline: 18px; padding-block: 16px 40px; display: grid; gap: 14px; }
+
+  /* top bar */
+  .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--ink);
+    color: var(--bg);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .brand h1 { margin: 0; font-size: 20px; font-weight: 900; line-height: 1.2; letter-spacing: 0.01em; }
+  .brand p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px; }
+  .stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .stat b { font-family: var(--font-mono); font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* main grid */
+  .layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .work { display: grid; gap: 12px; min-width: 0; }
+  .panes { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px; align-items: start; }
+  @media (max-width: 1279px) {
+    /* narrower viewers (e.g. the claude.ai side panel): the editor must be on the first screen */
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .rail { order: 2; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+  }
+  @media (max-width: 899px) {
+    .panes { grid-template-columns: minmax(0, 1fr); }
+    .tabpanel { max-height: 36vh; overflow-y: auto; }
+  }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+
+  /* rail */
+  .rail { display: grid; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+  @media (max-width: 1279px) { .rail { position: static; } }
+  .rail-sec { padding: 12px 12px 14px; display: grid; gap: 8px; }
+  .rail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rail h2 { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
+  .rail select {
+    font-size: 12.5px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .rail label { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+  .plan, .qlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .qbtn {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    padding: 7px 8px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .qbtn:hover { background: var(--surface-2); }
+  .qbtn[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); }
+  .qbtn .num { font-family: var(--font-mono); font-size: 12px; color: var(--faint); text-align: center; }
+  .qbtn .name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qbtn .sub { display: block; font-size: 11.5px; color: var(--faint); }
+  .plan .qbtn.done .name { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+  .check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: inline-grid; place-items: center; font-size: 11px; }
+  .done .check { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+  .qlist-tier { padding: 8px 8px 2px; font-size: 11.5px; color: var(--faint); letter-spacing: 0.04em; }
+  .qlist-tier:first-child { padding-top: 0; }
+  .plan-empty { margin: 0; font-size: 13px; color: var(--muted); }
+
+  .pill {
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding: 1px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--surface);
+  }
+  .pill.new { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .pill.due { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+  .pill.today { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
+  .pill.mastered { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+
+  .heat { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px); gap: 3px; justify-content: start; }
+  .heat i { width: 11px; height: 11px; border-radius: 2px; background: var(--heat-0); }
+  .heat i[data-n="1"] { background: color-mix(in srgb, var(--ok) 40%, var(--heat-0)); }
+  .heat i[data-n="2"] { background: color-mix(in srgb, var(--ok) 70%, var(--heat-0)); }
+  .heat i[data-n="3"] { background: var(--ok); }
+  .heat i.today { outline: 1.5px solid var(--ink); outline-offset: 0; }
+  .heat-legend { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--faint); }
+  .heat-legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; background: var(--heat-0); }
+  .sync { margin: 0; font-size: 12px; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+  .sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
+  .sync[data-mode="db"]::before { background: var(--ok); }
+  .sync[data-mode="error"]::before { background: var(--bad); }
+
+  /* question header */
+  .qhead { padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .qhead-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1 1 260px; }
+  .qhead .rank { font-family: var(--font-mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+  .qhead h2 { margin: 0; font-size: 21px; font-weight: 700; text-wrap: balance; }
+  .qhead-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; color: var(--muted); }
+  .qpick { display: none; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .qpick select {
+    font-size: 13.5px;
+    padding: 4px 6px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    max-width: 100%;
+  }
+  @media (max-width: 1279px) { .qpick { display: inline-flex; } }
+  .timer { font-family: var(--font-mono); font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .timer.over { color: var(--warn); }
+  .timer.finished { color: var(--ok); }
+
+  /* brief */
+  .brief { display: grid; min-width: 0; }
+  .tabs { display: flex; gap: 2px; padding: 6px 6px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .tab {
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
+  .tabpanel { padding: 14px 16px 18px; display: grid; gap: 12px; min-width: 0; }
+  .prose { display: grid; gap: 10px; }
+  .prose > * { margin: 0; max-width: 68ch; }
+  .prose ul, .prose ol { padding-left: 1.3em; display: grid; gap: 4px; }
+  .prose h3 { font-size: 14px; font-weight: 700; margin-top: 4px; }
+  .prose .bonus { padding: 8px 10px; border-radius: 8px; background: var(--surface-2); font-size: 13.5px; }
+  .prose .idea { padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; }
+  .sig { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12.5px; overflow-x: auto; white-space: pre; }
+  .testnames { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; font-size: 13px; color: var(--muted); }
+  .testnames li::before { content: "○ "; color: var(--faint); }
+  .testnames li.bonus::before { content: "☆ "; }
+  details.qa { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--surface); }
+  details.qa + details.qa { margin-top: -4px; }
+  details.qa summary { cursor: pointer; font-weight: 500; }
+  details.qa p { margin: 6px 0 2px; color: var(--muted); }
+  .anim-link { font-size: 13.5px; }
+  .answer-gate { display: grid; gap: 10px; justify-items: start; padding: 14px; border: 1px dashed var(--line); border-radius: 8px; }
+  .answer-gate p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .solution { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; overflow-x: auto; white-space: pre; }
+  .solution .c { color: var(--t-c); font-style: italic; }
+  .solution .k { color: var(--t-k); }
+  .solution .s { color: var(--t-s); }
+  .solution .n { color: var(--t-n); }
+
+  .boxes { display: flex; gap: 4px; }
+  .boxes i { width: 26px; height: 8px; border-radius: 4px; background: var(--heat-0); }
+  .boxes i.on { background: var(--ok); }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; font-size: 13.5px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; }
+  .history { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .history th, .history td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .history th { color: var(--muted); font-weight: 500; }
+  .history td.mono { font-variant-numeric: tabular-nums; }
+  .empty { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+  /* bench */
+  .bench { display: grid; min-width: 0; overflow: hidden; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .toolbar .spacer { flex: 1; }
+  .hint { font-size: 12px; color: var(--faint); }
+  .btn {
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 500; }
+  .btn.danger { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }
+  .btn.ghost { background: transparent; }
+  .editor-host { min-width: 0; }
+  /* editor: a native textarea (input, caret, selection) over a highlighted <pre> with the same metrics */
+  .ed {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    height: 440px;
+    background: var(--code-bg);
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  @media (max-width: 899px) { .ed { height: 360px; } }
+  .ed-gutter, .ed-hl, .ed-input {
+    font: inherit;
+    line-height: inherit;
+    font-variant-ligatures: none;
+    font-kerning: none;
+    letter-spacing: 0;
+    tab-size: 2;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+  .ed-gutter {
+    overflow: hidden;
+    margin: 0;
+    padding: 10px 10px 60px 12px;
+    min-width: 3.4em;
+    text-align: right;
+    color: var(--faint);
+    border-right: 1px solid var(--line);
+    white-space: pre;
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .ed-main { position: relative; overflow: hidden; min-width: 0; }
+  .ed-hl, .ed-input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .ed-hl { padding: 10px 60px 60px 12px; overflow: hidden; color: var(--ink); pointer-events: none; }
+  .ed-input {
+    padding: 10px 12px;
+    overflow: auto;
+    resize: none;
+    background: transparent;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: var(--ink);
+    outline: none;
+    box-shadow: none;
+    appearance: none;
+  }
+  .ed-input::selection { background: var(--select); color: transparent; -webkit-text-fill-color: transparent; }
+  .ed:focus-within { box-shadow: inset 0 0 0 2px var(--accent-soft); }
+  .ed-hl .c { color: var(--t-c); }
+  .ed-hl .k { color: var(--t-k); }
+  .ed-hl .s { color: var(--t-s); }
+  .ed-hl .n { color: var(--t-n); }
+
+  .results { border-top: 1px solid var(--line); padding: 12px 14px 14px; display: grid; gap: 10px; min-width: 0; }
+  .res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  .res-head strong { font-size: 14.5px; }
+  .res-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .res-count .ok { color: var(--ok); }
+  .res-count .bad { color: var(--bad); }
+  .banner { padding: 10px 12px; border-radius: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 14px; }
+  .banner.ok { background: var(--ok-soft); color: var(--ok); }
+  .banner.warn { background: var(--warn-soft); color: var(--warn); }
+  .banner .spacer { flex: 1; }
+  .fatal { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--bad-soft); color: var(--bad); font-family: var(--font-mono); font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .tests { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .test { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 8px; align-items: start; padding: 5px 6px; border-radius: 6px; font-size: 13.5px; }
+  .test .icon { font-family: var(--font-mono); font-weight: 600; text-align: center; }
+  .test.ok .icon { color: var(--ok); }
+  .test.bad { background: var(--bad-soft); }
+  .test.bad .icon { color: var(--bad); }
+  .test.running .icon { color: var(--accent); }
+  .test.pending .icon, .test.skipped .icon { color: var(--faint); }
+  .test .tag { font-size: 11px; color: var(--warn); border: 1px solid var(--warn); border-radius: 4px; padding: 0 4px; margin-left: 6px; }
+  .test .ms { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .test .msg { grid-column: 2 / -1; margin: 2px 0 0; font-family: var(--font-mono); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--bad); }
+  .console { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .console .warn { color: var(--warn); }
+  .console .error { color: var(--bad); }
+  .sub-label { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .placeholder { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .review { display: grid; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .review-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .review-text { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--surface-2); white-space: pre-wrap; font-size: 13.5px; line-height: 1.7; }
+  .review-note { font-size: 12.5px; color: var(--muted); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    transform: translateX(-50%);
+    max-width: min(520px, calc(100vw - 32px));
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 13.5px;
+    z-index: 10;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">{ }</span>
+      <div>
+        <h1>手撕练习场</h1>
+        <p>前端手写题 · S 档 8 道 + A 档 6 道 · 每天默写，自动安排复习</p>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="layout">
+    <aside class="rail">
+      <section class="card rail-sec" aria-labelledby="plan-title">
+        <div class="rail-head">
+          <h2 id="plan-title">今日练习</h2>
+          <label for="target">每天 <select id="target">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select> 道新题</label>
+        </div>
+        <ol class="plan" id="plan"></ol>
+      </section>
+      <section class="card rail-sec" aria-labelledby="all-title">
+        <h2 id="all-title">全部题目</h2>
+        <ul class="qlist" id="qlist"></ul>
+      </section>
+      <section class="card rail-sec" aria-labelledby="heat-title">
+        <h2 id="heat-title">最近 12 周</h2>
+        <div class="heat" id="heat" role="img" aria-label="最近 12 周每天完成的题数"></div>
+        <div class="heat-legend"><span>少</span><i></i><i style="background: color-mix(in srgb, var(--ok) 40%, var(--heat-0))"></i><i style="background: color-mix(in srgb, var(--ok) 70%, var(--heat-0))"></i><i style="background: var(--ok)"></i><span>多</span></div>
+        <p class="sync" id="sync" data-mode="connecting">正在连接你的账号…</p>
+      </section>
+    </aside>
+
+    <main class="work">
+      <section class="card qhead" id="qhead"></section>
+      <div class="panes">
+        <section class="card brief" aria-label="题目与讲解">
+          <div class="tabs" role="tablist" aria-label="题目信息">
+            <button class="tab" type="button" role="tab" id="tab-task" data-tab="task" aria-selected="true">题目</button>
+            <button class="tab" type="button" role="tab" id="tab-explain" data-tab="explain" aria-selected="false">讲解</button>
+            <button class="tab" type="button" role="tab" id="tab-answer" data-tab="answer" aria-selected="false">参考答案</button>
+            <button class="tab" type="button" role="tab" id="tab-record" data-tab="record" aria-selected="false">我的记录</button>
+          </div>
+          <div class="tabpanel" id="tabpanel" role="tabpanel"></div>
+        </section>
+        <section class="card bench" aria-label="代码与测试">
+          <div class="toolbar">
+            <button class="btn primary" type="button" id="run">运行测试</button>
+            <span class="hint">⌘ / Ctrl + Enter</span>
+            <span class="spacer"></span>
+            <button class="btn ghost" type="button" id="reset">清空重写</button>
+          </div>
+          <div class="editor-host" id="editor"></div>
+          <div class="results" id="results" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- ======================= starters & reference solutions ======================= -->
+<script type="text/plain" id="starter-debounce">
+// 防抖：停止调用满 delay 毫秒后，执行一次 fn（用最后一次的参数）
+// 进阶：immediate 为 true 时，每一轮只在开头立即执行一次
+function debounce(fn, delay, immediate = false) {
+
+}
+
+// 节流：第一次调用立即执行，之后每 delay 毫秒最多执行一次
+function throttle(fn, delay) {
+
+}
+</script>
+<script type="text/plain" id="solution-debounce">
+function debounce(fn, delay, immediate = false) {
+  let timer = null
+  return function (...args) {
+    const callNow = immediate && timer === null // timer 为空 = 新一轮的第一次
+    clearTimeout(timer) // 又触发了：取消上一个定时器
+    timer = setTimeout(() => {
+      timer = null // 一轮结束，下一次调用又算新一轮
+      if (!immediate) fn.apply(this, args) // 箭头函数沿用外层的 this
+    }, delay)
+    if (callNow) fn.apply(this, args)
+  }
+}
+
+// 时间戳版：第一次立即执行，冷却期内的调用直接忽略
+function throttle(fn, delay) {
+  let last = 0
+  return function (...args) {
+    const now = Date.now()
+    if (now - last >= delay) {
+      last = now
+      fn.apply(this, args)
+    }
+  }
+}
+</script>
+
+<script type="text/plain" id="starter-promise-all">
+// 实现 Promise.all
+function promiseAll(iterable) {
+
+}
+
+// 进阶（可选）
+function promiseAllSettled(iterable) {
+
+}
+
+function promiseRace(iterable) {
+
+}
+</script>
+<script type="text/plain" id="solution-promise-all">
+function promiseAll(iterable) {
+  return new Promise((resolve, reject) => {
+    const items = [...iterable] // 不可迭代会在这里抛错 → 自动变成 reject
+    const results = new Array(items.length)
+    let done = 0
+
+    if (items.length === 0) return resolve(results) // 否则永远 pending
+
+    items.forEach((item, i) => {
+      Promise.resolve(item).then((value) => {
+        results[i] = value // 按下标放，顺序与输入一致
+        done += 1 // 用计数判断完成，不能用 results.length
+        if (done === items.length) resolve(results)
+      }, reject) // 任意一个失败就整体失败
+    })
+  })
+}
+
+// allSettled：把每一项都变成"一定成功"的 promise，再交给 all
+function promiseAllSettled(iterable) {
+  return promiseAll(
+    [...iterable].map((item) =>
+      Promise.resolve(item).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (reason) => ({ status: 'rejected', reason }),
+      ),
+    ),
+  )
+}
+
+// race：谁先落定就跟谁
+function promiseRace(iterable) {
+  return new Promise((resolve, reject) => {
+    for (const item of iterable) Promise.resolve(item).then(resolve, reject)
+  })
+}
+</script>
+
+<script type="text/plain" id="starter-pool">
+// 最多同时运行 limit 个任务，一个完成立刻补上下一个
+// iteratee(item) 返回 Promise；全部完成后按输入顺序返回结果
+async function asyncPool(limit, items, iteratee) {
+
+}
+
+// 进阶（可选）：调度器，最多同时运行 max 个任务
+// scheduler.add(() => promise) 返回一个 Promise，任务完成时 resolve
+class Scheduler {
+  constructor(max) {
+
+  }
+
+  add(task) {
+
+  }
+}
+</script>
+<script type="text/plain" id="solution-pool">
+async function asyncPool(limit, items, iteratee) {
+  const results = new Array(items.length)
+  let next = 0 // 共享游标：下一个待领取的下标
+
+  async function worker() {
+    while (next < items.length) {
+      const i = next++ // 判断和领取在同一段同步代码里，不会撞车
+      results[i] = await iteratee(items[i], i) // 等它完成再领下一个
+    }
+  }
+
+  const count = Math.min(limit, items.length)
+  await Promise.all(Array.from({ length: count }, worker)) // 所有 worker 收工 = 全部完成
+  return results
+}
+
+class Scheduler {
+  constructor(max) {
+    this.max = max
+    this.running = 0
+    this.queue = []
+  }
+
+  add(task) {
+    return new Promise((resolve, reject) => {
+      // 先把 resolve / reject 存起来，轮到这个任务时再兑现
+      this.queue.push({ task, resolve, reject })
+      this.run()
+    })
+  }
+
+  run() {
+    while (this.running < this.max && this.queue.length > 0) {
+      const { task, resolve, reject } = this.queue.shift()
+      this.running += 1
+      Promise.resolve()
+        .then(task) // task 同步抛错也会变成 rejection
+        .then(resolve, reject)
+        .finally(() => {
+          this.running -= 1 // 必须用 finally：失败也要释放位置
+          this.run()
+        })
+    }
+  }
+}
+</script>
+
+<script type="text/plain" id="starter-deep-clone">
+// 深拷贝：对象和数组要逐层复制，并且能处理循环引用
+// 进阶：Date、RegExp、Map、Set
+function deepClone(value) {
+
+}
+</script>
+<script type="text/plain" id="solution-deep-clone">
+function deepClone(value, seen = new WeakMap()) {
+  // 基本类型（包括 null）和函数：直接返回
+  if (value === null || typeof value !== 'object') return value
+
+  if (value instanceof Date) return new Date(value)
+  if (value instanceof RegExp) return new RegExp(value.source, value.flags)
+
+  // 拷过了：直接复用，循环在这里被截断
+  if (seen.has(value)) return seen.get(value)
+
+  if (value instanceof Map) {
+    const copy = new Map()
+    seen.set(value, copy)
+    value.forEach((v, k) => copy.set(deepClone(k, seen), deepClone(v, seen)))
+    return copy
+  }
+  if (value instanceof Set) {
+    const copy = new Set()
+    seen.set(value, copy)
+    value.forEach((v) => copy.add(deepClone(v, seen)))
+    return copy
+  }
+
+  const copy = Array.isArray(value) ? [] : Object.create(Object.getPrototypeOf(value))
+  seen.set(value, copy) // 先登记，再递归
+  for (const key of Reflect.ownKeys(value)) {
+    copy[key] = deepClone(value[key], seen)
+  }
+  return copy
+}
+</script>
+
+<script type="text/plain" id="starter-call-bind">
+// context 为 null / undefined 时 this 指向 globalThis；原始值要包装成对象
+Function.prototype.myCall = function (context, ...args) {
+
+}
+
+Function.prototype.myApply = function (context, args) {
+
+}
+
+// 返回新函数：绑定 this，支持预置参数
+// 进阶：被 new 调用时忽略绑定的 this
+Function.prototype.myBind = function (context, ...preset) {
+
+}
+</script>
+<script type="text/plain" id="solution-call-bind">
+Function.prototype.myCall = function (context, ...args) {
+  if (typeof this !== 'function') throw new TypeError('myCall must be called on a function')
+  const ctx = context == null ? globalThis : Object(context) // == null 同时覆盖 null 和 undefined
+  const key = Symbol('fn') // 独一无二的临时键
+  ctx[key] = this // this 就是要调用的函数
+  try {
+    return ctx[key](...args) // 方法调用 → 函数里的 this = ctx
+  } finally {
+    delete ctx[key] // 抛错也会清理
+  }
+}
+
+Function.prototype.myApply = function (context, args = []) {
+  return this.myCall(context, ...args)
+}
+
+Function.prototype.myBind = function (context, ...preset) {
+  const fn = this
+  function bound(...rest) {
+    const isNew = this instanceof bound // 是不是被 new 调用
+    return fn.apply(isNew ? this : context, [...preset, ...rest])
+  }
+  // 让 new bound() 的实例能沿原型链找到 fn.prototype（箭头函数没有 prototype）
+  if (fn.prototype) bound.prototype = Object.create(fn.prototype)
+  return bound
+}
+</script>
+
+<script type="text/plain" id="starter-emitter">
+class EventEmitter {
+  constructor() {
+
+  }
+
+  on(name, fn) {
+
+  }
+
+  off(name, fn) {
+
+  }
+
+  once(name, fn) {
+
+  }
+
+  emit(name, ...args) {
+
+  }
+}
+</script>
+<script type="text/plain" id="solution-emitter">
+class EventEmitter {
+  constructor() {
+    this.events = new Map() // 事件名 → 回调数组
+  }
+
+  on(name, fn) {
+    if (!this.events.has(name)) this.events.set(name, [])
+    this.events.get(name).push(fn)
+    return this
+  }
+
+  off(name, fn) {
+    const list = this.events.get(name)
+    if (!list) return this
+    if (fn === undefined) {
+      this.events.delete(name) // 不传 fn：清空这个事件
+      return this
+    }
+    // f.raw === fn：用原函数也能删掉 once 注册的 wrapper
+    const index = list.findIndex((f) => f === fn || f.raw === fn)
+    if (index !== -1) list.splice(index, 1)
+    return this
+  }
+
+  once(name, fn) {
+    const wrapper = (...args) => {
+      this.off(name, wrapper) // 先删自己，再执行
+      fn.apply(this, args)
+    }
+    wrapper.raw = fn
+    return this.on(name, wrapper)
+  }
+
+  emit(name, ...args) {
+    const list = this.events.get(name)
+    if (!list || list.length === 0) return false
+    for (const f of [...list]) f.apply(this, args) // 遍历副本
+    return true
+  }
+}
+</script>
+
+<script type="text/plain" id="starter-new">
+// 模拟 new Ctor(...args)
+function myNew(Ctor, ...args) {
+
+}
+</script>
+<script type="text/plain" id="solution-new">
+function myNew(Ctor, ...args) {
+  if (typeof Ctor !== 'function' || !Ctor.prototype) {
+    throw new TypeError('myNew: Ctor is not a constructor')
+  }
+  const obj = Object.create(Ctor.prototype) // 1. 建对象 + 连原型
+  const result = Ctor.apply(obj, args) // 2. 以 obj 为 this 执行构造函数
+  const isObject = result !== null && (typeof result === 'object' || typeof result === 'function')
+  return isObject ? result : obj // 3 / 4. 返回对象就用它，否则用 obj
+}
+</script>
+
+<script type="text/plain" id="starter-tree">
+// list: [{ id, pid, ...其他字段 }]，pid 等于 rootPid 的是根节点
+// 返回根节点数组，每个节点都有 children 数组；不要修改传入的 list
+function arrayToTree(list, rootPid = 0) {
+
+}
+</script>
+<script type="text/plain" id="solution-tree">
+function arrayToTree(list, rootPid = 0) {
+  const map = new Map()
+  for (const item of list) {
+    map.set(item.id, { ...item, children: [] }) // 第一遍：只建节点，不改入参
+  }
+
+  const roots = []
+  for (const item of list) {
+    const node = map.get(item.id)
+    if (item.pid === rootPid) roots.push(node)
+    else map.get(item.pid)?.children.push(node) // 第二遍：挂到父节点下；孤儿直接忽略
+  }
+  return roots
+}
+</script>
+
+
+<script type="text/plain" id="starter-instanceof">
+// 判断 Right.prototype 是否在 left 的原型链上，结果和 left instanceof Right 一致
+function myInstanceof(left, Right) {
+
+}
+</script>
+<script type="text/plain" id="solution-instanceof">
+function myInstanceof(left, Right) {
+  if (typeof Right !== 'function') throw new TypeError("Right-hand side of 'instanceof' is not callable")
+  // 原始值没有原型链；函数也是对象，要放行
+  if (left === null || (typeof left !== 'object' && typeof left !== 'function')) return false
+  let proto = Object.getPrototypeOf(left)
+  while (proto !== null) {
+    if (proto === Right.prototype) return true
+    proto = Object.getPrototypeOf(proto) // 往上走一层
+  }
+  return false // 走到原型链尽头还没找到
+}
+</script>
+
+<script type="text/plain" id="starter-inherit">
+// 父类（不用改）
+function Animal(name) {
+  this.name = name
+  this.tags = []
+}
+Animal.prototype.sayName = function () {
+  return 'I am ' + this.name
+}
+
+// 1. 让 Child.prototype 继承 Parent.prototype，并把 constructor 指回 Child（不能调用 Parent）
+function inherit(Child, Parent) {
+
+}
+
+// 2. 用寄生组合式继承实现 Dog：继承 Animal 的实例属性和原型方法
+function Dog(name, breed) {
+
+}
+
+// 下面两段保持原样：先 inherit，再往 Dog.prototype 上加方法
+inherit(Dog, Animal)
+Dog.prototype.bark = function () {
+  return this.name + ': woof'
+}
+</script>
+<script type="text/plain" id="solution-inherit">
+function Animal(name) {
+  this.name = name
+  this.tags = []
+}
+Animal.prototype.sayName = function () {
+  return 'I am ' + this.name
+}
+
+function inherit(Child, Parent) {
+  // 原型继承：新对象的原型指向 Parent.prototype，不会执行 Parent
+  Child.prototype = Object.create(Parent.prototype, {
+    constructor: { value: Child, writable: true, configurable: true }, // 不可枚举，和原生一致
+  })
+  // 进阶：静态方法也继承（class extends 也会这样做）
+  Object.setPrototypeOf(Child, Parent)
+}
+
+function Dog(name, breed) {
+  Animal.call(this, name) // 借用构造函数：实例属性每个实例各一份
+  this.breed = breed
+}
+
+inherit(Dog, Animal)
+Dog.prototype.bark = function () {
+  return this.name + ': woof'
+}
+</script>
+
+<script type="text/plain" id="starter-curry">
+// 参数凑够 fn.length 个就执行 fn，否则返回一个继续收参数的函数
+function curry(fn) {
+
+}
+
+// 进阶（可选）：无限累加，add(1)(2)(3)() === 6，空调用时求和
+function add(...args) {
+
+}
+</script>
+<script type="text/plain" id="solution-curry">
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) return fn.apply(this, args) // 参数够了：执行
+    return (...rest) => curried.apply(this, [...args, ...rest]) // 不够：拼出新数组，继续收
+  }
+}
+
+function add(...args) {
+  // 每次返回一个新函数；空调用时把收集到的参数加起来
+  return (...rest) => (rest.length === 0 ? args.reduce((a, b) => a + b, 0) : add(...args, ...rest))
+}
+</script>
+
+<script type="text/plain" id="starter-flat">
+// 按 depth 展开嵌套数组（和 Array.prototype.flat 一样），不能修改原数组
+function flat(arr, depth = 1) {
+
+}
+
+// 进阶（可选）：{ a: { b: 1 }, c: [1, { d: 2 }] } → { 'a.b': 1, 'c[0]': 1, 'c[1].d': 2 }
+function flattenObject(obj) {
+
+}
+</script>
+<script type="text/plain" id="solution-flat">
+function flat(arr, depth = 1) {
+  const result = []
+  for (const item of arr) {
+    // 还能展开：递归，depth 减 1；Infinity - 1 仍是 Infinity
+    if (Array.isArray(item) && depth > 0) result.push(...flat(item, depth - 1))
+    else result.push(item)
+  }
+  return result
+}
+
+function flattenObject(obj) {
+  const result = {}
+  const walk = (value, path) => {
+    const isContainer = value !== null && typeof value === 'object'
+    if (!isContainer || Object.keys(value).length === 0) {
+      if (path) result[path] = value // 叶子：基本类型、空对象、空数组
+      return
+    }
+    for (const [key, child] of Object.entries(value)) {
+      let next = key
+      if (Array.isArray(value)) next = `${path}[${key}]` // 数组下标写成 [i]
+      else if (path) next = `${path}.${key}`
+      walk(child, next)
+    }
+  }
+  walk(obj, '')
+  return result
+}
+</script>
+
+<script type="text/plain" id="starter-array-api">
+// 回调参数是 (item, index, array)；myMap / myFilter 支持第二个参数 thisArg
+Array.prototype.myMap = function (callback, thisArg) {
+
+}
+
+Array.prototype.myFilter = function (callback, thisArg) {
+
+}
+
+// 没传初始值时，用第一项当初始值；空数组又没传初始值要抛 TypeError
+Array.prototype.myReduce = function (callback, initialValue) {
+
+}
+</script>
+<script type="text/plain" id="solution-array-api">
+Array.prototype.myMap = function (callback, thisArg) {
+  const result = new Array(this.length)
+  for (let i = 0; i < this.length; i++) {
+    if (i in this) result[i] = callback.call(thisArg, this[i], i, this) // i in this：跳过空位
+  }
+  return result
+}
+
+Array.prototype.myFilter = function (callback, thisArg) {
+  const result = []
+  for (let i = 0; i < this.length; i++) {
+    if (i in this && callback.call(thisArg, this[i], i, this)) result.push(this[i])
+  }
+  return result
+}
+
+Array.prototype.myReduce = function (callback, initialValue) {
+  let i = 0
+  let acc
+  if (arguments.length >= 2) {
+    acc = initialValue // 传了初始值（哪怕是 undefined）
+  } else {
+    while (i < this.length && !(i in this)) i++ // 跳过开头的空位
+    if (i >= this.length) throw new TypeError('Reduce of empty array with no initial value')
+    acc = this[i]
+    i++
+  }
+  for (; i < this.length; i++) {
+    if (i in this) acc = callback(acc, this[i], i, this)
+  }
+  return acc
+}
+</script>
+
+<script type="text/plain" id="starter-big-add">
+// a、b 是非负整数字符串，可能很长；返回它们的和（字符串），不能用 BigInt
+function addStrings(a, b) {
+
+}
+</script>
+<script type="text/plain" id="solution-big-add">
+function addStrings(a, b) {
+  let i = a.length - 1
+  let j = b.length - 1
+  let carry = 0 // 进位
+  const digits = []
+  while (i >= 0 || j >= 0 || carry > 0) {
+    const x = i >= 0 ? Number(a[i]) : 0 // 短的那个走完了就当 0
+    const y = j >= 0 ? Number(b[j]) : 0
+    const sum = x + y + carry
+    digits.push(sum % 10) // 当前位
+    carry = Math.floor(sum / 10)
+    i--
+    j--
+  }
+  // 进阶：去掉前导 0，至少保留一位
+  while (digits.length > 1 && digits[digits.length - 1] === 0) digits.pop()
+  return digits.reverse().join('')
+}
+</script>
+
+<script>
+(() => {
+  'use strict'
+
+  const ANIM_URL = 'https://claude.ai/artifact/DBAZb4L1WCqvYreuW3WCWN'
+  // Days until the next review after landing in each box (0 = needed help, 5 = long-term)
+  const INTERVALS = [1, 1, 3, 7, 14, 30]
+  const MAX_BOX = 5
+  const MASTERED_BOX = 3
+  const HISTORY_LIMIT = 50
+  const LOG_LIMIT = 200
+  const DEFAULT_TIMEOUT = 2000
+
+  /* ======================= questions ======================= */
+  const QUESTIONS = [
+    {
+      id: 'debounce',
+      title: '防抖 / 节流',
+      minutes: 10,
+      anim: 'debounce',
+      exports: ['debounce', 'throttle'],
+      task: `
+        <p>实现两个函数，都返回一个新函数：</p>
+        <ul>
+          <li><code>debounce(fn, delay)</code>：连续调用时不执行，<b>停止调用满 delay 毫秒后</b>执行一次 fn，参数用最后一次调用的。</li>
+          <li><code>throttle(fn, delay)</code>：<b>第一次调用立即执行</b>，之后每 delay 毫秒内最多执行一次，冷却期内的调用直接忽略。</li>
+        </ul>
+        <p>两个函数都要把调用时的 <code>this</code> 和参数原样传给 fn。</p>
+        <p class="bonus">进阶：<code>debounce(fn, delay, true)</code> 是立即执行版，每一轮连续调用只在开头执行一次。</p>`,
+      idea: '防抖是"等你停下来再做一次"：每次调用都 clearTimeout，再重新 setTimeout。节流是"按固定节奏做"：记下上次执行的时间，冷却没结束就忽略。',
+      points: [
+        '返回的函数要用普通 <code>function</code>，才能拿到调用者的 this；setTimeout 里用箭头函数，this 会沿用外层的。',
+        '用 <code>fn.apply(this, args)</code> 把 this 和参数原样传下去。',
+        '立即执行版用 <code>timer === null</code> 判断"新一轮的第一次"，定时器到期时把 timer 置回 null。',
+        '节流时间戳版第一次立即执行，停下后的最后一次会丢；定时器版正好相反；两头都要就把两种写法合起来。',
+      ],
+      pitfalls: [
+        '返回箭头函数，导致 this 丢失。',
+        '立即执行版把复位标志放在定时器回调里，而"立即执行"那次没设定时器：一轮只调用一次时标志永远不复位，下一轮不再立即执行。',
+        '节流忘了更新 last，结果每次都执行。',
+      ],
+      followups: [
+        ['React 里怎么用防抖？', '用 useRef 保存 timer 和最新的回调，用 useCallback 让返回的函数引用稳定，组件卸载时 clearTimeout。不要每次渲染都重新创建防抖函数。'],
+        ['怎么支持取消？', '给返回的函数挂一个 <code>cancel</code> 方法，里面 clearTimeout 并把 timer 置空。'],
+        ['滚动动画适合用什么节流？', 'requestAnimationFrame：每帧最多执行一次，和屏幕刷新同步。'],
+      ],
+      tests: [
+        {
+          name: 'debounce：连续调用期间不执行，停下后只执行最后一次',
+          run: async ({ debounce }, { eq, sleep }) => {
+            const calls = []
+            const d = debounce((x) => calls.push(x), 50)
+            d(1); await sleep(15); d(2); await sleep(15); d(3)
+            eq(calls, [], '连续调用期间不应该执行')
+            await sleep(100)
+            eq(calls, [3], '停下来之后应该只执行一次，参数是最后一次的')
+          },
+        },
+        {
+          name: 'debounce：两轮调用之间停够了，各执行一次',
+          run: async ({ debounce }, { eq, sleep }) => {
+            const calls = []
+            const d = debounce((x) => calls.push(x), 40)
+            d(1); await sleep(100); d(2); await sleep(100)
+            eq(calls, [1, 2])
+          },
+        },
+        {
+          name: 'debounce：this 和参数原样传给 fn',
+          run: async ({ debounce }, { eq, sleep }) => {
+            const seen = []
+            const obj = { name: 'Tom' }
+            obj.run = debounce(function (a, b) { seen.push([this && this.name, a, b]) }, 30)
+            obj.run(1, 2)
+            await sleep(90)
+            eq(seen, [['Tom', 1, 2]], 'fn 里的 this 应该是 obj，参数应该是 (1, 2)')
+          },
+        },
+        {
+          name: 'throttle：第一次调用立即执行',
+          run: ({ throttle }, { eq }) => {
+            const calls = []
+            const t = throttle((x) => calls.push(x), 50)
+            t(1)
+            eq(calls, [1], '第一次调用应该同步执行')
+          },
+        },
+        {
+          name: 'throttle：冷却期内不会立刻再执行，冷却后能再执行',
+          run: async ({ throttle }, { eq, ok, sleep }) => {
+            const calls = []
+            const t = throttle((x) => calls.push(x), 60)
+            t(1); await sleep(10); t(2); await sleep(10); t(3)
+            eq(calls, [1], '冷却期内的调用不应该立刻执行')
+            await sleep(140)
+            ok(calls.length <= 2, `冷却期内的多次调用最多补执行一次，实际执行了 ${calls.length} 次`)
+            t(4)
+            await sleep(100)
+            eq(calls[calls.length - 1], 4, '冷却结束后再调用，应该能执行')
+          },
+        },
+        {
+          name: 'throttle：this 和参数原样传给 fn',
+          run: ({ throttle }, { eq }) => {
+            const seen = []
+            const obj = { name: 'Tom' }
+            obj.run = throttle(function (a, b) { seen.push([this && this.name, a, b]) }, 50)
+            obj.run(1, 2)
+            eq(seen, [['Tom', 1, 2]], 'fn 里的 this 应该是 obj，参数应该是 (1, 2)')
+          },
+        },
+        {
+          name: '立即执行版：每一轮只在开头执行一次',
+          bonus: true,
+          run: async ({ debounce }, { eq, sleep }) => {
+            const calls = []
+            const d = debounce((x) => calls.push(x), 50, true)
+            d(1); await sleep(10); d(2); await sleep(10); d(3)
+            eq(calls, [1], '一轮里只有第一次立即执行')
+            await sleep(100)
+            eq(calls, [1], '立即执行版在一轮结束时不应该再补执行')
+            d(4)
+            eq(calls, [1, 4], '停够之后的新一轮，第一次应该立即执行')
+          },
+        },
+      ],
+    },
+    {
+      id: 'promise-all',
+      title: 'Promise.all',
+      minutes: 10,
+      anim: 'promise-all',
+      exports: ['promiseAll', 'promiseAllSettled', 'promiseRace'],
+      task: `
+        <p>实现 <code>promiseAll(iterable)</code>，行为和原生 <code>Promise.all</code> 一致：</p>
+        <ul>
+          <li>返回一个新的 Promise。</li>
+          <li>全部成功时，resolve 一个结果数组，<b>顺序和输入一致</b>，与完成先后无关。</li>
+          <li>元素可以是普通值，也可以是 Promise。</li>
+          <li>任意一个失败，<b>立即 reject</b>，原因是第一个失败的那个。</li>
+          <li>空输入立即 resolve <code>[]</code>。</li>
+          <li>入参可以是任意可迭代对象（数组、Set、字符串）；不可迭代时返回 rejected Promise，而不是同步抛错。</li>
+        </ul>
+        <p class="bonus">进阶：<code>promiseAllSettled(iterable)</code> 和 <code>promiseRace(iterable)</code>。</p>`,
+      idea: '自己 new 一个 Promise，用下标存结果、用计数器判断完成：存结果和判断完成是两件事。',
+      points: [
+        '<code>results[i] = value</code> 按下标存，结果顺序与输入一致。',
+        '用独立的 <code>done</code> 计数器判断全部完成，不能用 results.length。',
+        '<code>Promise.resolve(item)</code> 统一包装普通值和 thenable。',
+        '空输入立即 resolve([])，否则 forEach 一次都不执行，永远 pending。',
+        '<code>[...iterable]</code> 放在 executor 里：不可迭代时抛出的错误会自动变成 reject。',
+        '不需要"已结束"标志：Promise 落定后，再调 resolve / reject 都会被忽略。',
+      ],
+      pitfalls: [
+        '<code>results.push(value)</code>：顺序变成了完成顺序。',
+        '<code>if (results.length === n)</code>：最后一个下标先完成，length 就已经等于 n，会提前 resolve。',
+        '直接写 <code>item.then(...)</code>：普通值没有 then 方法。',
+        'for...of 里依次 await：失败时不能立即 reject。',
+        '用 <code>Array.from</code> 转换：<code>Array.from(123)</code> 得到 []，函数会 resolve，而原生会 reject。',
+      ],
+      followups: [
+        ['可迭代对象转数组有哪些方法？', '<code>[...x]</code>、<code>Array.from(x)</code>、for...of 手动 push。Array.from 还接受类数组，并支持第二个映射参数。'],
+        ['一个失败后，其他 promise 会停吗？', '不会。Promise 不能取消，后面的结果只是被忽略；真要取消请求用 AbortController。'],
+        ['allSettled、race、any 有什么区别？', 'allSettled 等全部结束，永远不失败；race 跟随第一个落定的；any 取第一个成功的，全部失败才 reject AggregateError。'],
+      ],
+      tests: [
+        {
+          name: '返回一个 Promise',
+          run: ({ promiseAll }, { ok }) => {
+            const p = promiseAll([1])
+            ok(p && typeof p.then === 'function', '应该返回一个 Promise')
+            return p
+          },
+        },
+        {
+          name: '结果顺序与输入一致，与完成先后无关',
+          run: async ({ promiseAll }, { eq, delay }) => {
+            eq(await promiseAll([delay('a', 60), delay('b', 10), delay('c', 30)]), ['a', 'b', 'c'])
+          },
+        },
+        {
+          name: '数组里可以混着普通值',
+          run: async ({ promiseAll }, { eq }) => {
+            eq(await promiseAll([1, Promise.resolve(2), 3]), [1, 2, 3])
+          },
+        },
+        {
+          name: '空数组立即 resolve([])',
+          run: async ({ promiseAll }, { eq, timeout }) => {
+            eq(await timeout(promiseAll([]), 300, '空数组时 Promise 一直没有 resolve'), [])
+          },
+        },
+        {
+          name: '任意一个失败，立即 reject，原因是失败的那个',
+          run: async ({ promiseAll }, { eq, ok, rejects, delay }) => {
+            const start = Date.now()
+            const reason = await rejects(promiseAll([delay('slow', 300), delay('boom', 20, true)]))
+            eq(reason, 'boom', 'reject 的原因应该是失败的那个')
+            const ms = Date.now() - start
+            ok(ms < 200, `应该在失败时立即 reject，实际等了 ${ms}ms`)
+          },
+        },
+        {
+          name: '支持 Set、字符串等可迭代对象',
+          run: async ({ promiseAll }, { eq }) => {
+            eq(await promiseAll(new Set([1, 2])), [1, 2], '传入 Set')
+            eq(await promiseAll('ab'), ['a', 'b'], '传入字符串')
+          },
+        },
+        {
+          name: '参数不可迭代时返回 rejected Promise，而不是同步抛错',
+          run: async ({ promiseAll }, { rejects, fail }) => {
+            let p
+            try {
+              p = promiseAll(123)
+            } catch (e) {
+              fail(`同步抛出了错误：${e && e.message}。应该返回一个 rejected Promise`)
+            }
+            await rejects(p, '传入 123 应该得到一个 rejected Promise')
+          },
+        },
+        {
+          name: 'promiseAllSettled：成功和失败都记录下来',
+          bonus: true,
+          run: async ({ promiseAllSettled }, { eq, ok, delay }) => {
+            ok(typeof promiseAllSettled === 'function', '还没有实现 promiseAllSettled')
+            const res = await promiseAllSettled([1, Promise.reject('x'), delay('y', 20)])
+            eq(res, [
+              { status: 'fulfilled', value: 1 },
+              { status: 'rejected', reason: 'x' },
+              { status: 'fulfilled', value: 'y' },
+            ])
+          },
+        },
+        {
+          name: 'promiseRace：跟随第一个落定的',
+          bonus: true,
+          run: async ({ promiseRace }, { eq, ok, rejects, delay }) => {
+            ok(typeof promiseRace === 'function', '还没有实现 promiseRace')
+            eq(await promiseRace([delay('slow', 60), delay('fast', 10)]), 'fast')
+            eq(await rejects(promiseRace([delay('slow', 60), delay('err', 10, true)])), 'err')
+          },
+        },
+      ],
+    },
+    {
+      id: 'pool',
+      title: '异步并发数限制',
+      minutes: 12,
+      anim: 'pool',
+      exports: ['asyncPool', 'Scheduler'],
+      task: `
+        <p>实现 <code>asyncPool(limit, items, iteratee)</code>：</p>
+        <ul>
+          <li>对每个 item 调用 <code>iteratee(item)</code>，它返回一个 Promise。</li>
+          <li><b>同时运行的任务不超过 limit 个</b>；一个完成就立刻开始下一个，不是一批一批地跑。</li>
+          <li>全部完成后，resolve 结果数组，顺序和 items 一致。</li>
+          <li>任意一个任务失败，返回的 Promise reject。</li>
+        </ul>
+        <p class="bonus">进阶：调度器类 <code>new Scheduler(max)</code>，<code>scheduler.add(() =&gt; promise)</code> 返回一个 Promise，最多同时运行 max 个。经典题：耗时 1000 / 500 / 300 / 400ms 的四个任务，max = 2，完成顺序是 2 3 1 4。</p>`,
+      idea: '开 limit 个 worker，每个 worker 循环"领一个任务 → await 它完成 → 再领下一个"，直到任务领完。',
+      points: [
+        '并发数由 worker 的个数决定；每个 worker 内部是串行的，一个结束就自动补位。',
+        '<code>const i = next++</code> 不会被两个 worker 同时领到：JS 单线程，判断和领取之间没有 await。',
+        '<code>results[i]</code> 按下标存：完成顺序是 2 3 1 4，结果仍按输入顺序排列。',
+        '要传入"返回 Promise 的函数"，不能直接传 Promise：Promise 一创建就已经在跑了。',
+      ],
+      pitfalls: [
+        '每 limit 个分一批，用 Promise.all：慢任务会拖住整批（经典题分批 1400ms，并发池 1200ms）。',
+        '<code>results.push</code>：顺序变成完成顺序。',
+        '检查和领取分开写（比如 i++ 放在 then 回调里）：可能重复领取，甚至死循环。',
+        '调度器版在 then 里释放位置：任务失败时 running 不减，最终卡死，要用 finally。',
+      ],
+      followups: [
+        ['一个任务失败了怎么办？', '默认整体 reject，但其他 worker 还会继续领任务。想失败就停，加一个共享的 failed 标志；想全部跑完再汇总，在 worker 里 try/catch，存 { status, value / reason }。'],
+        ['怎么加超时和重试？', '每个任务外面包一层 Promise.race 加超时；iteratee 外面套 retry(fn, times)。'],
+        ['实际用在哪？', '大文件分片上传、批量请求、图片预加载。'],
+      ],
+      tests: [
+        {
+          name: '结果顺序与输入一致',
+          run: async ({ asyncPool }, { eq, sleep }) => {
+            const res = await asyncPool(2, [60, 20, 40, 10], async (ms) => { await sleep(ms); return ms * 2 })
+            eq(res, [120, 40, 80, 20])
+          },
+        },
+        {
+          name: '同时运行的任务数不超过 limit，并且能跑满 limit',
+          run: async ({ asyncPool }, { eq, sleep }) => {
+            let active = 0
+            let peak = 0
+            await asyncPool(2, [30, 30, 30, 30, 30], async (ms) => {
+              active += 1
+              peak = Math.max(peak, active)
+              await sleep(ms)
+              active -= 1
+              return ms
+            })
+            eq(peak, 2, '同时在跑的任务数，峰值应该等于 limit')
+          },
+        },
+        {
+          name: '一个任务完成就立刻补上下一个（不是分批）',
+          timeout: 3000,
+          run: async ({ asyncPool }, { ok, sleep }) => {
+            const start = Date.now()
+            await asyncPool(2, [200, 100, 60, 80], async (ms) => { await sleep(ms); return ms })
+            const ms = Date.now() - start
+            ok(ms < 262, `总耗时 ${ms}ms。并发池应该约 240ms，分批执行约 280ms`)
+          },
+        },
+        {
+          name: '空数组返回 []',
+          run: async ({ asyncPool }, { eq, timeout }) => {
+            eq(await timeout(asyncPool(2, [], async (x) => x), 300, '空数组时一直没有完成'), [])
+          },
+        },
+        {
+          name: 'limit 大于任务数时也能正常完成',
+          run: async ({ asyncPool }, { eq, timeout }) => {
+            eq(await timeout(asyncPool(10, [1, 2, 3], async (x) => x * 10), 500, '一直没有完成'), [10, 20, 30])
+          },
+        },
+        {
+          name: '某个任务失败时，返回的 Promise reject',
+          run: async ({ asyncPool }, { ok, rejects, sleep }) => {
+            const err = await rejects(asyncPool(2, [10, 20, 30], async (ms) => {
+              await sleep(ms)
+              if (ms === 20) throw new Error('task failed')
+              return ms
+            }))
+            ok(err && err.message === 'task failed', '应该用任务抛出的错误 reject')
+          },
+        },
+        {
+          name: 'Scheduler：经典题输出 2 3 1 4',
+          bonus: true,
+          run: async ({ Scheduler }, { eq, sleep }) => {
+            const order = []
+            const scheduler = new Scheduler(2)
+            const add = (ms, name) => scheduler.add(() => sleep(ms)).then(() => order.push(name))
+            await Promise.all([add(100, '1'), add(50, '2'), add(30, '3'), add(40, '4')])
+            eq(order, ['2', '3', '1', '4'])
+          },
+        },
+      ],
+    },
+    {
+      id: 'deep-clone',
+      title: '深拷贝',
+      minutes: 10,
+      anim: 'deep-clone',
+      exports: ['deepClone'],
+      task: `
+        <p>实现 <code>deepClone(value)</code>：</p>
+        <ul>
+          <li>基本类型（包括 null、undefined）原样返回。</li>
+          <li>对象和数组<b>逐层复制</b>，每一层都是新对象；数组拷贝后仍然是数组。</li>
+          <li>修改拷贝不能影响原对象。</li>
+          <li><b>能处理循环引用</b>：<code>obj.self = obj</code> 时，拷贝结果的 self 指向拷贝自己。</li>
+        </ul>
+        <p class="bonus">进阶：正确拷贝 Date、RegExp、Map、Set。</p>`,
+      idea: '遇到对象就新建同类型的空容器，把每个属性递归拷进去；用一张表记住"这个对象已经拷过了"，处理循环引用。',
+      points: [
+        '基本类型（包括 null）和函数直接返回。',
+        '先查 seen；没拷过就新建 copy，<b>先 seen.set(value, copy)，再递归属性</b>。',
+        '<code>Array.isArray</code> 区分数组和普通对象。',
+        '这里用 Map 和 WeakMap 都可以：seen 每次调用都新建，函数返回后整张表一起被回收。WeakMap 的弱引用只在 seen 跨调用长期存在（比如做成全局缓存）时才有意义。',
+        '进阶：Date、RegExp 单独构造；Map、Set 逐项递归；<code>Reflect.ownKeys</code> 能拿到 Symbol 键。',
+      ],
+      pitfalls: [
+        '没处理循环引用：<code>obj.self = obj</code> 时无限递归，栈溢出。',
+        '先递归再 seen.set：顺序反了，循环引用照样死循环。',
+        '<code>typeof null === \'object\'</code>：忘了排除 null。',
+        'for...in 不加 hasOwnProperty：会把原型链上的属性也拷过来。',
+      ],
+      followups: [
+        ['JSON.parse(JSON.stringify()) 有什么问题？', '丢掉 undefined、函数、Symbol；Date 变字符串；RegExp、Map、Set 变 {}；NaN、Infinity 变 null；遇到循环引用直接报错。'],
+        ['浏览器有原生的深拷贝吗？', '<code>structuredClone</code>：支持循环引用、Date、Map、Set，但不能拷贝函数和 DOM 节点，也不保留原型。'],
+        ['为什么用 WeakMap，Map 不行吗？', '这里 Map 也行，先承认这一点；再说明 WeakMap 的优势在缓存跨调用长期存在时：键是弱引用，不会阻止原对象被回收，Map 会造成内存泄漏。'],
+      ],
+      tests: [
+        {
+          name: '基本类型原样返回',
+          run: ({ deepClone }, { eq }) => {
+            for (const v of [1, 'str', true, null, undefined]) eq(deepClone(v), v, `deepClone(${String(v)}) 应该原样返回`)
+          },
+        },
+        {
+          name: '嵌套对象被完整复制，每一层都是新对象',
+          run: ({ deepClone }, { eq, ok }) => {
+            const src = { a: 1, b: { c: [1, 2, { d: 3 }] } }
+            const copy = deepClone(src)
+            eq(copy, src, '拷贝的内容应该和原对象一样')
+            ok(copy !== src, '最外层应该是新对象')
+            ok(copy.b !== src.b, 'copy.b 应该是新对象')
+            ok(copy.b.c !== src.b.c, 'copy.b.c 应该是新数组')
+            ok(copy.b.c[2] !== src.b.c[2], 'copy.b.c[2] 应该是新对象')
+          },
+        },
+        {
+          name: '数组拷贝后仍然是数组',
+          run: ({ deepClone }, { ok }) => {
+            ok(Array.isArray(deepClone([1, [2]])), '最外层数组拷贝后应该还是数组')
+            ok(Array.isArray(deepClone({ list: [1] }).list), '对象里的数组拷贝后应该还是数组')
+          },
+        },
+        {
+          name: '修改拷贝不会影响原对象',
+          run: ({ deepClone }, { eq }) => {
+            const src = { a: 1, b: { c: [1, 2] } }
+            const copy = deepClone(src)
+            copy.a = 100
+            copy.b.c.push(3)
+            eq(src, { a: 1, b: { c: [1, 2] } }, '原对象被改了')
+          },
+        },
+        {
+          name: '能处理循环引用',
+          run: ({ deepClone }, { ok, fail }) => {
+            const obj = { name: 'A', child: { name: 'B' } }
+            obj.self = obj
+            obj.child.parent = obj
+            let copy
+            try {
+              copy = deepClone(obj)
+            } catch (e) {
+              fail(`拷贝时报错：${e && e.name}。没有处理循环引用会无限递归，最终栈溢出`)
+            }
+            ok(copy !== obj, '应该返回新对象')
+            ok(copy.self === copy, 'copy.self 应该指向 copy 自己')
+            ok(copy.child !== obj.child, 'copy.child 应该是新对象')
+            ok(copy.child.parent === copy, 'copy.child.parent 应该指向 copy')
+          },
+        },
+        {
+          name: 'Date 和 RegExp 能正确拷贝',
+          bonus: true,
+          run: ({ deepClone }, { ok }) => {
+            const src = { d: new Date(0), r: /ab+c/gi }
+            const copy = deepClone(src)
+            ok(copy.d instanceof Date && copy.d.getTime() === 0 && copy.d !== src.d, 'Date 应该拷贝成新的 Date，时间相同')
+            ok(copy.r instanceof RegExp && copy.r.source === 'ab+c' && copy.r.flags === 'gi' && copy.r !== src.r, 'RegExp 应该拷贝成新的 RegExp，source 和 flags 相同')
+          },
+        },
+        {
+          name: 'Map 和 Set 能深拷贝',
+          bonus: true,
+          run: ({ deepClone }, { ok }) => {
+            const inner = { v: 1 }
+            const src = { m: new Map([['k', inner]]), s: new Set([inner]) }
+            const copy = deepClone(src)
+            ok(copy.m instanceof Map && copy.m.get('k') && copy.m.get('k').v === 1 && copy.m.get('k') !== inner, 'Map 的值也应该被深拷贝')
+            ok(copy.s instanceof Set && copy.s.size === 1 && !copy.s.has(inner), 'Set 的元素也应该被深拷贝')
+          },
+        },
+      ],
+    },
+    {
+      id: 'call-bind',
+      title: 'call / apply / bind',
+      minutes: 10,
+      anim: 'call-bind',
+      exports: [],
+      task: `
+        <p>在 <code>Function.prototype</code> 上实现三个方法：</p>
+        <ul>
+          <li><code>fn.myCall(context, ...args)</code>：以 context 为 this 调用 fn，返回 fn 的返回值。</li>
+          <li><code>fn.myApply(context, args)</code>：同上，参数以数组传入；<b>不传数组时当作没有参数</b>。</li>
+          <li><code>fn.myBind(context, ...preset)</code>：返回一个新函数，调用时 this 是 context，并且支持预置参数。</li>
+        </ul>
+        <p>要求：context 为 <code>null</code> 或 <code>undefined</code> 时 this 是 <code>globalThis</code>；原始值要包装成对象；调用后不能在 context 上留下任何临时属性。</p>
+        <p class="bonus">进阶：myBind 返回的函数被 <code>new</code> 调用时，忽略绑定的 this，new 出来的实例要 instanceof fn。</p>`,
+      idea: 'obj.fn() 调用时 this 就是 obj。call 就是把函数临时挂到 context 上，以方法的形式调用一次，再删掉。',
+      points: [
+        '<code>context == null</code>（两个等号，同时覆盖 null 和 undefined）时用 globalThis；原始值用 <code>Object()</code> 装箱。',
+        '临时键用 Symbol，不会覆盖 context 原有的属性。',
+        'try / finally：函数抛错也会删掉临时属性。',
+        'apply 只是参数形式不同；args 要给默认值 <code>[]</code>。',
+        'bind 返回新函数：预置参数和调用时参数拼接；用 <code>this instanceof bound</code> 判断是否被 new 调用。',
+      ],
+      pitfalls: [
+        '写成 <code>context === null</code>：传 undefined 时得到的是 {}，不是 globalThis。',
+        'apply 的 args 没有默认值：不传数组时，展开 undefined 会直接报错。',
+        '参数不合法时 <code>return new TypeError()</code>：应该 throw。',
+        'bind 忘了设置 bound.prototype：new 出来的实例不是 instanceof 原函数。',
+      ],
+      followups: [
+        ['bind 之后再 bind，能改 this 吗？', '不能，第一次 bind 就固定了。'],
+        ['箭头函数能用 call 改 this 吗？', '不能，箭头函数没有自己的 this。'],
+        ['严格模式下 call(null) 的 this 是什么？', '原生 call 在严格模式函数里，this 就是 null，不会换成 globalThis；手写版一般按非严格模式处理。'],
+      ],
+      tests: [
+        {
+          name: 'myCall：this 指向 context，参数和返回值正确',
+          run: (_, { eq }) => {
+            function greet(greeting, mark) { return greeting + ', ' + this.name + mark }
+            eq(greet.myCall({ name: 'Tom' }, 'Hi', '!'), 'Hi, Tom!')
+          },
+        },
+        {
+          name: 'myCall：调用后不在 context 上留下临时属性',
+          run: (_, { eq }) => {
+            function f() { return this.name }
+            const obj = { name: 'Tom' }
+            f.myCall(obj)
+            eq(Reflect.ownKeys(obj), ['name'], 'obj 上不应该多出属性')
+          },
+        },
+        {
+          name: 'myCall：context 为 null 或 undefined 时，this 是 globalThis',
+          run: (_, { ok }) => {
+            function f() { return this }
+            ok(f.myCall(null) === globalThis, '传 null 时 this 应该是 globalThis')
+            ok(f.myCall(undefined) === globalThis, '传 undefined 时 this 应该是 globalThis')
+          },
+        },
+        {
+          name: 'myCall：原始值会被包装成对象',
+          run: (_, { eq }) => {
+            function f() { return typeof this }
+            eq(f.myCall(1), 'object', 'context 为 1 时，this 应该是 Number 对象')
+            eq(f.myCall('s'), 'object', "context 为 's' 时，this 应该是 String 对象")
+          },
+        },
+        {
+          name: 'myApply：用数组传参',
+          run: (_, { eq }) => {
+            function greet(greeting, mark) { return greeting + ', ' + this.name + mark }
+            eq(greet.myApply({ name: 'Tom' }, ['Yo', '?']), 'Yo, Tom?')
+          },
+        },
+        {
+          name: 'myApply：不传参数数组也能调用',
+          run: (_, { eq }) => {
+            function f() { return arguments.length }
+            eq(f.myApply({}), 0, '不传第二个参数时，应该当作没有参数')
+          },
+        },
+        {
+          name: 'myBind：绑定 this，并预置参数',
+          run: (_, { eq }) => {
+            function greet(greeting, mark) { return greeting + ', ' + this.name + mark }
+            const hello = greet.myBind({ name: 'Tom' }, 'Hello')
+            eq(hello('.'), 'Hello, Tom.')
+            eq(hello('!'), 'Hello, Tom!')
+          },
+        },
+        {
+          name: 'myBind：用 new 调用时，忽略绑定的 this',
+          bonus: true,
+          run: (_, { eq, ok }) => {
+            function Point(x, y) { this.x = x; this.y = y }
+            Point.prototype.sum = function () { return this.x + this.y }
+            const ctx = { tag: 'ctx' }
+            const BoundPoint = Point.myBind(ctx, 1)
+            const p = new BoundPoint(2)
+            eq([p.x, p.y], [1, 2], 'x、y 应该写到新实例上')
+            ok(p instanceof Point, 'new 出来的实例应该 instanceof Point')
+            eq(p.sum(), 3, '实例应该能用 Point.prototype 上的方法')
+            ok(!('x' in ctx), '绑定的 ctx 不应该被修改')
+          },
+        },
+      ],
+    },
+    {
+      id: 'emitter',
+      title: '发布订阅 EventEmitter',
+      minutes: 12,
+      anim: 'emitter',
+      exports: ['EventEmitter'],
+      task: `
+        <p>实现 <code>class EventEmitter</code>：</p>
+        <ul>
+          <li><code>on(name, fn)</code>：订阅事件。</li>
+          <li><code>emit(name, ...args)</code>：按注册顺序依次调用监听，参数原样传入。</li>
+          <li><code>off(name, fn)</code>：取消某个监听。</li>
+          <li><code>once(name, fn)</code>：只触发一次。用 once 注册的监听，<b>也能用原函数 off 掉</b>。</li>
+        </ul>
+        <p>注意：once 监听执行时会删掉自己，<b>不能因此跳过排在它后面的监听</b>。</p>
+        <p class="bonus">进阶：emit 返回是否有监听（true / false）；off 不传 fn 时清空这个事件的所有监听。</p>`,
+      idea: '用 Map<事件名, 回调数组> 存监听：on 往数组里 push，emit 把数组里的回调依次执行。',
+      points: [
+        'once：注册一个包装函数 wrapper，执行时先 off 自己，再调原函数；记下 <code>wrapper.raw = fn</code>，让用户拿原函数也能 off 掉。',
+        'emit 遍历数组的副本 <code>[...list]</code>：once 执行时会从原数组删掉自己，原数组整体前移。',
+        'off 用 findIndex + splice，只删一个。',
+        '方法返回 this，支持链式调用。',
+      ],
+      pitfalls: [
+        'emit 直接遍历原数组：once 后面的监听会被跳过。',
+        'once 注册后用原函数 off 不掉：没有记录 raw。',
+        'off 用 filter 删掉所有同名函数：同一个函数注册两次时，语义可能不对（看题目要求）。',
+      ],
+      followups: [
+        ['发布订阅和观察者模式有什么区别？', '观察者模式里，被观察者直接持有观察者列表并通知（比如 Vue 2 的 Dep 和 Watcher）；发布订阅中间多了一个事件中心，发布者和订阅者互不认识。'],
+        ['怎么避免内存泄漏？', '组件卸载时 off；也可以让 on 返回一个取消函数。'],
+        ['一个监听器抛错，会影响其他监听器吗？', '默认会中断循环。可以在 emit 里 try/catch，把错误收集起来最后统一抛出。'],
+      ],
+      tests: [
+        {
+          name: 'on + emit：按注册顺序调用，参数原样传入',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            e.on('msg', (a, b) => log.push('A' + a + b))
+            e.on('msg', (a, b) => log.push('B' + a + b))
+            e.emit('msg', 1, 2)
+            eq(log, ['A12', 'B12'])
+          },
+        },
+        {
+          name: 'off：取消指定的监听',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            const a = () => log.push('a')
+            const b = () => log.push('b')
+            e.on('x', a)
+            e.on('x', b)
+            e.off('x', a)
+            e.emit('x')
+            eq(log, ['b'])
+          },
+        },
+        {
+          name: '不同事件互不影响，emit 没有监听的事件不报错',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            e.on('a', () => log.push('a'))
+            e.emit('b')
+            e.emit('never')
+            eq(log, [])
+          },
+        },
+        {
+          name: 'once：只触发一次',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            e.once('x', (v) => log.push(v))
+            e.emit('x', 1)
+            e.emit('x', 2)
+            eq(log, [1])
+          },
+        },
+        {
+          name: 'once 注册的监听，可以用原函数 off 掉',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            const fn = () => log.push('fired')
+            e.once('x', fn)
+            e.off('x', fn)
+            e.emit('x')
+            eq(log, [], 'off(原函数) 之后不应该再触发')
+          },
+        },
+        {
+          name: 'once 后面的监听不会被跳过',
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            e.once('x', () => log.push('once'))
+            e.on('x', () => log.push('normal'))
+            e.emit('x')
+            eq(log, ['once', 'normal'], 'emit 直接遍历原数组时，once 删除自己后会跳过下一个监听')
+          },
+        },
+        {
+          name: 'emit 返回是否有监听',
+          bonus: true,
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            eq(e.emit('x'), false, '没有监听时返回 false')
+            e.on('x', () => {})
+            eq(e.emit('x'), true, '有监听时返回 true')
+          },
+        },
+        {
+          name: 'off 不传函数时，清空这个事件的所有监听',
+          bonus: true,
+          run: ({ EventEmitter }, { eq }) => {
+            const e = new EventEmitter()
+            const log = []
+            e.on('x', () => log.push(1))
+            e.on('x', () => log.push(2))
+            e.off('x')
+            e.emit('x')
+            eq(log, [])
+          },
+        },
+      ],
+    },
+    {
+      id: 'new',
+      title: '手写 new',
+      minutes: 8,
+      anim: 'new-op',
+      exports: ['myNew'],
+      task: `
+        <p>实现 <code>myNew(Ctor, ...args)</code>，效果和 <code>new Ctor(...args)</code> 一样：</p>
+        <ul>
+          <li>返回的对象带着构造函数设置的属性，能用原型上的方法，<code>instanceof Ctor</code> 为 true。</li>
+          <li>构造函数 <b>return 一个对象</b>时，结果就是那个对象。</li>
+          <li>构造函数 return 基本类型或 null 时，忽略返回值。</li>
+        </ul>
+        <p class="bonus">进阶：构造函数 return 一个函数时，结果就是那个函数；传入箭头函数时抛出 TypeError。</p>`,
+      idea: 'new 做了四件事：创建对象并把原型指向 Ctor.prototype，以它为 this 执行构造函数，构造函数返回对象就用它，否则返回新对象。',
+      points: [
+        '<code>Object.create(Ctor.prototype)</code> 一步完成前两件事：建对象 + 连原型。',
+        '<code>Ctor.apply(obj, args)</code> 以 obj 为 this 执行构造函数。',
+        '判断返回值：<code>result !== null</code>，并且是 object 或 function，才用它。',
+        '箭头函数、对象方法简写、async 函数都没有 prototype，不能被 new。',
+      ],
+      pitfalls: [
+        '只判断 <code>typeof result === \'object\'</code>：return null 时会返回 null。',
+        '漏了函数：构造函数 return 一个函数时，new 的结果应该是那个函数。',
+        '参数不合法时 return 一个字符串：应该 throw TypeError。',
+      ],
+      followups: [
+        ['构造函数 return 基本类型会怎样？', '被忽略，仍然返回新对象。'],
+        ['new.target 是什么？', '在函数内部判断自己是不是被 new 调用的。'],
+        ['这个 myNew 能用在 class 上吗？', '不能。class 构造函数只能用 new 调用，Ctor.apply 会抛 TypeError。'],
+      ],
+      tests: [
+        {
+          name: '实例上有构造函数设置的属性',
+          run: ({ myNew }, { eq }) => {
+            function Person(name) { this.name = name }
+            eq(myNew(Person, 'Ann').name, 'Ann')
+          },
+        },
+        {
+          name: '原型方法可用，instanceof 正确',
+          run: ({ myNew }, { eq, ok }) => {
+            function Person(name) { this.name = name }
+            Person.prototype.sayHi = function () { return 'hi, ' + this.name }
+            const p = myNew(Person, 'Ann')
+            eq(p.sayHi(), 'hi, Ann', '应该能调用原型上的方法')
+            ok(p instanceof Person, 'p instanceof Person 应该为 true')
+            ok(Object.getPrototypeOf(p) === Person.prototype, 'p 的原型应该是 Person.prototype')
+          },
+        },
+        {
+          name: '多个参数都能传给构造函数',
+          run: ({ myNew }, { eq }) => {
+            function Sum(x, y, z) { this.total = x + y + z }
+            eq(myNew(Sum, 1, 2, 3).total, 6)
+          },
+        },
+        {
+          name: '构造函数返回对象时，结果就是这个对象',
+          run: ({ myNew }, { eq }) => {
+            function F() { this.a = 1; return { b: 2 } }
+            eq(myNew(F), { b: 2 })
+          },
+        },
+        {
+          name: '构造函数返回基本类型时，忽略返回值',
+          run: ({ myNew }, { eq }) => {
+            function F() { this.a = 1; return 42 }
+            eq(myNew(F).a, 1)
+          },
+        },
+        {
+          name: '构造函数返回 null 时，忽略返回值',
+          run: ({ myNew }, { ok }) => {
+            function F() { this.a = 1; return null }
+            const r = myNew(F)
+            ok(r !== null && r.a === 1, '返回 null 时，结果应该是新对象，而不是 null')
+          },
+        },
+        {
+          name: '构造函数返回函数时，结果就是这个函数',
+          bonus: true,
+          run: ({ myNew }, { ok }) => {
+            const inner = () => 'inner'
+            function F() { return inner }
+            ok(myNew(F) === inner)
+          },
+        },
+        {
+          name: '传入箭头函数时抛出 TypeError',
+          bonus: true,
+          run: ({ myNew }, { throws }) => {
+            throws(() => myNew(() => {}), TypeError, '箭头函数不能被 new，应该抛 TypeError')
+          },
+        },
+      ],
+    },
+    {
+      id: 'tree',
+      title: '数组转树',
+      minutes: 10,
+      anim: 'array-tree',
+      exports: ['arrayToTree'],
+      task: `
+        <p>实现 <code>arrayToTree(list, rootPid = 0)</code>，把平铺数组转成树：</p>
+        <ul>
+          <li>list 的每一项形如 <code>{ id, pid, ...其他字段 }</code>，<code>pid === rootPid</code> 的是根节点。</li>
+          <li>返回根节点数组；每个节点保留原来的字段，并带一个 <code>children</code> 数组（叶子节点是空数组）。</li>
+          <li>children 按输入顺序排列；<b>子节点排在父节点前面</b>也要能正确组装。</li>
+          <li><b>不能修改传入的 list</b>；找不到父节点的节点直接忽略。</li>
+        </ul>
+        <p class="bonus">进阶：2 万个节点也要在 300ms 内完成（要求 O(n)）。</p>`,
+      idea: 'Map 两遍遍历：第一遍把每个节点 {...item, children: []} 按 id 放进 Map，第二遍把每个节点挂到父节点的 children 下。O(n)。',
+      points: [
+        '第一遍只建节点，第二遍才连父子，所以不怕子节点排在父节点前面。',
+        '<code>{ ...item }</code> 新建节点，不修改入参。',
+        '节点是对象引用：父节点后挂上去时，它已经挂好的子树会一起跟过去。',
+        '<code>map.get(item.pid)?.children</code>：找不到父节点时安全跳过。',
+      ],
+      pitfalls: [
+        '递归写法每一层都扫全表，O(n²)：数据量大时明显变慢。',
+        '直接往原数组元素上挂 children：修改了入参。',
+        'map.get(pid).children 没有判空：遇到孤儿节点直接报错。',
+      ],
+      followups: [
+        ['只遍历一遍能做吗？', '能。遇到还没出现的父节点，先放一个占位对象；等它出现时，再用 Object.assign 把字段补上。'],
+        ['树怎么转回数组？', 'DFS 或 BFS：用栈或队列遍历，去掉 children 后 push 进结果。'],
+        ['怎么找到从根到某个节点的路径？', 'DFS + 回溯：进入节点时 push，它的子树里没找到就 pop。'],
+      ],
+      tests: [
+        {
+          name: '基本结构正确，children 按输入顺序排列',
+          run: ({ arrayToTree }, { eq }) => {
+            const list = [{ id: 1, pid: 0 }, { id: 2, pid: 1 }, { id: 3, pid: 1 }, { id: 4, pid: 3 }]
+            const shape = (nodes) => nodes.map((n) => [n.id, shape(n.children || [])])
+            eq(shape(arrayToTree(list)), [[1, [[2, []], [3, [[4, []]]]]]])
+          },
+        },
+        {
+          name: '节点保留原来的字段',
+          run: ({ arrayToTree }, { eq }) => {
+            const tree = arrayToTree([{ id: 1, pid: 0, name: 'CEO' }, { id: 2, pid: 1, name: '前端' }])
+            eq(tree[0].name, 'CEO')
+            eq(tree[0].children[0].name, '前端')
+          },
+        },
+        {
+          name: '不修改传入的数组',
+          run: ({ arrayToTree }, { eq }) => {
+            const list = [{ id: 1, pid: 0 }, { id: 2, pid: 1 }]
+            const before = JSON.stringify(list)
+            arrayToTree(list)
+            eq(JSON.stringify(list), before, '输入数组被修改了（比如给元素挂了 children）')
+          },
+        },
+        {
+          name: '子节点排在父节点前面也能正确组装',
+          run: ({ arrayToTree }, { eq }) => {
+            const list = [{ id: 4, pid: 3 }, { id: 3, pid: 1 }, { id: 1, pid: 0 }, { id: 2, pid: 1 }]
+            const shape = (nodes) => nodes.map((n) => [n.id, shape(n.children || [])])
+            eq(shape(arrayToTree(list)), [[1, [[3, [[4, []]]], [2, []]]]])
+          },
+        },
+        {
+          name: '叶子节点的 children 是空数组',
+          run: ({ arrayToTree }, { ok }) => {
+            const tree = arrayToTree([{ id: 1, pid: 0 }, { id: 2, pid: 1 }])
+            const leaf = tree[0].children[0]
+            ok(Array.isArray(leaf.children) && leaf.children.length === 0, '叶子节点应该有 children: []')
+          },
+        },
+        {
+          name: '可以指定根节点的 pid',
+          run: ({ arrayToTree }, { eq }) => {
+            const tree = arrayToTree([{ id: 'a', pid: '' }, { id: 'b', pid: 'a' }], '')
+            eq(tree.map((n) => [n.id, n.children.map((c) => c.id)]), [['a', ['b']]])
+          },
+        },
+        {
+          name: '找不到父节点的节点被忽略，不报错',
+          run: ({ arrayToTree }, { eq }) => {
+            const tree = arrayToTree([{ id: 1, pid: 0 }, { id: 9, pid: 99 }, { id: 2, pid: 1 }])
+            eq(tree.map((n) => [n.id, n.children.map((c) => c.id)]), [[1, [2]]])
+          },
+        },
+        {
+          name: '2 万个节点在 300ms 内完成（O(n)）',
+          bonus: true,
+          timeout: 6000,
+          run: ({ arrayToTree }, { ok }) => {
+            const list = [{ id: 1, pid: 0 }]
+            for (let id = 2; id <= 20000; id++) list.push({ id, pid: Math.floor(id / 2) })
+            const start = performance.now()
+            const tree = arrayToTree(list)
+            const ms = Math.round(performance.now() - start)
+            ok(tree.length === 1, '应该只有一个根节点')
+            ok(ms < 300, `用了 ${ms}ms。每一层都扫全表的递归写法是 O(n²)，试试 Map 两遍遍历`)
+          },
+        },
+      ],
+    },
+    {
+      id: 'instanceof',
+      tier: 'A',
+      title: 'instanceof',
+      minutes: 6,
+      anim: 'instanceof',
+      exports: ['myInstanceof'],
+      task: `
+        <p>实现 <code>myInstanceof(left, Right)</code>，结果和 <code>left instanceof Right</code> 一致：</p>
+        <ul>
+          <li>沿着 left 的原型链往上找，<b>找到 Right.prototype 就返回 true</b>，走到链的尽头（null）返回 false。</li>
+          <li>left 是<b>原始值</b>（数字、字符串、null、undefined 等）时返回 false。</li>
+          <li>函数也是对象：<code>myInstanceof(() =&gt; {}, Function)</code> 是 true。</li>
+        </ul>
+        <p class="bonus">进阶：Right 不是函数时抛出 TypeError，和原生一致。</p>`,
+      idea: '沿着 Object.getPrototypeOf(left) 一路往上走，和 Right.prototype 比较；走到 null 还没找到就是 false。',
+      points: [
+        '用 <code>Object.getPrototypeOf(obj)</code> 取原型，比 <code>obj.__proto__</code> 更规范。',
+        '先排除原始值：<code>Object.getPrototypeOf(1)</code> 会先把 1 装箱，返回 Number.prototype，导致 <code>myInstanceof(1, Number)</code> 误判成 true。',
+        '原始值判断要放过 function：函数也是对象，有自己的原型链。',
+        '循环条件写成 <code>while (proto !== null)</code>：原型链的尽头是 null。',
+      ],
+      pitfalls: [
+        '函数名直接写成 instanceof：这是保留字，语法错误。',
+        '没排除原始值：<code>myInstanceof(1, Number)</code> 返回 true，原生是 false。',
+        '比较时写成 <code>proto === Right</code>：应该和 <code>Right.prototype</code> 比。',
+        '用 <code>__proto__</code> 往上走：<code>Object.create(null)</code> 创建的对象没有这个属性，会报错。',
+      ],
+      followups: [
+        ['typeof 和 instanceof 有什么区别？', 'typeof 判断基本类型（typeof null 是 \'object\'，这是历史遗留的 bug）；instanceof 判断原型链关系，对原始值永远是 false。'],
+        ['怎么可靠地判断数组？', '<code>Array.isArray</code>。instanceof Array 在不同 iframe 之间会失效，因为每个 iframe 都有自己的 Array。'],
+        ['能改变 instanceof 的结果吗？', '可以。在类上定义静态方法 <code>Symbol.hasInstance</code>，instanceof 会调用它。'],
+      ],
+      tests: [
+        {
+          name: '实例和它的构造函数：true',
+          run: ({ myInstanceof }, { eq }) => {
+            function Person() {}
+            eq(myInstanceof(new Person(), Person), true)
+          },
+        },
+        {
+          name: '沿着原型链能找到父类：true',
+          run: ({ myInstanceof }, { eq }) => {
+            class A {}
+            class B extends A {}
+            eq(myInstanceof(new B(), A), true, 'B 的实例 instanceof A')
+            eq(myInstanceof(new B(), Object), true, 'B 的实例 instanceof Object')
+          },
+        },
+        {
+          name: '原型链上没有时：false',
+          run: ({ myInstanceof }, { eq }) => {
+            class A {}
+            class B extends A {}
+            eq(myInstanceof(new A(), B), false, 'A 的实例不是 B 的实例')
+            eq(myInstanceof({}, Array), false, '普通对象不是数组')
+          },
+        },
+        {
+          name: '原始值返回 false',
+          run: ({ myInstanceof }, { eq }) => {
+            eq(myInstanceof(1, Number), false, 'myInstanceof(1, Number)')
+            eq(myInstanceof('s', String), false, "myInstanceof('s', String)")
+            eq(myInstanceof(null, Object), false, 'myInstanceof(null, Object)')
+            eq(myInstanceof(undefined, Object), false, 'myInstanceof(undefined, Object)')
+          },
+        },
+        {
+          name: '函数也是对象',
+          run: ({ myInstanceof }, { eq }) => {
+            eq(myInstanceof(() => {}, Function), true, '箭头函数 instanceof Function')
+            eq(myInstanceof(function () {}, Object), true, '函数 instanceof Object')
+          },
+        },
+        {
+          name: '没有原型的对象：false，并且不报错',
+          run: ({ myInstanceof }, { eq }) => {
+            eq(myInstanceof(Object.create(null), Object), false)
+          },
+        },
+        {
+          name: '右边不是函数时抛出 TypeError',
+          bonus: true,
+          run: ({ myInstanceof }, { throws }) => {
+            throws(() => myInstanceof({}, {}), TypeError, '右边是普通对象时，原生 instanceof 会抛 TypeError')
+          },
+        },
+      ],
+    },
+    {
+      id: 'inherit',
+      tier: 'A',
+      title: '继承（寄生组合式）',
+      minutes: 10,
+      anim: 'inherit',
+      exports: ['Animal', 'Dog', 'inherit'],
+      task: `
+        <p>模板里已经写好了父类 <code>Animal</code>（不用改）。完成两件事：</p>
+        <ul>
+          <li><code>inherit(Child, Parent)</code>：让 <code>Child.prototype</code> 继承 <code>Parent.prototype</code>，并把 <code>constructor</code> 指回 Child。<b>不能调用 Parent。</b></li>
+          <li><code>Dog(name, breed)</code>：用<b>寄生组合式继承</b>继承 Animal：每个实例有自己的 name、tags、breed，又能用 Animal 原型上的 sayName。</li>
+        </ul>
+        <p>模板最后两段（<code>inherit(Dog, Animal)</code> 和 <code>Dog.prototype.bark</code>）保持原样，注意它们的先后顺序。</p>
+        <p class="bonus">进阶：constructor 设为不可枚举；像 class extends 一样，让子类也能继承父类的静态方法。</p>`,
+      idea: '寄生组合式继承 = 借用构造函数 Parent.call(this) 继承实例属性 + Object.create(Parent.prototype) 继承原型方法，父类构造函数只调用一次。',
+      points: [
+        '<code>Parent.call(this, ...)</code>：每个实例都有自己的一份实例属性，引用类型不会被共享。',
+        '<code>Object.create(Parent.prototype)</code>：创建一个原型指向 Parent.prototype 的空对象当作 Child.prototype，不会执行 Parent。',
+        '替换 prototype 之后 constructor 就丢了，要指回 Child；用 defineProperty 设成不可枚举，和原生一致。',
+        '先 inherit，再往 Child.prototype 上加方法；顺序反了，方法会被整个替换掉。',
+        'class extends 本质上就是这一套，另外还做了 <code>Object.setPrototypeOf(Child, Parent)</code>，用来继承静态方法。',
+      ],
+      pitfalls: [
+        '原型链继承 <code>Child.prototype = new Parent()</code>：引用类型的属性被所有实例共享，也没法给父构造函数传参。',
+        '只借用构造函数（只有 Parent.call）：拿不到父类原型上的方法。',
+        '组合继承（两种都用）：父构造函数被调用了两次，Child.prototype 上多出一份没用的属性。',
+        '忘了修正 constructor：<code>dog.constructor === Animal</code>。',
+        '直接写 <code>Child.prototype = Parent.prototype</code>：两个类共用同一个原型，给子类加方法会污染父类。',
+      ],
+      followups: [
+        ['class extends 额外做了什么？', '除了原型继承，还用 setPrototypeOf 让子类继承父类的静态方法；子类构造函数里必须先调用 super()，才能使用 this，因为实例是由父类构造创建的。'],
+        ['Object.create 怎么手写？', '<code>function create(proto) { function F() {} F.prototype = proto; return new F() }</code>。"寄生"指的就是借这个空函数 F 来生成原型对象。'],
+        ['几种继承方式的缺点分别是什么？', '原型链继承：引用属性共享、不能传参；借用构造：拿不到原型方法；组合继承：父构造调用两次；寄生组合：没有明显缺点，是 class 之前的最优解。'],
+      ],
+      tests: [
+        {
+          name: 'Dog 实例有自己的 name 和 breed',
+          run: ({ Dog }, { eq, ok }) => {
+            const d = new Dog('Rex', 'husky')
+            eq([d.name, d.breed], ['Rex', 'husky'])
+            ok(Object.prototype.hasOwnProperty.call(d, 'name'), 'name 应该是实例自己的属性（Animal.call(this, name)）')
+          },
+        },
+        {
+          name: '引用类型属性不会在实例之间共享',
+          run: ({ Dog }, { eq }) => {
+            const d1 = new Dog('A', 'x')
+            const d2 = new Dog('B', 'y')
+            d1.tags.push('cute')
+            eq(d2.tags, [], 'd1.tags 改了，d2.tags 不应该跟着变')
+          },
+        },
+        {
+          name: '能用父类原型上的方法，也能用自己的方法',
+          run: ({ Dog }, { eq }) => {
+            const d = new Dog('Rex', 'husky')
+            eq(d.sayName(), 'I am Rex', '来自 Animal.prototype 的 sayName')
+            eq(d.bark(), 'Rex: woof', '来自 Dog.prototype 的 bark')
+          },
+        },
+        {
+          name: 'instanceof 和 constructor 正确',
+          run: ({ Dog, Animal }, { ok }) => {
+            const d = new Dog('Rex', 'husky')
+            ok(d instanceof Dog, 'd instanceof Dog')
+            ok(d instanceof Animal, 'd instanceof Animal')
+            ok(d.constructor === Dog, 'd.constructor 应该是 Dog，检查是否修正了 constructor')
+          },
+        },
+        {
+          name: '父类构造函数没有在设置原型时被调用（不是组合继承）',
+          run: ({ Dog }, { ok }) => {
+            const own = (key) => Object.prototype.hasOwnProperty.call(Dog.prototype, key)
+            ok(!own('name') && !own('tags'), 'Dog.prototype 上多出了 name / tags：说明用了 new Animal() 当原型，父类构造函数被多调用了一次')
+          },
+        },
+        {
+          name: 'inherit 对其他类也适用',
+          run: ({ inherit }, { eq, ok }) => {
+            function A() { this.a = 1 }
+            A.prototype.hi = function () { return 'hi' }
+            function B() { A.call(this) }
+            inherit(B, A)
+            const b = new B()
+            eq([b.a, b.hi()], [1, 'hi'])
+            ok(B.prototype.constructor === B, 'B.prototype.constructor 应该是 B')
+          },
+        },
+        {
+          name: 'constructor 不可枚举',
+          bonus: true,
+          run: ({ Dog }, { ok }) => {
+            const desc = Object.getOwnPropertyDescriptor(Dog.prototype, 'constructor')
+            ok(desc && desc.enumerable === false, 'Dog.prototype.constructor 应该不可枚举，用 Object.defineProperty 或 Object.create 的第二个参数来设置')
+          },
+        },
+        {
+          name: '像 class extends 一样继承静态方法',
+          bonus: true,
+          run: ({ inherit }, { eq }) => {
+            function P() {}
+            P.make = () => 'made'
+            function C() { P.call(this) }
+            inherit(C, P)
+            eq(typeof C.make === 'function' ? C.make() : undefined, 'made', '子类应该能调用父类的静态方法，试试 Object.setPrototypeOf(Child, Parent)')
+          },
+        },
+      ],
+    },
+    {
+      id: 'curry',
+      tier: 'A',
+      title: '函数柯里化',
+      minutes: 8,
+      anim: 'curry',
+      exports: ['curry', 'add'],
+      task: `
+        <p>实现 <code>curry(fn)</code>，返回柯里化后的函数：</p>
+        <ul>
+          <li>参数凑够 <code>fn.length</code> 个就执行 fn 并返回结果，否则返回一个继续接收参数的函数。</li>
+          <li>每次可以传一个或多个参数：<code>f(1)(2)(3)</code>、<code>f(1, 2)(3)</code>、<code>f(1, 2, 3)</code> 结果都一样。</li>
+          <li>部分应用得到的函数可以<b>反复使用，互不影响</b>。</li>
+          <li>多传的参数也要传给 fn。</li>
+        </ul>
+        <p class="bonus">进阶：无限累加 <code>add(1)(2)(3)()</code> 返回 6，空调用时求和；<code>add(1, 2)(3, 4)()</code> 返回 10。</p>`,
+      idea: '参数还没收够 fn.length 个，就返回一个"继续收参数"的函数；收够了就执行 fn。',
+      points: [
+        '<code>fn.length</code> 是函数声明的形参个数。',
+        '每次返回的新函数都用 <code>[...args, ...rest]</code> 拼出一个新数组，而不是往同一个数组里 push，这样部分应用的函数才能复用。',
+        '用具名函数表达式 <code>curried</code> 递归调用自己，代码最短。',
+        '判断条件写 <code>args.length &gt;= fn.length</code>：多传的参数也能执行。',
+        '作用：参数复用（先固定一部分参数）和延迟执行。',
+      ],
+      pitfalls: [
+        '用一个外层数组 push 收集参数：同一个部分应用函数调用两次，参数会串到一起。',
+        '判断写成 <code>===</code>：一次多传参数时永远不会执行。',
+        'fn.length 不计算默认参数及之后的参数，也不计算剩余参数：<code>(a, b = 1) =&gt; {}</code> 的 length 是 1。',
+      ],
+      followups: [
+        ['fn.length 不准怎么办？', '让调用方显式传入参数个数：<code>curry(fn, arity = fn.length)</code>。'],
+        ['add(1)(2)(3) 不加空括号，也想得到 6？', '让返回的函数重写 toString / valueOf，在隐式转换时求和，比如 <code>+add(1)(2)(3)</code>。'],
+        ['柯里化和偏函数有什么区别？', '偏函数是一次固定一部分参数（比如 bind 的预置参数）；柯里化是把多参函数变成一串可以逐个传参的调用。'],
+      ],
+      tests: [
+        {
+          name: '一次传一个参数',
+          run: ({ curry }, { eq }) => {
+            const sum3 = curry((a, b, c) => a + b + c)
+            eq(sum3(1)(2)(3), 6)
+          },
+        },
+        {
+          name: '一次传多个参数也行',
+          run: ({ curry }, { eq }) => {
+            const sum3 = curry((a, b, c) => a + b + c)
+            eq(sum3(1, 2)(3), 6, 'sum3(1, 2)(3)')
+            eq(sum3(1)(2, 3), 6, 'sum3(1)(2, 3)')
+            eq(sum3(1, 2, 3), 6, 'sum3(1, 2, 3)')
+          },
+        },
+        {
+          name: '部分应用得到的函数可以反复使用，互不影响',
+          run: ({ curry }, { eq }) => {
+            const sum3 = curry((a, b, c) => a + b + c)
+            const add10 = sum3(10)
+            eq(add10(1)(1), 12, '第一次 add10(1)(1)')
+            eq(add10(2)(2), 14, '第二次 add10(2)(2)：参数不应该和上一次串在一起')
+            const add10and1 = add10(1)
+            eq([add10and1(5), add10and1(6)], [16, 17])
+          },
+        },
+        {
+          name: '多传的参数也会传给 fn',
+          run: ({ curry }, { eq }) => {
+            const count = curry(function (a, b) { return arguments.length })
+            eq(count(1, 2, 3), 3, '参数够了就执行，多出来的参数也要传进去')
+            eq(count(1)(2, 3), 3)
+          },
+        },
+        {
+          name: '只有一个参数的函数',
+          run: ({ curry }, { eq }) => {
+            const double = curry((x) => x * 2)
+            eq(double(21), 42)
+          },
+        },
+        {
+          name: '无限累加：add(1)(2)(3)() 返回 6',
+          bonus: true,
+          run: ({ add }, { eq, ok }) => {
+            ok(typeof add === 'function', '还没有实现 add')
+            eq(add(1)(2)(3)(), 6, 'add(1)(2)(3)()')
+            eq(add(1, 2)(3, 4)(), 10, 'add(1, 2)(3, 4)()')
+            eq(add(5)(), 5, 'add(5)()')
+          },
+        },
+      ],
+    },
+    {
+      id: 'flat',
+      tier: 'A',
+      title: '数组扁平化 flat',
+      minutes: 8,
+      anim: null,
+      exports: ['flat', 'flattenObject'],
+      task: `
+        <p>实现 <code>flat(arr, depth = 1)</code>，行为和 <code>Array.prototype.flat</code> 一致：</p>
+        <ul>
+          <li>把嵌套数组按 depth 展开；默认展开一层，<code>depth</code> 为 <code>Infinity</code> 时全部展开，为 0 时不展开。</li>
+          <li>返回新数组，<b>不能修改原数组</b>。</li>
+          <li>不是数组的元素（null、undefined、对象等）原样保留。</li>
+        </ul>
+        <p class="bonus">进阶：对象扁平化 <code>flattenObject(obj)</code>，把嵌套对象展开成一层，键用路径表示，数组下标写成 <code>[i]</code>：<code>{ a: { b: 1 }, c: [1, { d: 2 }] }</code> → <code>{ 'a.b': 1, 'c[0]': 1, 'c[1].d': 2 }</code>。空对象和空数组原样保留。</p>`,
+      idea: '遍历数组：遇到数组并且 depth 还大于 0，就递归展开（depth - 1）；否则原样放进结果。',
+      points: [
+        'depth 每深入一层减 1；<code>Infinity - 1</code> 还是 Infinity，所以全部展开不用特殊处理。',
+        '每次都往一个新数组里放，不修改原数组。',
+        '迭代写法：用栈，pop 出来是数组就展开后压回去，最后 reverse。适合嵌套特别深、递归可能栈溢出的情况（只支持全部展开）。',
+        '对象扁平化：递归时带着路径前缀往下走，数组下标写成 <code>[i]</code>，遇到基本类型或空容器就是叶子。',
+      ],
+      pitfalls: [
+        '<code>arr.toString().split(\',\')</code>：只适用于纯数字，而且数字会变成字符串。',
+        '用 <code>res = res.concat(...)</code> 时，res 声明成了 const：重新赋值会报错。',
+        '忘了判断 depth：不管传几都全部展开了。',
+        '对象扁平化把空对象、空数组丢掉了：<code>{ e: {} }</code> 的 e 消失。',
+      ],
+      followups: [
+        ['用 reduce 怎么写？', '<code>arr.reduce((acc, x) =&gt; acc.concat(Array.isArray(x) &amp;&amp; depth &gt; 0 ? flat(x, depth - 1) : [x]), [])</code>。注意 x 要包一层 [x]，否则 concat 会自动把数组展开一层。'],
+        ['手写版和原生 flat 有什么区别？', '原生会跳过稀疏数组的空位；用 for...of 的手写版会把空位当成 undefined 放进去。'],
+        ['怎么把扁平对象还原回嵌套对象？', '按 "." 和 "[i]" 拆开路径，逐层创建对象或数组，最后赋值。'],
+      ],
+      tests: [
+        {
+          name: '默认展开一层',
+          run: ({ flat }, { eq }) => {
+            eq(flat([1, [2, [3]]]), [1, 2, [3]])
+          },
+        },
+        {
+          name: '按 depth 展开',
+          run: ({ flat }, { eq }) => {
+            eq(flat([1, [2, [3, [4]]]], 2), [1, 2, 3, [4]])
+          },
+        },
+        {
+          name: 'depth 为 Infinity 时全部展开',
+          run: ({ flat }, { eq }) => {
+            eq(flat([1, [2, [3, [4, [5]]]]], Infinity), [1, 2, 3, 4, 5])
+          },
+        },
+        {
+          name: 'depth 为 0 时不展开，但返回新数组',
+          run: ({ flat }, { eq, ok }) => {
+            const arr = [1, [2]]
+            const res = flat(arr, 0)
+            eq(res, [1, [2]])
+            ok(res !== arr, '应该返回一个新数组')
+          },
+        },
+        {
+          name: '不修改原数组',
+          run: ({ flat }, { eq }) => {
+            const arr = [1, [2, [3]]]
+            flat(arr, Infinity)
+            eq(arr, [1, [2, [3]]], '原数组被改了')
+          },
+        },
+        {
+          name: 'null、undefined、对象原样保留',
+          run: ({ flat }, { eq }) => {
+            eq(flat([null, [undefined, { a: 1 }], 'str']), [null, undefined, { a: 1 }, 'str'])
+          },
+        },
+        {
+          name: 'flattenObject：嵌套对象展开成路径',
+          bonus: true,
+          run: ({ flattenObject }, { eq, ok }) => {
+            ok(typeof flattenObject === 'function', '还没有实现 flattenObject')
+            eq(flattenObject({ a: { b: { c: 1 } }, d: 2 }), { 'a.b.c': 1, d: 2 })
+          },
+        },
+        {
+          name: 'flattenObject：数组下标写成 [i]，空对象和空数组保留',
+          bonus: true,
+          run: ({ flattenObject }, { eq, ok }) => {
+            ok(typeof flattenObject === 'function', '还没有实现 flattenObject')
+            eq(flattenObject({ c: [1, { d: 2 }], e: {}, f: [], g: null }), { 'c[0]': 1, 'c[1].d': 2, e: {}, f: [], g: null })
+          },
+        },
+      ],
+    },
+    {
+      id: 'array-api',
+      tier: 'A',
+      title: 'map / filter / reduce',
+      minutes: 10,
+      anim: null,
+      exports: [],
+      task: `
+        <p>在 <code>Array.prototype</code> 上实现 <code>myMap</code>、<code>myFilter</code>、<code>myReduce</code>，行为和原生一致：</p>
+        <ul>
+          <li>回调的参数是 <code>(item, index, array)</code>；myMap、myFilter 支持第二个参数 <code>thisArg</code>。</li>
+          <li>不修改原数组；myMap 返回一个新数组。</li>
+          <li>myReduce：传了初始值就从第 0 项开始；<b>没传就用第 0 项当初始值，从第 1 项开始</b>；空数组又没传初始值时抛 TypeError。</li>
+        </ul>
+        <p class="bonus">进阶：传 undefined 作初始值也算"传了初始值"；和原生一样跳过稀疏数组的空位。</p>`,
+      idea: '用普通 function 挂到 Array.prototype 上，通过 this 拿到数组，自己写 for 循环，把 (item, index, array) 传给回调。',
+      points: [
+        '必须用普通 function：箭头函数没有自己的 this，拿不到调用它的那个数组。',
+        '<code>callback.call(thisArg, item, i, arr)</code> 支持 thisArg。',
+        'reduce 用 <code>arguments.length</code> 区分"没传初始值"和"传了 undefined"。',
+        '<code>i in this</code> 判断这个下标上是否真的有元素，用来跳过稀疏数组的空位。',
+      ],
+      pitfalls: [
+        '直接覆盖原生的 <code>Array.prototype.map</code>：会影响页面上所有代码，面试时要起名 myMap。',
+        'reduce 用 <code>initialValue === undefined</code> 判断有没有传初始值：传 undefined 时会出错。',
+        '空数组又没初始值时返回 undefined：原生会抛 TypeError。',
+        'map 用 push 收集结果：遇到稀疏数组时下标会错位。',
+      ],
+      followups: [
+        ['怎么用 reduce 实现 map？', '<code>arr.reduce((acc, x, i, a) =&gt; { acc.push(fn(x, i, a)); return acc }, [])</code>。'],
+        ['forEach 和 map 有什么区别？', 'forEach 没有返回值，map 返回新数组；两者都不能用 break 中断，要中断可以用 for...of 或 some / every。'],
+        ['为什么不建议修改原生原型？', '可能和以后的标准方法或其他库冲突。比如 MooTools 定义过 Array.prototype.flatten，标准方法只好改名叫 flat。'],
+      ],
+      tests: [
+        {
+          name: 'myMap：返回新数组，回调拿到 (item, index, array)',
+          run: (_, { eq, ok }) => {
+            const arr = [1, 2, 3]
+            const seen = []
+            const res = arr.myMap((x, i, a) => {
+              seen.push([x, i, a === arr])
+              return x * 2
+            })
+            eq(res, [2, 4, 6])
+            eq(seen, [[1, 0, true], [2, 1, true], [3, 2, true]], '回调参数应该是 (item, index, array)')
+            ok(res !== arr, '应该返回新数组')
+          },
+        },
+        {
+          name: 'myMap：支持 thisArg',
+          run: (_, { eq }) => {
+            eq([1, 2].myMap(function () { return this.k }, { k: 9 }), [9, 9])
+          },
+        },
+        {
+          name: 'myFilter：只保留回调返回真值的元素，支持 thisArg',
+          run: (_, { eq }) => {
+            eq([1, 2, 3, 4].myFilter((x) => x % 2), [1, 3])
+            eq([1, 2, 3].myFilter(function (x) { return x > this.min }, { min: 1 }), [2, 3])
+          },
+        },
+        {
+          name: 'myReduce：传了初始值，从第 0 项开始',
+          run: (_, { eq }) => {
+            const indexes = []
+            const sum = [1, 2, 3].myReduce((acc, x, i) => {
+              indexes.push(i)
+              return acc + x
+            }, 10)
+            eq(sum, 16)
+            eq(indexes, [0, 1, 2])
+          },
+        },
+        {
+          name: 'myReduce：没传初始值，用第一项当初始值',
+          run: (_, { eq }) => {
+            const indexes = []
+            const sum = [1, 2, 3].myReduce((acc, x, i) => {
+              indexes.push(i)
+              return acc + x
+            })
+            eq(sum, 6)
+            eq(indexes, [1, 2], '没传初始值时，应该从下标 1 开始调用回调')
+          },
+        },
+        {
+          name: 'myReduce：空数组又没有初始值时抛 TypeError',
+          run: (_, { throws }) => {
+            throws(() => [].myReduce((a, b) => a + b), TypeError, '原生 [].reduce(fn) 会抛 TypeError')
+          },
+        },
+        {
+          name: '不修改原数组',
+          run: (_, { eq }) => {
+            const arr = [1, 2, 3]
+            arr.myMap((x) => x * 2)
+            arr.myFilter((x) => x > 1)
+            arr.myReduce((a, b) => a + b)
+            eq(arr, [1, 2, 3])
+          },
+        },
+        {
+          name: '传 undefined 作初始值也算传了',
+          bonus: true,
+          run: (_, { eq }) => {
+            eq([].myReduce((a, b) => a + b, undefined), undefined, '空数组 + 初始值 undefined：返回 undefined，不抛错')
+            eq([1].myReduce((acc, x) => [acc, x], undefined), [undefined, 1], '初始值 undefined 时，应该从第 0 项开始')
+          },
+        },
+        {
+          name: '跳过稀疏数组的空位',
+          bonus: true,
+          run: (_, { eq, ok }) => {
+            const sparse = [1, , 3] // eslint-disable-line no-sparse-arrays
+            let calls = 0
+            const res = sparse.myMap((x) => {
+              calls += 1
+              return x * 2
+            })
+            eq(calls, 2, '空位上不应该调用回调')
+            ok(res.length === 3 && !(1 in res), 'myMap 的结果长度不变，空位仍然是空位')
+            eq(sparse.myFilter(() => true), [1, 3])
+          },
+        },
+      ],
+    },
+    {
+      id: 'big-add',
+      tier: 'A',
+      title: '大数加法',
+      minutes: 8,
+      anim: null,
+      exports: ['addStrings'],
+      task: `
+        <p>实现 <code>addStrings(a, b)</code>：</p>
+        <ul>
+          <li>a、b 是只包含数字的<b>非负整数字符串</b>，可能很长，超出 Number 能精确表示的范围。</li>
+          <li>返回它们的和，<b>也是字符串</b>。</li>
+          <li>不能用 BigInt。</li>
+        </ul>
+        <p class="bonus">进阶：去掉结果里多余的前导 0，比如 <code>'007' + '3'</code> 返回 <code>'10'</code>，<code>'000' + '0'</code> 返回 <code>'0'</code>。</p>`,
+      idea: '模拟竖式加法：两个指针从个位往前走，逐位相加再加上进位；当前位留 sum % 10，进位是 Math.floor(sum / 10)。',
+      points: [
+        '循环条件带上 carry：最高位还有进位时（比如 999 + 1）要再走一轮。',
+        '短的那个数先走完，就当作 0。',
+        '结果是从个位往前收集的，最后 reverse 再 join。',
+        '为什么要用字符串？超过 Number.MAX_SAFE_INTEGER（2^53 - 1）的整数，转成 number 的那一刻就丢精度了：9007199254740993 会变成 9007199254740992。',
+      ],
+      pitfalls: [
+        '先 <code>Number(a) + Number(b)</code>：大数直接丢精度。',
+        '循环条件没带 carry：999 + 1 得到 000。',
+        '字符直接相加：<code>\'1\' + \'2\'</code> 是 \'12\'，要先转成数字。',
+        '进位变量写成 curry（柯里化）：应该是 carry。',
+      ],
+      followups: [
+        ['原生有办法吗？', 'BigInt：<code>(BigInt(a) + BigInt(b)).toString()</code>。'],
+        ['大数相乘怎么做？', 'LeetCode 43：开一个长度为 m + n 的数组，第 i 位乘第 j 位的结果累加到下标 i + j + 1 上，最后统一处理进位。'],
+        ['带小数怎么办？', '按小数点拆成整数部分和小数部分，小数部分在右边补 0 对齐，从最后一位开始一起加，进位会从小数部分传到整数部分。'],
+      ],
+      tests: [
+        {
+          name: '简单相加，结果是字符串',
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('1', '2'), '3')
+            eq(addStrings('123', '456'), '579')
+          },
+        },
+        {
+          name: '有进位',
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('99', '1'), '100', "'99' + '1'")
+            eq(addStrings('999', '999'), '1998', "'999' + '999'")
+          },
+        },
+        {
+          name: '两个数长度不同',
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('12345', '7'), '12352')
+            eq(addStrings('7', '12345'), '12352')
+          },
+        },
+        {
+          name: '0 + 0',
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('0', '0'), '0')
+          },
+        },
+        {
+          name: '超过 Number 安全范围也算得对',
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('9007199254740993', '1'), '9007199254740994', '超过 2^53 的数转成 Number 会丢精度')
+          },
+        },
+        {
+          name: '30 位的大数，不借助 BigInt',
+          run: ({ addStrings }, { eq, fail }) => {
+            const x = '123456789012345678901234567890'
+            const y = '987654321098765432109876543210'
+            const expected = (BigInt(x) + BigInt(y)).toString()
+            const saved = globalThis.BigInt
+            globalThis.BigInt = undefined
+            let got
+            try {
+              got = addStrings(x, y)
+            } catch (e) {
+              fail(`计算时出错：${e && e.message}（这道题不能用 BigInt）`)
+            } finally {
+              globalThis.BigInt = saved
+            }
+            eq(got, expected)
+          },
+        },
+        {
+          name: '去掉多余的前导 0',
+          bonus: true,
+          run: ({ addStrings }, { eq }) => {
+            eq(addStrings('007', '3'), '10', "'007' + '3'")
+            eq(addStrings('000', '0'), '0', "'000' + '0'")
+          },
+        },
+      ],
+    },
+  ]
+  const QUESTION_IDS = new Set(QUESTIONS.map((q) => q.id))
+  const TIER_LABEL = { S: 'S 档 · 必须能默写', A: 'A 档 · 高频' }
+
+  /* ======================= worker (runs user code in isolation) ======================= */
+  function workerMain() {
+    const send = (msg) => self.postMessage(msg)
+    class AssertError extends Error {}
+    // a test's leftover rejected promise must not spam the worker console
+    if ('onunhandledrejection' in self) self.onunhandledrejection = (event) => event.preventDefault()
+
+    const fmt = (value, depth = 0) => {
+      if (typeof value === 'string') return depth === 0 ? JSON.stringify(value) : JSON.stringify(value)
+      if (typeof value === 'function') return `ƒ ${value.name || '(anonymous)'}`
+      if (typeof value === 'symbol') return value.toString()
+      if (typeof value === 'bigint') return `${value}n`
+      if (value === undefined) return 'undefined'
+      if (value === null || typeof value !== 'object') return String(value)
+      if (depth > 3) return Array.isArray(value) ? '[…]' : '{…}'
+      if (value instanceof Error) return `${value.name}: ${value.message}`
+      if (value instanceof Date) return `Date(${value.toISOString()})`
+      if (value instanceof RegExp) return String(value)
+      if (value instanceof Map) return `Map(${value.size}) {${[...value].map(([k, v]) => `${fmt(k, depth + 1)} => ${fmt(v, depth + 1)}`).join(', ')}}`
+      if (value instanceof Set) return `Set(${value.size}) {${[...value].map((v) => fmt(v, depth + 1)).join(', ')}}`
+      if (typeof value.then === 'function') return 'Promise {…}'
+      if (Array.isArray(value)) return `[${value.map((v) => fmt(v, depth + 1)).join(', ')}]`
+      const keys = Object.keys(value)
+      return `{ ${keys.map((k) => `${k}: ${fmt(value[k], depth + 1)}`).join(', ')}${keys.length ? ' ' : ''}}`
+    }
+
+    for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+      console[level] = (...args) => send({ type: 'log', level, text: args.map((a) => (typeof a === 'string' ? a : fmt(a))).join(' ') })
+    }
+
+    const deepEqual = (a, b) => {
+      if (Object.is(a, b)) return true
+      if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false
+      if (Array.isArray(a) !== Array.isArray(b)) return false
+      if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b) && !(isPlain(a) && isPlain(b))) return false
+      const ka = Object.keys(a)
+      const kb = Object.keys(b)
+      if (ka.length !== kb.length) return false
+      return ka.every((k) => Object.prototype.hasOwnProperty.call(b, k) && deepEqual(a[k], b[k]))
+    }
+    const isPlain = (v) => {
+      const proto = Object.getPrototypeOf(v)
+      return proto === null || proto === Object.prototype
+    }
+
+    const helpers = {
+      sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+      delay: (value, ms, fail = false) => new Promise((resolve, reject) => setTimeout(() => (fail ? reject(value) : resolve(value)), ms)),
+      eq(actual, expected, msg = '结果不对') {
+        if (!deepEqual(actual, expected)) throw new AssertError(`${msg}\n  期望：${fmt(expected)}\n  实际：${fmt(actual)}`)
+      },
+      ok(condition, msg = '条件不成立') {
+        if (!condition) throw new AssertError(msg)
+      },
+      fail(msg) {
+        throw new AssertError(msg)
+      },
+      throws(fn, Type, msg = '应该抛出错误，但没有') {
+        try {
+          fn()
+        } catch (err) {
+          if (Type && !(err instanceof Type)) throw new AssertError(`${msg}\n  实际抛出的是：${fmt(err)}`)
+          return err
+        }
+        throw new AssertError(msg)
+      },
+      async rejects(promise, msg) {
+        if (!promise || typeof promise.then !== 'function') {
+          throw new AssertError(`${msg || '应该返回一个会 reject 的 Promise'}\n  实际返回：${fmt(promise)}`)
+        }
+        try {
+          await promise
+        } catch (err) {
+          return err
+        }
+        throw new AssertError(msg || '这个 Promise 应该 reject，但它 resolve 了')
+      },
+      timeout(promise, ms, msg) {
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => setTimeout(() => reject(new AssertError(msg || `${ms}ms 内没有完成`)), ms)),
+        ])
+      },
+    }
+
+    const userLine = (err) => {
+      const m = String((err && err.stack) || '').match(/solution\.js:(\d+):(\d+)/)
+      return m ? Math.max(1, Number(m[1]) - 2) : null
+    }
+    const describe = (err) => {
+      if (err instanceof AssertError) return err.message
+      const name = (err && err.name) || 'Error'
+      const message = err && err.message !== undefined ? err.message : String(err)
+      let text = `${name}: ${message}`
+      if (/is not a (function|constructor)|Cannot read propert/.test(message)) text += '\n  （检查函数或方法是否已经实现、名字是否写对、有没有 return）'
+      if (err instanceof RangeError && /call stack/i.test(message)) text += '\n  （栈溢出：递归停不下来）'
+      return text
+    }
+
+    self.onmessage = async (event) => {
+      const { code, exports, tests } = event.data
+      let api
+      try {
+        const names = exports.map((n) => `${JSON.stringify(n)}: typeof ${n} === 'undefined' ? undefined : ${n}`).join(', ')
+        api = new Function(`${code}\n;return { ${names} }\n//# sourceURL=solution.js`)()
+      } catch (err) {
+        send({ type: 'fatal', kind: err instanceof SyntaxError ? 'syntax' : 'runtime', message: describe(err), line: userLine(err) })
+        send({ type: 'done' })
+        return
+      }
+      for (let i = 0; i < tests.length; i++) {
+        const test = tests[i]
+        send({ type: 'start', index: i, timeout: test.timeout })
+        const started = performance.now()
+        try {
+          const fn = (0, eval)(`(${test.src})\n//# sourceURL=tests.js`)
+          await helpers.timeout(
+            Promise.resolve().then(() => fn(api || {}, helpers)),
+            test.timeout,
+            `超过 ${test.timeout}ms 还没有完成：可能有 Promise 一直没有 resolve`,
+          )
+          send({ type: 'result', index: i, ok: true, ms: Math.round(performance.now() - started) })
+        } catch (err) {
+          send({
+            type: 'result',
+            index: i,
+            ok: false,
+            ms: Math.round(performance.now() - started),
+            message: describe(err),
+            line: err instanceof AssertError ? null : userLine(err),
+          })
+        }
+      }
+      send({ type: 'done' })
+    }
+  }
+  const WORKER_SOURCE = `(${workerMain.toString()})()`
+
+  /* ======================= small utils ======================= */
+  const $ = (sel, root = document) => root.querySelector(sel)
+  const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c])
+  const pad2 = (n) => String(n).padStart(2, '0')
+  const dateKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+  const parseKey = (key) => {
+    const [y, m, d] = key.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  const todayKey = () => dateKey(new Date())
+  const addDays = (key, n) => {
+    const d = parseKey(key)
+    d.setDate(d.getDate() + n)
+    return dateKey(d)
+  }
+  const fmtClock = (ms) => {
+    const total = Math.max(0, Math.floor(ms / 1000))
+    return `${pad2(Math.floor(total / 60))}:${pad2(total % 60)}`
+  }
+  const fmtDay = (key) => {
+    const t = todayKey()
+    if (!key) return '—'
+    if (key < t) return '已到期'
+    if (key === t) return '今天'
+    if (key === addDays(t, 1)) return '明天'
+    const d = parseKey(key)
+    return `${d.getMonth() + 1}月${d.getDate()}日`
+  }
+  const clone = (v) => JSON.parse(JSON.stringify(v))
+  const ls = {
+    get(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key)
+        return raw === null ? fallback : JSON.parse(raw)
+      } catch {
+        return fallback
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value))
+      } catch {
+        // storage unavailable: progress stays in memory for this visit
+      }
+    },
+    remove(key) {
+      try {
+        localStorage.removeItem(key)
+      } catch {
+        // ignore
+      }
+    },
+  }
+  const use = (name) => {
+    try {
+      return window.claude && typeof window.claude.use === 'function' ? window.claude.use(name) : Promise.resolve(null)
+    } catch {
+      return Promise.resolve(null)
+    }
+  }
+  const sourceOf = (kind, qid) => {
+    const el = document.getElementById(`${kind}-${qid}`)
+    return el ? el.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '') + '\n' : ''
+  }
+  const qById = (id) => QUESTIONS.find((q) => q.id === id)
+
+  let toastTimer = 0
+  function toast(text) {
+    const el = $('#toast')
+    el.textContent = text
+    el.hidden = false
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { el.hidden = true }, 3200)
+  }
+
+  /* ======================= state ======================= */
+  const state = {
+    current: QUESTIONS[0].id,
+    tab: ls.get('hs:tab', 'task'),
+    records: ls.get('hs:records', {}),
+    meta: { target: 3, ...ls.get('hs:meta', {}) },
+    attempts: {},
+    runs: {},
+    reviews: {},
+    revealArmed: false,
+    resetArmed: false,
+    sync: 'connecting',
+  }
+  for (const id of Object.keys(state.records)) if (!QUESTION_IDS.has(id)) delete state.records[id]
+
+  /* ======================= persistence (db when available, else this browser) ======================= */
+  const store = { col: null, chains: {} }
+
+  function cacheLocal() {
+    ls.set('hs:records', state.records)
+    ls.set('hs:meta', state.meta)
+  }
+
+  function enqueueWrite(docId, body) {
+    if (!store.col) return
+    const prev = store.chains[docId] || Promise.resolve()
+    store.chains[docId] = prev
+      .then(() => store.col.doc(docId).set(body))
+      .catch((err) => {
+        const code = err && err.code
+        if (code === 'quota_exceeded') toast('存储空间已满，这次记录只保存在本浏览器。')
+        else if (code === 'revoked' || code === 'not_granted' || code === 'invalid_argument') {
+          store.col = null
+          setSync('local')
+          toast('没法写入你的账号，记录改为保存在本浏览器。')
+        } else toast('同步失败，记录已暂存在本浏览器，下次操作时会再试。')
+      })
+  }
+
+  function persistRecord(qid) {
+    cacheLocal()
+    enqueueWrite(qid, clone(state.records[qid]))
+  }
+
+  function persistMeta() {
+    cacheLocal()
+    enqueueWrite('meta', clone(state.meta))
+  }
+
+  function setSync(mode) {
+    state.sync = mode
+    const el = $('#sync')
+    el.dataset.mode = mode
+    el.textContent = {
+      connecting: '正在连接你的账号…',
+      db: '进度已同步到你的 Claude 账号',
+      local: '进度只保存在这个浏览器',
+      error: '同步出错，进度暂存在这个浏览器',
+    }[mode]
+  }
+
+  async function initStore() {
+    const [db, user] = await Promise.all([use('db'), use('user')])
+    if (!db || !user) return setSync('local')
+    const uid = await user.id()
+    if (!uid) return setSync('local')
+    let col
+    try {
+      col = db.collection(`data/users/${uid}`)
+    } catch {
+      return setSync('local')
+    }
+    try {
+      const first = await col.get()
+      store.col = col
+      if (first.empty && Object.keys(state.records).length > 0) {
+        // first visit with this account: carry over what this browser already has
+        for (const qid of Object.keys(state.records)) enqueueWrite(qid, clone(state.records[qid]))
+        enqueueWrite('meta', clone(state.meta))
+      }
+    } catch {
+      return setSync('error')
+    }
+    col.onSnapshot(
+      (snap) => {
+        const records = {}
+        let meta = null
+        for (const doc of snap.docs) {
+          if (!doc.exists) continue
+          if (doc.id === 'meta') meta = doc.data()
+          else if (QUESTION_IDS.has(doc.id)) records[doc.id] = clone(doc.data())
+        }
+        if (snap.empty && Object.keys(state.records).length > 0) return
+        state.records = records
+        if (meta) state.meta = { target: 3, ...clone(meta) }
+        cacheLocal()
+        setSync('db')
+        renderChrome()
+        if (state.tab === 'record') renderTab()
+      },
+      () => setSync('error'),
+    )
+    setSync('db')
+  }
+
+  /* ======================= derived ======================= */
+  function statusOf(qid) {
+    const rec = state.records[qid]
+    const t = todayKey()
+    if (!rec || !Array.isArray(rec.history) || rec.history.length === 0) return { key: 'new', label: '新题' }
+    if (rec.history.some((h) => h.day === t)) return { key: 'today', label: '今日已练' }
+    if (rec.due && rec.due <= t) return { key: 'due', label: '待复习' }
+    if ((rec.box || 0) >= MASTERED_BOX) return { key: 'mastered', label: '已掌握' }
+    return { key: 'learning', label: '学习中' }
+  }
+
+  function todayPlan() {
+    const target = Number(state.meta.target) || 3
+    const done = []
+    const due = []
+    const fresh = []
+    for (const q of QUESTIONS) {
+      const key = statusOf(q.id).key
+      if (key === 'today') done.push({ id: q.id, done: true, reason: '已完成' })
+      else if (key === 'due') due.push({ id: q.id, done: false, reason: '复习' })
+      else if (key === 'new') fresh.push({ id: q.id, done: false, reason: '新题' })
+    }
+    due.sort((a, b) => (state.records[a.id].due < state.records[b.id].due ? -1 : 1))
+    const newDoneToday = done.filter((d) => (state.records[d.id].history || []).every((h) => h.day === todayKey())).length
+    const plan = [...done, ...due]
+    for (const item of fresh.slice(0, Math.max(0, target - newDoneToday))) plan.push(item)
+    return plan
+  }
+
+  function practiceCounts() {
+    const counts = new Map()
+    for (const rec of Object.values(state.records)) {
+      for (const h of rec.history || []) counts.set(h.day, (counts.get(h.day) || 0) + 1)
+    }
+    return counts
+  }
+
+  function streakDays(counts) {
+    let day = todayKey()
+    if (!counts.has(day)) day = addDays(day, -1)
+    let n = 0
+    while (counts.has(day)) {
+      n += 1
+      day = addDays(day, -1)
+    }
+    return n
+  }
+
+  /* ======================= attempts ======================= */
+  function attemptFor(qid) {
+    if (!state.attempts[qid]) state.attempts[qid] = { startedAt: Date.now(), viewedAnswer: false, done: false }
+    return state.attempts[qid]
+  }
+
+  function completeAttempt(qid, code) {
+    const attempt = attemptFor(qid)
+    if (attempt.done) return null
+    const ms = Date.now() - attempt.startedAt
+    const t = todayKey()
+    const prev = state.records[qid] || { box: 0, history: [] }
+    const history = Array.isArray(prev.history) ? prev.history : []
+    const alreadyToday = history.some((h) => h.day === t)
+    const assisted = attempt.viewedAnswer
+    let box = prev.box || 0
+    if (assisted) box = 0
+    else if (!alreadyToday) box = Math.min(box + 1, MAX_BOX)
+    const due = assisted || !alreadyToday || !prev.due ? addDays(t, INTERVALS[box]) : prev.due
+    const best = assisted ? prev.best ?? null : Math.min(prev.best ?? Infinity, ms)
+    state.records[qid] = {
+      box,
+      due,
+      best: Number.isFinite(best) ? best : null,
+      code,
+      history: [...history, { at: new Date().toISOString(), day: t, ms, result: assisted ? 'assisted' : 'pass' }].slice(-HISTORY_LIMIT),
+    }
+    Object.assign(attempt, { done: true, ms, assisted, again: alreadyToday })
+    persistRecord(qid)
+    return attempt
+  }
+
+  /* ======================= editor ======================= */
+  let suppressChange = false
+  let draftTimer = 0
+  let loadedQid = null
+
+  function createEditor(host, { onChange, onRun }) {
+    host.innerHTML = `
+      <div class="ed">
+        <pre class="ed-gutter" aria-hidden="true"></pre>
+        <div class="ed-main">
+          <pre class="ed-hl" aria-hidden="true"></pre>
+          <textarea class="ed-input" id="code-input" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="代码编辑器"></textarea>
+        </div>
+      </div>`
+    const ta = $('.ed-input', host)
+    const hl = $('.ed-hl', host)
+    const gutter = $('.ed-gutter', host)
+    const PAIRS = { '(': ')', '[': ']', '{': '}', "'": "'", '"': '"', '`': '`' }
+    const QUOTES = new Set(["'", '"', '`'])
+    const CLOSERS = new Set([')', ']', '}'])
+    const INDENT = '  '
+    let lineCount = 0
+
+    const syncScroll = () => {
+      hl.scrollTop = ta.scrollTop
+      hl.scrollLeft = ta.scrollLeft
+      gutter.scrollTop = ta.scrollTop
+    }
+    const render = () => {
+      // the trailing space keeps the overlay as tall as the textarea when the code ends with a newline
+      hl.innerHTML = `${highlightCode(ta.value)}\n `
+      const lines = ta.value.split('\n').length
+      if (lines !== lineCount) {
+        lineCount = lines
+        gutter.textContent = `${Array.from({ length: lines }, (_, i) => i + 1).join('\n')}\n `
+      }
+      syncScroll()
+    }
+    const lineStartOf = (text, pos) => text.lastIndexOf('\n', pos - 1) + 1
+
+    // Replace [start, end) with text; execCommand keeps the browser's own undo history
+    const edit = (start, end, text, caretStart, caretEnd = caretStart) => {
+      ta.focus()
+      ta.setSelectionRange(start, end)
+      let ok = false
+      try {
+        ok = document.execCommand('insertText', false, text)
+      } catch {
+        ok = false
+      }
+      if (!ok) ta.setRangeText(text, start, end, 'end')
+      ta.setSelectionRange(caretStart, caretEnd)
+      render()
+      onChange(ta.value)
+    }
+
+    const selectedLines = () => {
+      const { selectionStart: s, selectionEnd: e, value } = ta
+      let end = e
+      if (end > s && value[end - 1] === '\n') end -= 1
+      const lineEnd = value.indexOf('\n', end)
+      return { start: lineStartOf(value, s), end: lineEnd === -1 ? value.length : lineEnd }
+    }
+    const indent = () => {
+      const { selectionStart: s, selectionEnd: e, value } = ta
+      if (!value.slice(s, e).includes('\n')) return edit(s, e, INDENT, s + INDENT.length)
+      const { start, end } = selectedLines()
+      const out = value.slice(start, end).split('\n').map((l) => (l ? INDENT + l : l)).join('\n')
+      return edit(start, end, out, start, start + out.length)
+    }
+    const outdent = () => {
+      const { start, end } = selectedLines()
+      const block = ta.value.slice(start, end)
+      const out = block.split('\n').map((l) => l.replace(/^ {1,2}/, '')).join('\n')
+      if (out !== block) edit(start, end, out, start, start + out.length)
+    }
+    const toggleComment = () => {
+      const { start, end } = selectedLines()
+      const lines = ta.value.slice(start, end).split('\n')
+      const filled = lines.filter((l) => l.trim())
+      if (!filled.length) return
+      const commented = filled.every((l) => /^\s*\/\//.test(l))
+      const minIndent = Math.min(...filled.map((l) => l.match(/^\s*/)[0].length))
+      const out = lines.map((l) => {
+        if (!l.trim()) return l
+        if (commented) return l.replace(/^(\s*)\/\/ ?/, '$1')
+        return `${l.slice(0, minIndent)}// ${l.slice(minIndent)}`
+      }).join('\n')
+      edit(start, end, out, start, start + out.length)
+    }
+    const newline = () => {
+      const { selectionStart: s, selectionEnd: e, value } = ta
+      const lead = value.slice(lineStartOf(value, s), s).match(/^\s*/)[0]
+      const before = value[s - 1] || ''
+      const opens = before !== '' && '([{'.includes(before)
+      if (opens && value[e] === PAIRS[before]) {
+        const inner = `\n${lead}${INDENT}`
+        return edit(s, e, `${inner}\n${lead}`, s + inner.length)
+      }
+      const text = `\n${lead}${opens ? INDENT : ''}`
+      return edit(s, e, text, s + text.length)
+    }
+
+    ta.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return
+      const { selectionStart: s, selectionEnd: end, value } = ta
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key === 'Enter') {
+        e.preventDefault()
+        onRun()
+        return
+      }
+      if (mod && e.key === '/') {
+        e.preventDefault()
+        toggleComment()
+        return
+      }
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        if (e.shiftKey) outdent()
+        else indent()
+        return
+      }
+      if (e.key === 'Enter' && !mod && !e.altKey && !e.shiftKey) {
+        e.preventDefault()
+        newline()
+        return
+      }
+      if (e.key === 'Backspace' && !mod && s === end && s > 0) {
+        if (PAIRS[value[s - 1]] && PAIRS[value[s - 1]] === value[s]) {
+          e.preventDefault()
+          edit(s - 1, s + 1, '', s - 1)
+          return
+        }
+        const head = value.slice(lineStartOf(value, s), s)
+        if (head.length >= 2 && /^ +$/.test(head)) {
+          e.preventDefault()
+          const cut = head.length % 2 === 0 ? 2 : 1
+          edit(s - cut, s, '', s - cut)
+        }
+        return
+      }
+      if (mod || e.altKey || e.key.length !== 1) return
+      if ((CLOSERS.has(e.key) || QUOTES.has(e.key)) && s === end && value[s] === e.key) {
+        e.preventDefault()
+        ta.setSelectionRange(s + 1, s + 1)
+        return
+      }
+      if (PAIRS[e.key]) {
+        if (s !== end) {
+          e.preventDefault()
+          edit(s, end, `${e.key}${value.slice(s, end)}${PAIRS[e.key]}`, s + 1, end + 1)
+          return
+        }
+        if (QUOTES.has(e.key) && /\w/.test(value[s - 1] || '')) return
+        const next = value[s] || ''
+        if (next === '' || /[\s)\]};,]/.test(next)) {
+          e.preventDefault()
+          edit(s, s, `${e.key}${PAIRS[e.key]}`, s + 1)
+        }
+      }
+    })
+    ta.addEventListener('input', () => {
+      render()
+      onChange(ta.value)
+    })
+    ta.addEventListener('scroll', syncScroll)
+
+    return {
+      get: () => ta.value,
+      set(value) {
+        ta.value = value
+        ta.setSelectionRange(0, 0)
+        ta.scrollTop = 0
+        ta.scrollLeft = 0
+        render()
+      },
+      focus: () => ta.focus(),
+      jump(line) {
+        const pos = ta.value.split('\n').slice(0, Math.max(0, line - 1)).reduce((n, l) => n + l.length + 1, 0)
+        ta.focus()
+        ta.setSelectionRange(pos, pos)
+        const lh = parseFloat(getComputedStyle(ta).lineHeight) || 21.6
+        ta.scrollTop = Math.max(0, (line - 4) * lh)
+        syncScroll()
+      },
+    }
+  }
+
+  const editor = createEditor($('#editor'), {
+    onChange(value) {
+      if (suppressChange) return
+      clearTimeout(draftTimer)
+      const qid = loadedQid
+      if (!qid) return
+      draftTimer = setTimeout(() => ls.set(`hs:draft:${qid}`, value), 400)
+    },
+    onRun: () => runTests(),
+  })
+
+  function loadCode(qid) {
+    const draft = ls.get(`hs:draft:${qid}`, null)
+    const rec = state.records[qid]
+    const code = typeof draft === 'string' ? draft : rec && typeof rec.code === 'string' ? rec.code : sourceOf('starter', qid)
+    suppressChange = true
+    editor.set(code)
+    suppressChange = false
+    loadedQid = qid
+  }
+
+  function flushDraft() {
+    clearTimeout(draftTimer)
+    if (loadedQid) ls.set(`hs:draft:${loadedQid}`, editor.get())
+  }
+
+  /* ======================= runner ======================= */
+  let running = false
+
+  let probingSyntax = false
+  window.addEventListener('error', (event) => {
+    if (probingSyntax) return
+    toast(`页面出错：${event.message || '未知错误'}。截图发给 Claude 可以帮你排查。`)
+  })
+
+  function locateSyntaxError(code) {
+    probingSyntax = true
+    let line = null
+    const onError = (ev) => {
+      if (typeof ev.lineno === 'number' && ev.lineno > 0) line = ev.lineno - 1
+      ev.preventDefault()
+    }
+    window.addEventListener('error', onError)
+    try {
+      const s = document.createElement('script')
+      s.textContent = `void function () { return\n${code}\n}`
+      document.head.append(s)
+      s.remove()
+    } catch {
+      // ignore: line stays unknown
+    }
+    window.removeEventListener('error', onError)
+    probingSyntax = false
+    // some browsers report the line within the whole document; only trust a line inside the user's code
+    const total = code.split('\n').length
+    return line !== null && line >= 1 && line <= total ? line : null
+  }
+
+  function runTests() {
+    if (running) return
+    const q = qById(state.current)
+    const code = editor.get()
+    flushDraft()
+    attemptFor(q.id)
+    const run = {
+      status: 'running',
+      tests: q.tests.map((t) => ({ name: t.name, bonus: Boolean(t.bonus), state: 'pending' })),
+      logs: [],
+      fatal: null,
+    }
+    state.runs[q.id] = run
+    state.reviews[q.id] = null
+    running = true
+    renderResults()
+
+    let worker
+    let url
+    try {
+      url = URL.createObjectURL(new Blob([WORKER_SOURCE], { type: 'text/javascript' }))
+      worker = new Worker(url)
+    } catch {
+      run.status = 'done'
+      run.fatal = { message: '浏览器不允许创建 Worker，没法运行测试。', line: null }
+      running = false
+      renderResults()
+      return
+    }
+
+    let watchdog = 0
+    let currentIndex = -1
+    const arm = (ms) => {
+      clearTimeout(watchdog)
+      watchdog = setTimeout(onHang, ms)
+    }
+    const finish = () => {
+      clearTimeout(watchdog)
+      worker.terminate()
+      URL.revokeObjectURL(url)
+      running = false
+      run.status = 'done'
+      for (const t of run.tests) if (t.state === 'pending' || t.state === 'running') t.state = 'skipped'
+      const main = run.tests.filter((t) => !t.bonus)
+      if (!run.fatal && main.length > 0 && main.every((t) => t.state === 'ok')) completeAttempt(q.id, code)
+      renderChrome()
+      if (q.id === state.current) {
+        renderResults()
+        if (state.tab === 'record' || state.tab === 'answer') renderTab()
+      }
+    }
+    function onHang() {
+      const t = run.tests[currentIndex]
+      if (t) {
+        t.state = 'bad'
+        t.message = '超时：代码一直没有结束，可能有死循环（比如 while 的条件永远成立）。'
+      } else {
+        run.fatal = { message: '代码加载时一直没有结束，可能有死循环。', line: null }
+      }
+      finish()
+    }
+
+    worker.onmessage = (event) => {
+      const msg = event.data
+      if (msg.type === 'log') {
+        if (run.logs.length < LOG_LIMIT) run.logs.push({ level: msg.level, text: msg.text })
+        else if (run.logs.length === LOG_LIMIT) run.logs.push({ level: 'warn', text: `…输出太多，只显示前 ${LOG_LIMIT} 条` })
+        return
+      }
+      if (msg.type === 'fatal') {
+        const line = msg.kind === 'syntax' ? locateSyntaxError(code) : msg.line
+        run.fatal = { message: msg.message, line, kind: msg.kind }
+      } else if (msg.type === 'start') {
+        currentIndex = msg.index
+        run.tests[msg.index].state = 'running'
+        arm(msg.timeout + 1500)
+      } else if (msg.type === 'result') {
+        Object.assign(run.tests[msg.index], { state: msg.ok ? 'ok' : 'bad', ms: msg.ms, message: msg.message, line: msg.line })
+        arm(4000)
+      } else if (msg.type === 'done') {
+        finish()
+        return
+      }
+      if (q.id === state.current) renderResults()
+    }
+    worker.onerror = (event) => {
+      event.preventDefault()
+      run.fatal = { message: event.message || '运行出错', line: null }
+      finish()
+    }
+
+    arm(4000)
+    worker.postMessage({
+      code,
+      exports: q.exports,
+      tests: q.tests.map((t) => ({ src: t.run.toString(), timeout: t.timeout || DEFAULT_TIMEOUT })),
+    })
+  }
+
+  /* ======================= Claude review (sample capability) ======================= */
+  let sampleFn = null
+  const REVIEW_ERRORS = {
+    rate_limited: '请求太频繁，或者用量已到上限，稍后再试。',
+    session_expired: '登录已过期，请重新登录 claude.ai 后再试。',
+    refused: 'Claude 没有回答这次请求，改一改代码再试。',
+    prompt_too_large: '代码太长了，删掉一些注释再试。',
+    empty_completion: 'Claude 这次没有给出内容，再试一次。',
+  }
+  const REVIEW_HIDE = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'])
+
+  function plainText(html) {
+    const div = document.createElement('div')
+    div.innerHTML = html
+    return div.textContent.replace(/\n\s+/g, '\n').trim()
+  }
+
+  async function startReview() {
+    const q = qById(state.current)
+    const run = state.runs[q.id]
+    if (!sampleFn || !run || run.status !== 'done') return
+    const code = editor.get()
+    const lines = run.fatal
+      ? [`代码没能运行：${run.fatal.message}`]
+      : run.tests.map((t) => `${t.state === 'ok' ? '通过' : '失败'}${t.bonus ? '（进阶）' : ''}：${t.name}${t.message ? `\n    ${t.message.split('\n').join('\n    ')}` : ''}`)
+    const prompt = [
+      `你是前端面试官，正在看候选人手写的「${q.title}」。请用简体中文点评，总共不超过 300 字，严格按下面三段输出，每段 1 到 3 条短句：`,
+      '【结论】能不能过这道面试题，一句话说明。',
+      '【问题】指出具体的 bug 或漏掉的边界情况，说明在哪一行、为什么错。没有问题就写"没有明显问题"。',
+      '【建议】怎么改写得更好，或者面试官接下来可能追问什么。',
+      '不要重写整段代码，最多引用 3 行关键代码。不要用 Markdown 标题。',
+      '',
+      '题目要求：',
+      plainText(q.task),
+      '',
+      '自动测试结果：',
+      lines.join('\n'),
+      '',
+      '候选人的代码：',
+      '```js',
+      code.slice(0, 12000),
+      '```',
+    ].join('\n')
+
+    const ctl = new AbortController()
+    const review = { status: 'thinking', text: '', error: '', ctl }
+    state.reviews[q.id] = review
+    renderResults()
+    try {
+      const { text, truncated } = await sampleFn(prompt, {
+        signal: ctl.signal,
+        onText: ({ text: partial }) => {
+          review.status = 'streaming'
+          review.text = partial
+          if (state.current === q.id) renderReviewText()
+        },
+      })
+      review.text = text
+      review.status = 'done'
+      if (truncated) review.error = '点评被截断了，可以删掉一些代码后再试。'
+    } catch (err) {
+      const code = (err && err.code) || 'upstream_error'
+      review.text = (err && err.text) || review.text
+      review.status = 'done'
+      if (REVIEW_HIDE.has(code)) {
+        sampleFn = null
+        review.error = '这个页面没有获得调用 Claude 的权限，点评功能已关闭。'
+      } else if (code !== 'cancelled') {
+        review.error = REVIEW_ERRORS[code] || '点评中断了，可以再试一次。'
+      }
+    }
+    if (state.current === q.id) renderResults()
+  }
+
+  /* ======================= rendering ======================= */
+  function renderChrome() {
+    const counts = practiceCounts()
+    const plan = todayPlan()
+    const doneToday = plan.filter((p) => p.done).length
+    const mastered = QUESTIONS.filter((q) => (state.records[q.id]?.box || 0) >= MASTERED_BOX).length
+
+    $('#stats').innerHTML = [
+      `<span class="stat">今日 <b>${doneToday}</b> / ${plan.length || 0}</span>`,
+      `<span class="stat">连续 <b>${streakDays(counts)}</b> 天</span>`,
+      `<span class="stat">已掌握 <b>${mastered}</b> / ${QUESTIONS.length}</span>`,
+    ].join('')
+
+    $('#target').value = String(state.meta.target || 3)
+    const planEl = $('#plan')
+    planEl.innerHTML = plan.length
+      ? plan.map((item) => {
+        const q = qById(item.id)
+        return `<li><button type="button" class="qbtn${item.done ? ' done' : ''}" data-q="${q.id}" aria-current="${q.id === state.current}">
+            <span class="check" aria-hidden="true">${item.done ? '✓' : ''}</span>
+            <span class="name">${esc(q.title)}<span class="sub">${item.reason}</span></span>
+            <span class="pill ${item.done ? 'today' : item.reason === '复习' ? 'due' : 'new'}">${item.done ? '完成' : item.reason}</span>
+          </button></li>`
+      }).join('')
+      : '<li><p class="plan-empty">今天没有到期的题。挑一道已掌握的再默写一遍，或者把每天新题调多一点。</p></li>'
+
+    $('#qlist').innerHTML = QUESTIONS.map((q, i) => {
+      const tier = q.tier || 'S'
+      const tierHead = i === 0 || (QUESTIONS[i - 1].tier || 'S') !== tier ? `<li class="qlist-tier">${TIER_LABEL[tier]}</li>` : ''
+      const s = statusOf(q.id)
+      const rec = state.records[q.id]
+      const sub = s.key === 'new' ? `建议 ${q.minutes} 分钟` : s.key === 'today' ? `下次 ${fmtDay(rec.due)}` : s.key === 'due' ? '今天该复习了' : `下次 ${fmtDay(rec.due)}`
+      return `${tierHead}<li><button type="button" class="qbtn" data-q="${q.id}" aria-current="${q.id === state.current}">
+          <span class="num">${i + 1}</span>
+          <span class="name">${esc(q.title)}<span class="sub">${sub}</span></span>
+          <span class="pill ${s.key}">${s.label}</span>
+        </button></li>`
+    }).join('')
+
+    // heatmap: 12 columns of weeks ending with the current week
+    const t = todayKey()
+    const todayDate = parseKey(t)
+    const start = addDays(t, -(7 * 11 + todayDate.getDay()))
+    const cells = []
+    for (let i = 0; i < 84; i++) {
+      const day = addDays(start, i)
+      if (day > t) {
+        cells.push('<i style="visibility: hidden"></i>')
+        continue
+      }
+      const n = Math.min(counts.get(day) || 0, 3)
+      cells.push(`<i data-n="${n}" class="${day === t ? 'today' : ''}" title="${day}：${counts.get(day) || 0} 道"></i>`)
+    }
+    $('#heat').innerHTML = cells.join('')
+
+    renderHead()
+  }
+
+  function renderHead() {
+    const q = qById(state.current)
+    const idx = QUESTIONS.indexOf(q)
+    const s = statusOf(q.id)
+    const attempt = attemptFor(q.id)
+    $('#qhead').innerHTML = `
+      <div class="qhead-title">
+        <span class="rank">${q.tier || 'S'} · 第 ${idx + 1} 题</span>
+        <h2>${esc(q.title)}</h2>
+        <span class="pill ${s.key}">${s.label}</span>
+      </div>
+      <div class="qhead-meta">
+        <label class="qpick" for="qpick">切换题目 <select id="qpick">${QUESTIONS.map((item, i) => `<option value="${item.id}"${item.id === q.id ? ' selected' : ''}>${i + 1}. ${esc(item.title)}（${statusOf(item.id).label}）</option>`).join('')}</select></label>
+        <span>本次用时 <span class="timer" id="timer">${fmtClock((attempt.done ? attempt.ms : Date.now() - attempt.startedAt) || 0)}</span> / 建议 ${q.minutes}:00</span>
+        ${q.anim ? `<a class="anim-link" href="${ANIM_URL}#${q.anim}" target="_blank" rel="noopener">看动画演示 ↗</a>` : ''}
+      </div>`
+    tickTimer()
+  }
+
+  function tickTimer() {
+    const el = $('#timer')
+    if (!el) return
+    const q = qById(state.current)
+    const attempt = attemptFor(q.id)
+    const ms = attempt.done ? attempt.ms : Date.now() - attempt.startedAt
+    el.textContent = fmtClock(ms)
+    el.classList.toggle('finished', attempt.done)
+    el.classList.toggle('over', !attempt.done && ms > q.minutes * 60000)
+  }
+
+  function highlightCode(code) {
+    const re = /(\/\/.*$|\/\*[\s\S]*?\*\/)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|\b(const|let|var|function|return|if|else|for|while|new|this|of|in|class|async|await|try|catch|finally|throw|null|undefined|typeof|instanceof|delete|true|false)\b|\b(\d+)\b/gm
+    let out = ''
+    let last = 0
+    for (const m of code.matchAll(re)) {
+      out += esc(code.slice(last, m.index))
+      const cls = m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : 'n'
+      out += `<span class="${cls}">${esc(m[0])}</span>`
+      last = m.index + m[0].length
+    }
+    return out + esc(code.slice(last))
+  }
+
+  function renderTab() {
+    const q = qById(state.current)
+    const panel = $('#tabpanel')
+    for (const btn of document.querySelectorAll('.tab')) btn.setAttribute('aria-selected', String(btn.dataset.tab === state.tab))
+    panel.setAttribute('aria-labelledby', `tab-${state.tab}`)
+
+    if (state.tab === 'task') {
+      panel.innerHTML = `
+        <div class="prose">${q.task}</div>
+        <div class="prose">
+          <h3>会跑的测试（☆ 是进阶，不影响通过）</h3>
+          <ul class="testnames">${q.tests.map((t) => `<li class="${t.bonus ? 'bonus' : ''}">${esc(t.name)}</li>`).join('')}</ul>
+        </div>`
+      return
+    }
+
+    if (state.tab === 'explain') {
+      panel.innerHTML = `
+        <div class="prose">
+          <p class="idea">${q.idea}</p>
+          <h3>要点</h3>
+          <ul>${q.points.map((p) => `<li>${p}</li>`).join('')}</ul>
+          <h3>常见错误</h3>
+          <ul>${q.pitfalls.map((p) => `<li>${p}</li>`).join('')}</ul>
+          <h3>面试追问</h3>
+          <div>${q.followups.map(([question, answer]) => `<details class="qa"><summary>${question}</summary><p>${answer}</p></details>`).join('')}</div>
+          ${q.anim ? `<p><a class="anim-link" href="${ANIM_URL}#${q.anim}" target="_blank" rel="noopener">在动画页里一步步看这道题的执行过程 ↗</a></p>` : ''}
+        </div>`
+      return
+    }
+
+    if (state.tab === 'answer') {
+      const attempt = attemptFor(q.id)
+      if (!attempt.viewedAnswer && !attempt.done) {
+        panel.innerHTML = state.revealArmed
+          ? `<div class="answer-gate">
+              <p>看了答案，这次通过会记为"看过答案"，明天会再安排复习。</p>
+              <div class="review-row">
+                <button class="btn danger" type="button" id="reveal-confirm">确定，显示答案</button>
+                <button class="btn ghost" type="button" id="reveal-cancel">再想想</button>
+              </div>
+            </div>`
+          : `<div class="answer-gate">
+              <p>建议先自己写完、跑一遍测试，再来对答案。</p>
+              <button class="btn" type="button" id="reveal">显示参考答案</button>
+            </div>`
+        return
+      }
+      panel.innerHTML = `
+        <pre class="solution">${highlightCode(sourceOf('solution', q.id))}</pre>
+        <div class="review-row">
+          <button class="btn" type="button" id="copy-answer">复制答案</button>
+          <span class="review-note">${attempt.viewedAnswer && !attempt.done ? '这次已记为"看过答案"。' : ''}</span>
+        </div>`
+      return
+    }
+
+    // record
+    const rec = state.records[q.id]
+    if (!rec || !Array.isArray(rec.history) || rec.history.length === 0) {
+      panel.innerHTML = '<p class="empty">还没有记录。基础测试全部通过后，会自动记一次，并安排下次复习。</p>'
+      return
+    }
+    const box = rec.box || 0
+    const rows = [...rec.history].reverse().slice(0, 20).map((h) => {
+      const d = parseKey(h.day)
+      return `<tr><td>${d.getMonth() + 1}月${d.getDate()}日</td><td class="mono">${fmtClock(h.ms)}</td><td>${h.result === 'pass' ? '独立完成' : '看过答案'}</td></tr>`
+    }).join('')
+    panel.innerHTML = `
+      <dl class="kv">
+        <dt>熟练度</dt><dd><span class="boxes" aria-label="熟练度 ${box} / ${MAX_BOX}">${Array.from({ length: MAX_BOX }, (_, i) => `<i class="${i < box ? 'on' : ''}"></i>`).join('')}</span></dd>
+        <dt>下次复习</dt><dd>${fmtDay(rec.due)}</dd>
+        <dt>最快用时</dt><dd class="mono">${rec.best ? fmtClock(rec.best) : '—'}</dd>
+        <dt>练习次数</dt><dd>${rec.history.length} 次</dd>
+      </dl>
+      <table class="history">
+        <thead><tr><th>日期</th><th>用时</th><th>结果</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="empty">独立完成一次，熟练度 +1，复习间隔依次是 1、3、7、14、30 天；看过答案会回到 0，第二天再练。熟练度到 ${MASTERED_BOX} 算掌握。</p>`
+  }
+
+  function renderReviewText() {
+    const q = qById(state.current)
+    const review = state.reviews[q.id]
+    const el = $('#review-text')
+    if (el && review) el.textContent = review.text || 'Claude 正在看你的代码…'
+  }
+
+  function renderResults() {
+    const q = qById(state.current)
+    const run = state.runs[q.id]
+    const el = $('#results')
+    $('#run').disabled = running
+    $('#run').textContent = running ? '运行中…' : '运行测试'
+
+    if (!run) {
+      el.innerHTML = '<p class="placeholder">写好之后点"运行测试"（⌘ / Ctrl + Enter）。测试在独立的 Worker 里运行，写出死循环也不会卡住页面。</p>'
+      return
+    }
+
+    const main = run.tests.filter((t) => !t.bonus)
+    const bonus = run.tests.filter((t) => t.bonus)
+    const passed = (list) => list.filter((t) => t.state === 'ok').length
+    const allMain = !run.fatal && main.every((t) => t.state === 'ok')
+    let headline = '正在运行…'
+    if (run.status === 'done') headline = run.fatal ? '代码没能运行' : allMain ? '基础测试全部通过' : '还有测试没通过'
+
+    const parts = []
+    parts.push(`<div class="res-head"><strong>${headline}</strong><span class="res-count">基础 <span class="${passed(main) === main.length ? 'ok' : 'bad'}">${passed(main)}</span> / ${main.length}${bonus.length ? ` · 进阶 ${passed(bonus)} / ${bonus.length}` : ''}</span></div>`)
+
+    const attempt = state.attempts[q.id]
+    if (run.status === 'done' && allMain && attempt && attempt.done) {
+      const rec = state.records[q.id]
+      const next = `下次复习：${fmtDay(rec.due)}`
+      const text = attempt.assisted
+        ? `通过了，用时 ${fmtClock(attempt.ms)}。这次看过答案，明天再独立默写一遍。`
+        : attempt.again
+          ? `又通过了一次，用时 ${fmtClock(attempt.ms)}。今天已经记过，熟练度不重复增加。`
+          : `独立完成，用时 ${fmtClock(attempt.ms)}，熟练度 ${rec.box} / ${MAX_BOX}。${next}`
+      parts.push(`<div class="banner ${attempt.assisted ? 'warn' : 'ok'}"><span>${text}</span><span class="spacer"></span><button class="btn" type="button" id="again">再默写一遍</button></div>`)
+    }
+
+    if (run.fatal) {
+      const lineText = run.fatal.line ? `第 ${run.fatal.line} 行：` : ''
+      parts.push(`<pre class="fatal">${esc(lineText + run.fatal.message)}</pre>`)
+      if (run.fatal.line) parts.push(`<div><button class="btn ghost" type="button" data-jump="${run.fatal.line}">跳到第 ${run.fatal.line} 行</button></div>`)
+    }
+
+    parts.push(`<ol class="tests">${run.tests.map((t) => {
+      const icon = { ok: '✓', bad: '✗', running: '…', pending: '○', skipped: '–' }[t.state]
+      const msg = t.state === 'bad' && t.message ? `<p class="msg">${esc((t.line ? `第 ${t.line} 行附近：` : '') + t.message)}</p>` : ''
+      const ms = t.state === 'ok' || t.state === 'bad' ? `${t.ms ?? 0}ms` : t.state === 'skipped' ? '未运行' : ''
+      return `<li class="test ${t.state}"><span class="icon" aria-hidden="true">${icon}</span><span>${esc(t.name)}${t.bonus ? '<span class="tag">进阶</span>' : ''}</span><span class="ms">${ms}</span>${msg}</li>`
+    }).join('')}</ol>`)
+
+    if (run.logs.length) {
+      parts.push('<div class="sub-label">console 输出</div>')
+      parts.push(`<pre class="console">${run.logs.map((l) => `<span class="${l.level === 'warn' ? 'warn' : l.level === 'error' ? 'error' : ''}">${esc(l.text)}</span>`).join('\n')}</pre>`)
+    }
+
+    if (sampleFn && run.status === 'done') {
+      const review = state.reviews[q.id]
+      const busy = review && (review.status === 'thinking' || review.status === 'streaming')
+      parts.push(`<div class="review">
+        <div class="review-row">
+          <button class="btn" type="button" id="${busy ? 'review-stop' : 'review'}">${busy ? '停止' : review ? '重新点评' : '请 Claude 点评这段代码'}</button>
+          <span class="review-note">${busy ? (review.status === 'thinking' ? 'Claude 正在看你的代码…' : '正在写点评…') : '会用你自己的 Claude 用量，第一次会询问是否允许。'}</span>
+        </div>
+        ${review && (review.text || busy) ? `<p class="review-text" id="review-text">${esc(review.text || 'Claude 正在看你的代码…')}</p>` : ''}
+        ${review && review.error ? `<span class="review-note">${esc(review.error)}</span>` : ''}
+      </div>`)
+    }
+
+    el.innerHTML = parts.join('')
+  }
+
+  function selectQuestion(qid) {
+    if (!QUESTION_IDS.has(qid)) return
+    if (qid !== state.current) flushDraft()
+    state.current = qid
+    state.revealArmed = false
+    state.resetArmed = false
+    $('#reset').textContent = '清空重写'
+    $('#reset').classList.remove('danger')
+    attemptFor(qid)
+    loadCode(qid)
+    try {
+      history.replaceState(null, '', `#${qid}`)
+    } catch {
+      // hash is only a convenience
+    }
+    renderChrome()
+    renderTab()
+    renderResults()
+  }
+
+  /* ======================= events ======================= */
+  document.addEventListener('click', async (e) => {
+    const target = e.target.closest('button, a')
+    if (!target) return
+    if (target.dataset.q) {
+      selectQuestion(target.dataset.q)
+      if (window.matchMedia('(max-width: 1279px)').matches) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        $('.work').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+      }
+      return
+    }
+    if (target.dataset.tab) {
+      state.tab = target.dataset.tab
+      state.revealArmed = false
+      ls.set('hs:tab', state.tab)
+      return renderTab()
+    }
+    if (target.dataset.jump) return editor.jump(Number(target.dataset.jump))
+    switch (target.id) {
+      case 'run':
+        return runTests()
+      case 'reset': {
+        if (!state.resetArmed) {
+          state.resetArmed = true
+          target.textContent = '确定清空？'
+          target.classList.add('danger')
+          setTimeout(() => {
+            if (!state.resetArmed) return
+            state.resetArmed = false
+            target.textContent = '清空重写'
+            target.classList.remove('danger')
+          }, 3000)
+          return
+        }
+        state.resetArmed = false
+        target.textContent = '清空重写'
+        target.classList.remove('danger')
+        ls.remove(`hs:draft:${state.current}`)
+        suppressChange = true
+        editor.set(sourceOf('starter', state.current))
+        suppressChange = false
+        return editor.focus()
+      }
+      case 'again': {
+        const qid = state.current
+        state.attempts[qid] = { startedAt: Date.now(), viewedAnswer: false, done: false }
+        state.runs[qid] = null
+        state.reviews[qid] = null
+        ls.remove(`hs:draft:${qid}`)
+        suppressChange = true
+        editor.set(sourceOf('starter', qid))
+        suppressChange = false
+        renderHead()
+        renderResults()
+        if (state.tab === 'answer') renderTab()
+        return editor.focus()
+      }
+      case 'reveal':
+        state.revealArmed = true
+        return renderTab()
+      case 'reveal-cancel':
+        state.revealArmed = false
+        return renderTab()
+      case 'reveal-confirm':
+        attemptFor(state.current).viewedAnswer = true
+        state.revealArmed = false
+        return renderTab()
+      case 'copy-answer': {
+        const text = sourceOf('solution', state.current)
+        try {
+          await navigator.clipboard.writeText(text)
+          toast('答案已复制')
+        } catch {
+          const range = document.createRange()
+          range.selectNodeContents($('.solution'))
+          const sel = window.getSelection()
+          sel.removeAllRanges()
+          sel.addRange(range)
+          toast('复制被浏览器拦截了，答案已选中，按 ⌘ / Ctrl + C 复制')
+        }
+        return
+      }
+      case 'review':
+        return startReview()
+      case 'review-stop': {
+        const review = state.reviews[state.current]
+        if (review && review.ctl) review.ctl.abort()
+        return
+      }
+      default:
+    }
+  })
+
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'qpick') selectQuestion(e.target.value)
+  })
+
+  $('#target').addEventListener('change', (e) => {
+    state.meta.target = Number(e.target.value) || 3
+    persistMeta()
+    renderChrome()
+  })
+
+  window.addEventListener('beforeunload', flushDraft)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushDraft()
+  })
+  setInterval(tickTimer, 1000)
+
+  /* ======================= boot ======================= */
+  if (!['task', 'explain', 'answer', 'record'].includes(state.tab)) state.tab = 'task'
+  const fromHash = location.hash.replace('#', '')
+  const firstOpen = todayPlan().find((p) => !p.done)
+  selectQuestion(QUESTION_IDS.has(fromHash) ? fromHash : firstOpen ? firstOpen.id : QUESTIONS[0].id)
+
+  initStore().catch(() => setSync('local'))
+  use('sample').then((fn) => {
+    sampleFn = fn
+    renderResults()
+  })
+})()
+</script>
+
+</body></html>

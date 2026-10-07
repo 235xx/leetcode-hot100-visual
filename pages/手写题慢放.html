@@ -1,0 +1,3282 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>手写题慢放</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+  :root {
+    --bg: #f3f5f8;
+    --surface: #ffffff;
+    --surface-2: #eaeef4;
+    --ink: #121925;
+    --muted: #5b6678;
+    --faint: #8a94a6;
+    --line: #d7dde6;
+    --accent: #2a55c9;
+    --accent-soft: rgba(42, 85, 201, 0.13);
+    --event: #d2581c;
+    --ok: #1e8a4b;
+    --ok-soft: rgba(30, 138, 75, 0.13);
+    --bad: #c43240;
+    --bad-soft: rgba(196, 50, 64, 0.11);
+    --code-bg: #f8f9fc;
+    --code-hl: rgba(42, 85, 201, 0.12);
+    --code-flash: rgba(210, 88, 28, 0.28);
+    --t-k: #7a3eb1;
+    --t-s: #1e7a45;
+    --t-c: #7d8799;
+    --t-n: #b5561a;
+    --radius: 10px;
+    --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0e1319;
+      --surface: #151b24;
+      --surface-2: #1c2431;
+      --ink: #e3e8ef;
+      --muted: #9aa5b6;
+      --faint: #6d7788;
+      --line: #2a3441;
+      --accent: #7c9cff;
+      --accent-soft: rgba(124, 156, 255, 0.17);
+      --event: #ff8a4c;
+      --ok: #4cc47f;
+      --ok-soft: rgba(76, 196, 127, 0.16);
+      --bad: #ff6b76;
+      --bad-soft: rgba(255, 107, 118, 0.14);
+      --code-bg: #111720;
+      --code-hl: rgba(124, 156, 255, 0.15);
+      --code-flash: rgba(255, 138, 76, 0.3);
+      --t-k: #c79bff;
+      --t-s: #7fd6a0;
+      --t-c: #6f7a8c;
+      --t-n: #ffb27a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0e1319;
+    --surface: #151b24;
+    --surface-2: #1c2431;
+    --ink: #e3e8ef;
+    --muted: #9aa5b6;
+    --faint: #6d7788;
+    --line: #2a3441;
+    --accent: #7c9cff;
+    --accent-soft: rgba(124, 156, 255, 0.17);
+    --event: #ff8a4c;
+    --ok: #4cc47f;
+    --ok-soft: rgba(76, 196, 127, 0.16);
+    --bad: #ff6b76;
+    --bad-soft: rgba(255, 107, 118, 0.14);
+    --code-bg: #111720;
+    --code-hl: rgba(124, 156, 255, 0.15);
+    --code-flash: rgba(255, 138, 76, 0.3);
+    --t-k: #c79bff;
+    --t-s: #7fd6a0;
+    --t-c: #6f7a8c;
+    --t-n: #ffb27a;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  .spacer { flex: 1; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 36px 72px;
+  }
+  code, .mono { font-family: var(--font-mono); font-size: 0.9em; }
+  p code, li code, .note code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* masthead */
+  .masthead { display: grid; gap: 14px; max-width: 760px; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--muted); max-width: 64ch; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 26px; height: 12px; border-radius: 3px; display: inline-block; }
+  .swatch.on { background: var(--code-hl); border-left: 3px solid var(--accent); }
+  .swatch.flash { background: var(--code-flash); }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .toc a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .toc a:hover { border-color: var(--accent); }
+  .toc b {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* demo sections */
+  .demos { display: grid; gap: 64px; margin-top: 48px; }
+  .demo { display: grid; gap: 18px; scroll-margin-top: 16px; }
+  .demo-head { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: baseline; }
+  .rank {
+    grid-row: span 2;
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .demo-head h2 { margin: 0; font-size: 24px; font-weight: 700; text-wrap: balance; }
+  .demo-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+  .demo-body {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 920px) {
+    .demo-body { grid-template-columns: minmax(0, 1fr); }
+    .code-col { order: 2; }
+  }
+  .code-col { position: sticky; top: 12px; display: grid; gap: 8px; }
+  @media (max-width: 920px) { .code-col { position: static; } }
+
+  .code {
+    margin: 0;
+    padding: 12px 0;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    counter-reset: ln;
+  }
+  .ln {
+    display: block;
+    padding: 0 14px 0 8px;
+    border-left: 3px solid transparent;
+    white-space: pre;
+    min-width: max-content;
+    transition: background-color 0.25s;
+  }
+  .ln::before {
+    counter-increment: ln;
+    content: counter(ln);
+    display: inline-block;
+    width: 2.2ch;
+    margin-right: 12px;
+    text-align: right;
+    color: var(--faint);
+  }
+  .ln.on { background: var(--code-hl); border-left-color: var(--accent); }
+  .ln.off { opacity: 0.35; text-decoration: line-through; }
+  .ln.flash { animation: flash 0.7s ease-out; }
+  @keyframes flash { from { background: var(--code-flash); } to { background: transparent; } }
+  .t-k { color: var(--t-k); }
+  .t-s { color: var(--t-s); }
+  .t-c { color: var(--t-c); font-style: italic; }
+  .t-n { color: var(--t-n); }
+
+  .stage {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn {
+    font: inherit;
+    font-size: 13.5px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 500; }
+  .btn:focus-visible, .pad:focus-visible, .ptoggle:focus-visible, .seg button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .seg button {
+    font: inherit;
+    font-size: 13.5px;
+    padding: 6px 12px;
+    border: 0;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+  .label { font-size: 12.5px; color: var(--muted); }
+  .clock { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .note {
+    margin: 0;
+    padding: 10px 12px;
+    min-height: 3.4em;
+    background: var(--surface-2);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .note b { font-family: var(--font-mono); color: var(--accent); }
+  .counter { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .takeaways { margin: 0; padding-left: 1.2em; color: var(--muted); display: grid; gap: 4px; max-width: 80ch; }
+  .takeaways strong { color: var(--ink); font-weight: 600; }
+
+  /* demo 1: timing */
+  .canvas-wrap { width: 100%; }
+  .canvas-wrap canvas { display: block; width: 100%; }
+  .pad {
+    display: grid;
+    place-items: center;
+    height: 72px;
+    border: 1.5px dashed var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13.5px;
+    text-align: center;
+    padding-inline: 12px;
+    user-select: none;
+    touch-action: none;
+    cursor: crosshair;
+  }
+  .pad:hover { border-color: var(--event); color: var(--ink); }
+  .counts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+  .counts b { font-family: var(--font-mono); font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .read-hint { font-size: 12.5px; color: var(--muted); margin: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .read-hint i { font-style: normal; display: inline-flex; align-items: center; gap: 6px; }
+  .mk { display: inline-block; }
+  .mk.ev { width: 2px; height: 12px; background: var(--event); }
+  .mk.bar { width: 18px; height: 6px; border-radius: 3px; background: var(--accent); }
+  .mk.cancel { width: 18px; height: 6px; border-radius: 3px; background: var(--faint); opacity: 0.5; }
+  .mk.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); }
+  .range { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .range input { width: 130px; accent-color: var(--accent); }
+
+  /* demo 2: promise */
+  .prows { display: grid; gap: 8px; }
+  .prow {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) 76px 62px;
+    gap: 10px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .ptrack { position: relative; height: 16px; background: var(--surface-2); border-radius: 8px; overflow: hidden; }
+  .pghost { position: absolute; inset: 0 auto 0 0; border: 1.5px dashed var(--line); border-radius: 8px; }
+  .pfill { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 8px; width: 0; }
+  .prow[data-state="fulfilled"] .pfill { background: var(--ok); }
+  .prow[data-state="rejected"] .pfill { background: var(--bad); }
+  .pres { color: var(--muted); white-space: nowrap; }
+  .prow[data-state="fulfilled"] .pres { color: var(--ok); }
+  .prow[data-state="rejected"] .pres { color: var(--bad); }
+  .ptoggle {
+    font: inherit;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    padding: 3px 0;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ok);
+    cursor: pointer;
+  }
+  .ptoggle[aria-pressed="true"] { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); }
+  .slots-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .slots { display: flex; gap: 6px; }
+  .slot {
+    width: 58px;
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow: hidden;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .slot small { display: block; font-size: 10.5px; color: var(--faint); border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .slot span { display: block; height: 24px; line-height: 24px; }
+  .slot.filled { border-color: var(--ok); background: var(--ok-soft); }
+  .slot.ignored { border-color: var(--line); background: transparent; opacity: 0.55; }
+  .done-count { font-family: var(--font-mono); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .combos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 640px) { .combos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .combo {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: grid;
+    gap: 3px;
+    align-content: start;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .combo .name { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+  .combo .rule { font-size: 12px; color: var(--muted); line-height: 1.45; }
+  .combo .status { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); }
+  .combo .value { font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  .combo[data-state="fulfilled"] { border-color: var(--ok); background: var(--ok-soft); }
+  .combo[data-state="fulfilled"] .status { color: var(--ok); }
+  .combo[data-state="rejected"] { border-color: var(--bad); background: var(--bad-soft); }
+  .combo[data-state="rejected"] .status { color: var(--bad); }
+  .log {
+    margin: 0;
+    padding: 8px 10px 8px 2.4em;
+    max-height: 150px;
+    overflow-y: auto;
+    background: var(--surface-2);
+    border-radius: 8px;
+    font-size: 13px;
+    display: grid;
+    gap: 2px;
+  }
+  .log:empty::before { content: "播放后，这里按时间记录每个 promise 落定时发生了什么。"; color: var(--faint); margin-left: -1.4em; }
+  .log li b { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .log .ignored { color: var(--faint); }
+
+  /* demo 3: pool */
+  .queue-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: 30px; }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .chip.done { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
+  .gantt { display: grid; gap: 6px; }
+  .lane { display: grid; grid-template-columns: 66px minmax(0, 1fr); gap: 8px; align-items: center; }
+  .lane-name { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .lane-track { position: relative; height: 30px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+  .gbar {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    border-radius: 5px;
+    background: var(--accent);
+    color: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 24px;
+    padding-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .gbar.done { background: var(--ok); }
+  .gghost { position: absolute; top: 3px; bottom: 3px; border: 1.5px dashed var(--accent); border-radius: 5px; opacity: 0.6; }
+  .axis { position: relative; height: 18px; margin-left: 74px; font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); }
+  .axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .axis span:first-child { transform: none; }
+  .out-row { display: grid; grid-template-columns: 66px minmax(0, 1fr); gap: 8px; align-items: center; }
+  .out-row .slots { flex-wrap: wrap; }
+
+  /* demo 4 + 5: boxes */
+  .board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 560px) { .board { grid-template-columns: minmax(0, 1fr); } }
+  .panel { display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .panel-label { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .panel-body { display: grid; gap: 8px; }
+  .box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .box-title {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    font-weight: 600;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .box-title .sub { font-weight: 400; color: var(--faint); font-family: var(--font-sans); font-size: 12px; }
+  .box.focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .box.new { border-color: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 10px; }
+  .row + .row { border-top: 1px dashed var(--line); }
+  .row .k { color: var(--muted); }
+  .row .v { text-align: right; overflow-wrap: anywhere; }
+  .row.hot { background: var(--accent-soft); }
+  .row.hot .v { color: var(--accent); }
+  .row.new { background: var(--ok-soft); }
+  .row.new .v { color: var(--ok); }
+  .row.gone { background: var(--bad-soft); }
+  .row.gone .k, .row.gone .v { color: var(--bad); text-decoration: line-through; }
+  .row.empty { color: var(--faint); font-family: var(--font-sans); justify-content: flex-start; }
+  .frame {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .frame.top { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .frame.overflow { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+  .empty-note { margin: 0; color: var(--faint); font-size: 13px; }
+  .step-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  /* demo 6: emitter arrays */
+  .arr-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: center; }
+  .arr { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; min-height: 64px; }
+  .cell { display: grid; justify-items: center; gap: 2px; }
+  .cell small { font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); }
+  .cell .ptr-mark { font-family: var(--font-mono); font-size: 11px; color: var(--accent); min-height: 16px; }
+  .cell-box {
+    min-width: 96px;
+    padding: 6px 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    text-align: center;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .cell.new .cell-box { border-color: var(--ok); background: var(--ok-soft); }
+  .cell.hot .cell-box { border-color: var(--accent); color: var(--accent); }
+  .cell.ptr .cell-box { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .cell.hole .cell-box { border-style: dashed; border-color: var(--bad); color: var(--bad); background: var(--bad-soft); box-shadow: none; }
+  .cell.hole .ptr-mark { color: var(--bad); }
+  .exec-log { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 30px; }
+  .chip.bad { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
+  @media (max-width: 560px) { .arr-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+  /* demo 7: new */
+  .box.faded { opacity: 0.45; }
+  .row.bad { background: var(--bad-soft); }
+  .row.bad .v { color: var(--bad); }
+
+  /* demo 8: tree */
+  .panel.wide { grid-column: 1 / -1; }
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+  .tree ul { margin-left: 12px; padding-left: 14px; border-left: 1.5px solid var(--line); }
+  .tree li { margin-top: 6px; }
+  .tnode {
+    display: inline-flex;
+    gap: 6px;
+    align-items: baseline;
+    padding: 3px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .tnode span { font-family: var(--font-sans); font-size: 12px; color: var(--muted); }
+  .tnode.new { border-color: var(--ok); background: var(--ok-soft); }
+  .tnode.hot { border-color: var(--accent); background: var(--accent-soft); }
+  .tree-group { display: flex; flex-wrap: wrap; gap: 12px 40px; }
+  .tree-label { font-size: 12px; color: var(--faint); }
+  .fragment { opacity: 0.65; }
+
+  /* demo 9: prototype chain */
+  .chain-wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 560px) { .chain-wrap { grid-template-columns: minmax(0, 1fr); } }
+  .chain { display: grid; }
+  .cnode-row { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 8px; align-items: center; }
+  .cptr { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); text-align: right; white-space: nowrap; }
+  .cptr.on { color: var(--accent); font-weight: 600; }
+  .cnode {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .cnode b { display: block; font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+  .cnode small { display: block; font-size: 11.5px; color: var(--muted); }
+  .cnode.target { border-style: dashed; border-color: var(--warn); }
+  .cnode.null { border-style: dotted; background: transparent; }
+  .cnode.null b { color: var(--faint); }
+  .cnode.ptr { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .cnode.miss { opacity: 0.55; }
+  .cnode.match { border-style: solid; border-color: var(--ok); background: var(--ok-soft); box-shadow: 0 0 0 3px var(--ok-soft); }
+  .cnode.wrong { border-style: solid; border-color: var(--bad); background: var(--bad-soft); box-shadow: 0 0 0 3px var(--bad-soft); }
+  .cmark { font-family: var(--font-mono); font-size: 11.5px; white-space: nowrap; color: var(--warn); }
+  .cmark.no { color: var(--bad); }
+  .cmark.yes { color: var(--ok); }
+  .cmark.wrong { color: var(--bad); font-weight: 600; }
+  .carrow { margin-left: 62px; padding: 3px 0; font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+  .chain-note { margin: 6px 0 0 62px; font-size: 12px; color: var(--bad); }
+
+  /* demo 10: inheritance */
+  .ih-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  @media (max-width: 560px) { .ih-board { grid-template-columns: minmax(0, 1fr); } }
+  .ih-col { display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .ih-link { font-family: var(--font-mono); font-size: 11px; color: var(--faint); text-align: center; }
+  .ih-result { font-family: var(--font-mono); font-size: 13px; }
+
+  /* demo 11: currying */
+  .cu-expr {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+  .cu-expr span { padding: 1px 3px; border-radius: 4px; }
+  .cu-expr span.done { color: var(--faint); }
+  .cu-expr span.on { color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .cu-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .cu-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cu-slot { width: 54px; border: 1.5px dashed var(--line); border-radius: 7px; text-align: center; font-family: var(--font-mono); font-size: 13px; overflow: hidden; }
+  .cu-slot small { display: block; font-size: 10.5px; color: var(--faint); border-bottom: 1px solid var(--line); background: var(--surface-2); }
+  .cu-slot span { display: block; height: 26px; line-height: 26px; }
+  .cu-slot.filled { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+  .cu-slot.extra { border-style: solid; border-color: var(--bad); background: var(--bad-soft); }
+  .cu-closures { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  /* show the characters you actually type: no => / >= ligatures in code */
+  .code, .cu-expr, .sig, code { font-variant-ligatures: none; }
+  .cu-result { font-family: var(--font-mono); font-size: 14px; }
+  .cu-result.bad b { color: var(--bad); }
+  .cu-result.ok b { color: var(--ok); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ln.flash { animation: none; background: var(--code-flash); }
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div class="eyebrow">前端手写题 · 11 道</div>
+    <h1>手写题慢放</h1>
+    <p class="lede">前 8 道是 S 档全部，第 9 到 11 道（instanceof、继承、柯里化）是 A 档的题。每道题左边是代码，右边是它运行时的样子。动画严格按左边代码的逻辑推进，第一题的时间轴直接调用页面里真实的防抖、节流函数。</p>
+    <div class="legend">
+      <span><i class="swatch on"></i>当前正在执行的行</span>
+      <span><i class="swatch flash"></i>刚刚被执行过的行（闪一下）</span>
+    </div>
+    <nav class="toc" aria-label="题目目录">
+      <a href="#debounce"><b>1</b>防抖 / 节流</a>
+      <a href="#promise-all"><b>2</b>Promise.all</a>
+      <a href="#pool"><b>3</b>异步并发限制</a>
+      <a href="#deep-clone"><b>4</b>深拷贝</a>
+      <a href="#call-bind"><b>5</b>call / bind</a>
+      <a href="#emitter"><b>6</b>发布订阅</a>
+      <a href="#new-op"><b>7</b>手写 new</a>
+      <a href="#array-tree"><b>8</b>数组转树</a>
+      <a href="#instanceof"><b>9</b>instanceof</a>
+      <a href="#inherit"><b>10</b>继承</a>
+      <a href="#curry"><b>11</b>柯里化</a>
+    </nav>
+  </header>
+
+  <main class="demos">
+    <!-- 1 -->
+    <section class="demo" id="debounce">
+      <div class="demo-head">
+        <span class="rank">1</span>
+        <h2>防抖 / 节流</h2>
+        <p>同一串触发同时喂给三个函数：防抖等你停下来才执行，立即执行版在一轮开头执行，节流按固定间隔执行。在触发区里快速点或来回划，看四条轨道的差别。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="debounce"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <button class="btn primary" type="button" id="tm-auto">自动演示</button>
+            <button class="btn" type="button" id="tm-once">触发一次</button>
+            <button class="btn" type="button" id="tm-clear">清空</button>
+            <span class="spacer"></span>
+            <label class="range" for="tm-delay">delay <input type="range" id="tm-delay" min="200" max="1500" step="100" value="600"> <output id="tm-delay-out" class="mono">600ms</output></label>
+          </div>
+          <div class="pad" id="tm-pad" tabindex="0" role="button" aria-label="连续触发区：移动鼠标、滑动手指或按住任意键">在这里来回移动鼠标 / 用手指滑动 / 聚焦后按住任意键</div>
+          <div class="canvas-wrap"><canvas id="tm-canvas" aria-label="四条时间轴：触发事件、防抖、立即执行防抖、节流"></canvas></div>
+          <p class="read-hint">
+            <i><span class="mk ev"></span>一次触发</i>
+            <i><span class="mk bar"></span>定时器在等待 / 节流冷却中</i>
+            <i><span class="mk cancel"></span>被下一次触发取消的定时器</i>
+            <i><span class="mk dot"></span>fn 真正执行</i>
+          </p>
+          <div class="counts" aria-live="polite">
+            <span>触发 <b data-count="ev">0</b> 次</span>
+            <span>防抖执行 <b data-count="d">0</b></span>
+            <span>立即执行版 <b data-count="l">0</b></span>
+            <span>节流执行 <b data-count="th">0</b></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>灰色短条就是 clearTimeout：</strong>每来一次新触发，防抖都会取消上一个定时器、重新计时，所以连续触发时 fn 一直不执行。</li>
+        <li><strong>节流的冷却条长度固定：</strong>冷却期间的触发全部被忽略，所以连续触发时，节流会按 delay 的节奏稳定执行。</li>
+        <li>把 delay 调大再试：防抖需要你停得更久，节流执行得更稀。</li>
+      </ul>
+    </section>
+
+    <!-- 2 -->
+    <section class="demo" id="promise-all">
+      <div class="demo-head">
+        <span class="rank">2</span>
+        <h2>Promise.all 与它的三个兄弟</h2>
+        <p>四个 promise 同时开始。results 的格子按下标填，和谁先完成无关。点右侧按钮把某个 promise 改成失败，再对比 all / allSettled / race / any 分别在哪一刻落定。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="all"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <button class="btn primary" type="button" id="pa-play">播放</button>
+            <button class="btn" type="button" id="pa-reset">重置</button>
+            <button class="btn" type="button" id="pa-random">随机时长</button>
+            <span class="spacer"></span>
+            <span class="clock" id="pa-clock">t = 0.00s</span>
+          </div>
+          <div class="prows" id="pa-rows"></div>
+          <div class="slots-row">
+            <span class="label">results</span>
+            <div class="slots" id="pa-slots"></div>
+            <span class="done-count" id="pa-done">done = 0 / 4</span>
+          </div>
+          <div class="combos" id="pa-combos"></div>
+          <ol class="log" id="pa-log"></ol>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>最先完成的 promise 不会填进 results[0]：</strong>它按自己的下标 i 存放，所以结果顺序和输入顺序一致。</li>
+        <li><strong>判断全部完成要靠 done 计数：</strong>results 用 <code>new Array(4)</code> 创建，length 一开始就是 4；只要给 results[3] 赋值，length 也会是 4。</li>
+        <li><strong>all 失败后，其他 promise 还在跑：</strong>Promise 没法取消，后面的结果只是没人要了（格子变灰）。</li>
+      </ul>
+    </section>
+
+    <!-- 3 -->
+    <section class="demo" id="pool">
+      <div class="demo-head">
+        <span class="rank">3</span>
+        <h2>异步并发数限制</h2>
+        <p>默认是经典题：四个任务耗时 1000 / 500 / 300 / 400ms，最多同时跑 2 个。看每个 worker 一空下来就从队列领取下一个任务，以及完成顺序为什么是 2 3 1 4。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="pool"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <span class="label">并发数</span>
+            <div class="seg" id="pl-limit" role="group" aria-label="并发数">
+              <button type="button" data-value="1" aria-pressed="false">1</button>
+              <button type="button" data-value="2" aria-pressed="true">2</button>
+              <button type="button" data-value="3" aria-pressed="false">3</button>
+              <button type="button" data-value="4" aria-pressed="false">4</button>
+            </div>
+            <button class="btn" type="button" id="pl-classic">经典题</button>
+            <button class="btn" type="button" id="pl-random">换一组随机任务</button>
+          </div>
+          <div class="controls">
+            <button class="btn primary" type="button" id="pl-play">播放</button>
+            <button class="btn" type="button" id="pl-reset">重置</button>
+            <span class="spacer"></span>
+            <span class="clock" id="pl-clock">t = 0ms</span>
+          </div>
+          <div class="out-row">
+            <span class="label">等待队列</span>
+            <div class="queue-row" id="pl-queue"></div>
+          </div>
+          <div class="gantt" id="pl-gantt"></div>
+          <div class="axis" id="pl-axis"></div>
+          <div class="out-row">
+            <span class="label">完成顺序</span>
+            <div class="queue-row" id="pl-order"></div>
+          </div>
+          <div class="out-row">
+            <span class="label">results</span>
+            <div class="slots" id="pl-slots"></div>
+          </div>
+          <p class="note" id="pl-note"></p>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>500ms 时任务 2 完成：</strong>worker 2 立刻领取任务 3。800ms 时任务 3 完成，它再领取任务 4。任务 1 要到 1000ms 才结束。</li>
+        <li><strong>完成顺序是 2 3 1 4，results 仍是 [1000, 500, 300, 400]：</strong>因为结果按下标 i 存放。</li>
+        <li><strong><code>next++</code> 是同步执行的：</strong>JS 单线程，两个 worker 不可能领到同一个下标。把并发数改成 1 就是串行（2200ms），改成 4 就是全并行（1000ms）。</li>
+      </ul>
+    </section>
+
+    <!-- 4 -->
+    <section class="demo" id="deep-clone">
+      <div class="demo-head">
+        <span class="rank">4</span>
+        <h2>深拷贝与循环引用</h2>
+        <p>obj.self 指向 obj 自己。一步步看 deepClone 怎样用 seen（WeakMap）截断循环。再切到“不用 WeakMap”，看它如何一直递归，直到栈溢出。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="clone"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="dc-mode" role="group" aria-label="是否使用 WeakMap">
+              <button type="button" data-value="seen" aria-pressed="true">用 WeakMap</button>
+              <button type="button" data-value="none" aria-pressed="false">不用 WeakMap</button>
+            </div>
+          </div>
+          <div class="board">
+            <div class="panel"><div class="panel-label">原对象</div><div class="panel-body" id="dc-src"></div></div>
+            <div class="panel"><div class="panel-label">调用栈（最上面是当前这层）</div><div class="panel-body" id="dc-stack"></div></div>
+            <div class="panel"><div class="panel-label">seen：原对象 → 它的拷贝</div><div class="panel-body"><div class="box" id="dc-seen"></div></div></div>
+            <div class="panel"><div class="panel-label">新对象</div><div class="panel-body" id="dc-copy"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>先 seen.set，再递归属性：</strong>这样递归转一圈回到 obj 时，seen 里已经有它了。顺序反过来，照样死循环。</li>
+        <li><strong>命中 seen 时返回已经建好的 copy1：</strong>于是 copy1.self 指向 copy1 自己，拷贝的结构和原对象一模一样。</li>
+        <li><strong>这里用 Map 也可以：</strong>seen 每次调用都新建，函数返回后整张表会一起被回收。WeakMap 的弱引用只在 seen 跨调用长期存在（比如做成全局缓存）时才有意义。</li>
+      </ul>
+    </section>
+
+    <!-- 5 -->
+    <section class="demo" id="call-bind">
+      <div class="demo-head">
+        <span class="rank">5</span>
+        <h2>call / bind</h2>
+        <p>call 的本质是把函数临时挂到对象上，以方法的形式调用一次；bind 返回一个新函数，被 new 调用时，绑定的 this 会失效。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col">
+          <pre class="code" data-code="call"></pre>
+          <pre class="code" data-code="bind" hidden></pre>
+        </div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="cb-mode" role="group" aria-label="选择演示">
+              <button type="button" data-value="call" aria-pressed="true">myCall</button>
+              <button type="button" data-value="bind" aria-pressed="false">myBind + new</button>
+            </div>
+          </div>
+          <div class="board" id="cb-board"></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>this 由调用方式决定：</strong><code>ctx[key]()</code> 是方法调用，所以函数里的 this 就是 ctx。</li>
+        <li><strong>Symbol 键 + try/finally：</strong>不会覆盖 ctx 原有的属性，函数抛错也能把临时属性删干净。apply 只是把数组展开后交给 call。</li>
+        <li><strong>bound 靠 <code>this instanceof bound</code> 判断自己是不是被 new 调用：</strong>这要求 bound.prototype 继承自 fn.prototype。</li>
+      </ul>
+    </section>
+    <!-- 6 -->
+    <section class="demo" id="emitter">
+      <div class="demo-head">
+        <span class="rank">6</span>
+        <h2>发布订阅 EventEmitter</h2>
+        <p>先用 once 注册 A，再用 on 注册 B，然后 emit 两次。看 once 注册的 wrapper 怎样在执行时删掉自己；再切到“遍历原数组”，看 B 为什么会被跳过。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col">
+          <pre class="code" data-code="emitter"></pre>
+          <pre class="code" data-code="emitter-bug" hidden></pre>
+        </div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="ee-mode" role="group" aria-label="emit 的遍历方式">
+              <button type="button" data-value="copy" aria-pressed="true">遍历副本（正确）</button>
+              <button type="button" data-value="bug" aria-pressed="false">遍历原数组（有 bug）</button>
+            </div>
+          </div>
+          <div class="arr-row"><span class="label">原数组 list</span><div class="arr" id="ee-list"></div></div>
+          <div class="arr-row"><span class="label">副本 [...list]</span><div class="arr" id="ee-copy"></div></div>
+          <div class="arr-row"><span class="label">执行记录</span><div class="exec-log" id="ee-log"></div></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>once 注册的是 wrapper，不是 A 本身：</strong>wrapper 执行时先 off 自己，再调用 A。挂上 <code>wrapper.raw = A</code>，用户拿 A 也能 off 掉它。</li>
+        <li><strong>emit 为什么要遍历副本：</strong>回调执行时可能修改原数组（once 删除自己就是这样）。数组整体前移后，按下标遍历会漏掉下一个回调。</li>
+        <li><strong>这个 bug 很隐蔽：</strong>只有 once 监听后面还跟着别的监听时才会出现，而且第二次 emit 又“正常”了。</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section class="demo" id="new-op">
+      <div class="demo-head">
+        <span class="rank">7</span>
+        <h2>手写 new</h2>
+        <p>new 做了四件事：创建对象、连上原型、以它为 this 执行构造函数、决定返回谁。切换构造函数的 return，看最后的 p 到底是谁。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="new"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="nw-mode" role="group" aria-label="构造函数的 return">
+              <button type="button" data-value="none" aria-pressed="true">没有 return</button>
+              <button type="button" data-value="prim" aria-pressed="false">return 42</button>
+              <button type="button" data-value="obj" aria-pressed="false">return { x: 1 }</button>
+            </div>
+          </div>
+          <div class="board" id="nw-board"></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong><code>Object.create(Ctor.prototype)</code> 一步做了两件事：</strong>创建对象，并把它的原型指向 Ctor.prototype。<code>p.sayHi()</code> 能调用，靠的就是这条原型链。</li>
+        <li><strong>return 基本类型会被忽略，return 对象会顶替掉 obj：</strong>判断时要排除 null（<code>typeof null === 'object'</code>），函数也算对象。</li>
+        <li><strong>箭头函数不能被 new：</strong>它没有 prototype，第一行检查就会拦下它。</li>
+      </ul>
+    </section>
+
+    <!-- 8 -->
+    <section class="demo" id="array-tree">
+      <div class="demo-head">
+        <span class="rank">8</span>
+        <h2>数组转树</h2>
+        <p>Map 两遍遍历：第一遍把每个节点建好放进 map，第二遍把每个节点挂到父节点的 children 下。输入里子节点排在父节点前面，看它为什么不受影响。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="tree"></pre></div>
+        <div class="stage">
+          <div class="board">
+            <div class="panel"><div class="panel-label">输入 list</div><div class="panel-body" id="tr-list"></div></div>
+            <div class="panel"><div class="panel-label">map：id → 节点</div><div class="panel-body" id="tr-map"></div></div>
+            <div class="panel wide"><div class="panel-label">树</div><div class="panel-body" id="tr-tree"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>第一遍只建节点：</strong>第二遍连父子时，所有节点都已经在 map 里了，所以不怕子节点排在父节点前面。</li>
+        <li><strong>节点是对象引用：</strong>3 挂到 1 下面时，它 children 里已有的 4 会一起跟过去，不需要再调整。</li>
+        <li><strong>O(n) 对 O(n²)：</strong>两遍遍历共 2n 次操作；递归写法每一层都要把全表扫一遍。</li>
+      </ul>
+    </section>
+    <!-- 9 -->
+    <section class="demo" id="instanceof">
+      <div class="demo-head">
+        <span class="rank">9</span>
+        <h2>instanceof：沿着原型链往上找</h2>
+        <p>myInstanceof(left, Right) 问的是：Right.prototype 在不在 left 的原型链上？左边是 left 的整条原型链，虚线框是要找的目标。切换四个例子，看找到、找不到、原始值、没有原型的对象分别怎么走。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="instanceof"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="io-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="ba" aria-pressed="true">b 和 A</button>
+              <button type="button" data-value="ab" aria-pressed="false">new A() 和 B</button>
+              <button type="button" data-value="prim" aria-pressed="false">1 和 Number</button>
+              <button type="button" data-value="bare" aria-pressed="false">Object.create(null)</button>
+            </div>
+          </div>
+          <div class="chain-wrap">
+            <div class="panel"><div class="panel-label">left 的原型链（从上往下走）</div><div class="chain" id="io-chain"></div></div>
+            <div class="panel"><div class="panel-label">变量</div><div class="panel-body" id="io-vars"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>每走一层就比一次：</strong>比较的是 <code>proto === Right.prototype</code>，不是和 Right 本身比。</li>
+        <li><strong>原始值要先拦下来：</strong><code>Object.getPrototypeOf(1)</code> 会先装箱，得到 Number.prototype，导致误判成 true；传 null 则直接报错。</li>
+        <li><strong>用 Object.getPrototypeOf，不用 __proto__：</strong>没有原型的对象上根本没有 __proto__，往上走时会报错。</li>
+      </ul>
+    </section>
+    <!-- 10 -->
+    <section class="demo" id="inherit">
+      <div class="demo-head">
+        <span class="rank">10</span>
+        <h2>继承：三种写法对比</h2>
+        <p>同一段场景：设置 Dog 的原型，new 两只狗，给 d1 的 tags 加一项，再调用 d1.sayName()。切换写法，看原型链怎么接起来、Animal 被执行了几次、tags 会不会被共享。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="inherit"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="ih-mode" role="group" aria-label="继承写法">
+              <button type="button" data-value="parasitic" aria-pressed="true">寄生组合（正确）</button>
+              <button type="button" data-value="combo" aria-pressed="false">组合继承</button>
+              <button type="button" data-value="chain" aria-pressed="false">原型链继承</button>
+            </div>
+          </div>
+          <div class="ih-board">
+            <div class="ih-col"><div class="panel-label">原型（所有实例共用）</div><div class="panel-body" id="ih-protos"></div></div>
+            <div class="ih-col"><div class="panel-label">实例（各自的属性）</div><div class="panel-body" id="ih-insts"></div></div>
+          </div>
+          <div class="panel-body" id="ih-calls"></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong><code>Animal.call(this, name)</code> 负责实例属性：</strong>每 new 一只狗执行一次，name、tags 写在狗自己身上，互不影响。</li>
+        <li><strong><code>Object.create(Animal.prototype)</code> 负责接链：</strong>新对象的原型指向 Animal.prototype，但不执行 Animal。组合继承用 <code>new Animal()</code> 接链，多执行了一次，还在原型上留下没用的 name、tags。</li>
+        <li><strong>原型链继承的 tags 在原型上：</strong>所有狗共用同一个数组，d1 push，d2 也跟着变；而且 name 根本传不进去。</li>
+      </ul>
+    </section>
+    <!-- 11 -->
+    <section class="demo" id="curry">
+      <div class="demo-head">
+        <span class="rank">11</span>
+        <h2>函数柯里化：闭包一层层记住参数</h2>
+        <p>sum3 = curry((a, b, c) =&gt; a + b + c)。参数没凑够 3 个，就返回一个新函数，它用闭包记住到目前为止的参数；凑够了才执行。最后一个例子是共用一个数组的错误写法，看它在复用时怎么出错。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col">
+          <pre class="code" data-code="curry"></pre>
+          <pre class="code" data-code="curry-bug" hidden></pre>
+        </div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="cu-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="one" aria-pressed="true">sum3(1)(2)(3)</button>
+              <button type="button" data-value="multi" aria-pressed="false">sum3(1, 2)(3)</button>
+              <button type="button" data-value="reuse" aria-pressed="false">复用 add10</button>
+              <button type="button" data-value="bug" aria-pressed="false">共享数组（有 bug）</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">正在执行</div><p class="cu-expr" id="cu-expr"></p></div>
+          <div class="panel">
+            <div class="panel-label" id="cu-slots-label">这一次收集到的参数（fn.length = 3）</div>
+            <div class="cu-row"><div class="cu-slots" id="cu-slots"></div><span class="cu-result" id="cu-result"></span></div>
+          </div>
+          <div class="panel"><div class="panel-label" id="cu-closures-label">闭包里记住的参数</div><div class="cu-closures" id="cu-closures"></div></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>每次参数不够，就返回一个新函数：</strong>它用闭包记住到目前为止收到的参数，下一次调用时接着收。</li>
+        <li><strong>拼参数用 <code>[...args, ...rest]</code> 生成新数组：</strong>旧闭包里的数组从来不会被改，所以 add10 能反复使用。</li>
+        <li><strong>判断的是收集到的总数：</strong><code>args.length &gt;= fn.length</code>，一次传几个都行；共用一个数组的写法，会把上一次的参数带进下一次。</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script type="text/plain" id="src-debounce">
+function debounce(fn, delay) {
+  let timer = null
+  return function (...args) {
+/*@d-clear*/    clearTimeout(timer)            // 又触发了：取消上一个定时器
+    timer = setTimeout(() => {
+/*@d-exec*/      fn.apply(this, args)         // 安静满 delay 才执行
+    }, delay)
+  }
+}
+
+function debounceLeading(fn, delay) {
+  let timer = null
+  return function (...args) {
+/*@l-check*/    const callNow = timer === null // 新一轮的第一次触发
+    clearTimeout(timer)
+    timer = setTimeout(() => { timer = null }, delay)
+/*@l-exec*/    if (callNow) fn.apply(this, args)
+  }
+}
+
+function throttle(fn, delay) {
+  let last = 0
+  return function (...args) {
+    const now = Date.now()
+/*@t-check*/    if (now - last >= delay) {     // 冷却结束了吗
+      last = now
+/*@t-exec*/      fn.apply(this, args)
+    }
+  }
+}
+</script>
+
+<script type="text/plain" id="src-all">
+function promiseAll(iterable) {
+  return new Promise((resolve, reject) => {
+    const items = [...iterable]
+    const results = new Array(items.length)
+    let done = 0
+    if (items.length === 0) return resolve(results)
+    items.forEach((item, i) => {
+/*@wrap*/      Promise.resolve(item).then((value) => {
+/*@store*/        results[i] = value      // 按下标放
+/*@count*/        done += 1
+/*@resolve*/        if (done === items.length) resolve(results)
+/*@reject*/      }, reject)                // 任意一个失败就整体失败
+    })
+  })
+}
+</script>
+
+<script type="text/plain" id="src-pool">
+async function asyncPool(limit, items, iteratee) {
+  const results = new Array(items.length)
+  let next = 0                        // 下一个待领取的下标
+  async function worker() {
+    while (next < items.length) {
+/*@take*/      const i = next++                // 同步领取，不会撞车
+/*@run*/      results[i] = await iteratee(items[i])
+    }
+  }
+  const count = Math.min(limit, items.length)
+/*@spawn*/  const workers = Array.from({ length: count }, worker)
+/*@all*/  await Promise.all(workers)        // 所有 worker 收工
+  return results
+}
+</script>
+
+<script type="text/plain" id="src-clone">
+function deepClone(value, seen = new WeakMap()) {
+/*@prim*/  if (value === null || typeof value !== 'object') return value
+/*@hit*/  if (seen.has(value)) return seen.get(value)
+/*@make*/  const copy = Array.isArray(value) ? [] : {}
+/*@save*/  seen.set(value, copy)        // 先登记，再递归
+  for (const key of Object.keys(value)) {
+/*@assign*/    copy[key] = deepClone(value[key], seen)
+  }
+/*@ret*/  return copy
+}
+
+const obj = { name: 'Ann', info: { age: 18 } }
+obj.self = obj                     // 自己引用自己
+/*@start*/const copy = deepClone(obj)
+</script>
+
+<script type="text/plain" id="src-call">
+Function.prototype.myCall = function (context, ...args) {
+/*@box*/  const ctx = context == null ? globalThis : Object(context)
+/*@key*/  const key = Symbol('fn')        // 独一无二的临时键
+/*@mount*/  ctx[key] = this                 // this 就是 greet
+  try {
+/*@invoke*/    return ctx[key](...args)       // 方法调用 → this = ctx
+  } finally {
+/*@clean*/    delete ctx[key]                // 用完就删
+  }
+}
+
+function greet(greeting) {
+/*@body*/  return `${greeting}, ${this.name}`
+}
+/*@start*/greet.myCall({ name: 'Tom' }, 'Hi')  // 'Hi, Tom'
+</script>
+
+<script type="text/plain" id="src-bind">
+Function.prototype.myBind = function (context, ...preset) {
+/*@fnsave*/  const fn = this
+  function bound(...rest) {
+/*@check*/    const isNew = this instanceof bound
+/*@apply*/    return fn.apply(isNew ? this : context, [...preset, ...rest])
+  }
+/*@proto*/  if (fn.prototype) bound.prototype = Object.create(fn.prototype)
+/*@retb*/  return bound
+}
+
+function Point(x, y) { this.x = x; this.y = y }
+/*@mk*/const BoundPoint = Point.myBind({ tag: 'ctx' }, 1)
+/*@call1*/BoundPoint(2)        // 普通调用
+/*@call2*/new BoundPoint(2)    // new 调用
+</script>
+
+<script type="text/plain" id="src-emitter">
+class EventEmitter {
+  events = new Map()              // 事件名 → 回调数组
+
+  on(name, fn) {
+    if (!this.events.has(name)) this.events.set(name, [])
+/*@push*/    this.events.get(name).push(fn)
+    return this
+  }
+
+  off(name, fn) {
+    const list = this.events.get(name)
+/*@find*/    const i = list.findIndex((f) => f === fn || f.raw === fn)
+/*@splice*/    if (i !== -1) list.splice(i, 1)
+    return this
+  }
+
+  once(name, fn) {
+    const wrapper = (...args) => {
+/*@w-off*/      this.off(name, wrapper)     // 先删自己
+/*@w-call*/      fn.apply(this, args)        // 再执行原函数
+    }
+/*@raw*/    wrapper.raw = fn
+/*@once-on*/    return this.on(name, wrapper)
+  }
+
+  emit(name, ...args) {
+    const list = this.events.get(name)
+    if (!list || list.length === 0) return false
+/*@copy*/    for (const fn of [...list]) fn.apply(this, args) // 遍历副本
+    return true
+  }
+}
+
+const e = new EventEmitter()
+/*@s1*/e.once('msg', A)
+/*@s2*/e.on('msg', B)
+/*@s3*/e.emit('msg')   // 第一次
+/*@s4*/e.emit('msg')   // 第二次
+</script>
+
+<script type="text/plain" id="src-new">
+function myNew(Ctor, ...args) {
+/*@check*/  if (typeof Ctor !== 'function' || !Ctor.prototype) throw new TypeError()
+/*@create*/  const obj = Object.create(Ctor.prototype)  // ① 建对象 + 连原型
+/*@apply*/  const result = Ctor.apply(obj, args)       // ② 以 obj 为 this 执行
+  const isObj = result !== null &&
+/*@judge*/    (typeof result === 'object' || typeof result === 'function')
+/*@ret*/  return isObj ? result : obj                 // ③ 返回谁
+}
+
+function Person(name) {
+/*@body*/  this.name = name
+/*@retstmt*/__RETURN__
+}
+/*@proto*/Person.prototype.sayHi = function () { return 'hi, ' + this.name }
+
+/*@start*/const p = myNew(Person, 'Ann')
+/*@use*/p.sayHi()
+</script>
+
+<script type="text/plain" id="src-tree">
+function arrayToTree(list, rootPid = 0) {
+  const map = new Map()
+  for (const item of list) {
+/*@p1*/    map.set(item.id, { ...item, children: [] })  // 第一遍：只建节点
+  }
+  const roots = []
+  for (const item of list) {
+/*@get*/    const node = map.get(item.id)
+/*@root*/    if (item.pid === rootPid) roots.push(node)
+/*@link*/    else map.get(item.pid)?.children.push(node)   // 第二遍：挂到父节点下
+  }
+/*@ret*/  return roots
+}
+</script>
+
+<script type="text/plain" id="src-instanceof">
+function myInstanceof(left, Right) {
+/*@prim*/  const isPrimitive = left === null ||
+/*@prim2*/    (typeof left !== 'object' && typeof left !== 'function')
+/*@guard*/  if (isPrimitive) return false        // 原始值没有原型链
+/*@init*/  let proto = Object.getPrototypeOf(left)
+/*@loop*/  while (proto !== null) {            // 走到 null 就是尽头
+/*@cmp*/    if (proto === Right.prototype) return true
+/*@up*/    proto = Object.getPrototypeOf(proto) // 往上走一层
+  }
+/*@end*/  return false
+}
+
+class A {}
+class B extends A {}
+const b = new B()
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-inherit">
+function Animal(name) {
+/*@animal*/  this.name = name
+/*@animal2*/  this.tags = []
+}
+Animal.prototype.sayName = function () { return 'I am ' + this.name }
+
+function Dog(name, breed) {
+/*@call*/__CALL__
+/*@breed*/  this.breed = breed
+}
+/*@create*/__CREATE__
+/*@ctor*/Dog.prototype.constructor = Dog
+/*@bark*/Dog.prototype.bark = function () { return this.name + ': woof' }
+
+/*@new1*/const d1 = new Dog('Rex', 'husky')
+/*@new2*/const d2 = new Dog('Max', 'corgi')
+/*@push*/d1.tags.push('cute')
+/*@say*/d1.sayName()
+</script>
+
+<script type="text/plain" id="src-curry">
+function curry(fn) {
+  return function curried(...args) {
+/*@check*/    if (args.length >= fn.length) {           // 参数够了吗
+/*@exec*/      return fn.apply(this, args)
+    }
+/*@more*/    return (...rest) => curried.apply(this, [...args, ...rest])
+  }
+}
+
+/*@setup*/const sum3 = curry((a, b, c) => a + b + c)   // fn.length = 3
+__CALLS__
+</script>
+
+<script type="text/plain" id="src-curry-bug">
+function curry(fn) {
+/*@all*/  const all = []                     // ❌ 所有调用共用这一个数组
+  return function curried(...args) {
+/*@push*/    all.push(...args)
+/*@check*/    if (all.length >= fn.length) return fn(...all)
+/*@more*/    return curried
+  }
+}
+
+/*@setup*/const sum3 = curry((a, b, c) => a + b + c)
+/*@c1*/const add10 = sum3(10)
+/*@c2*/add10(1)(1)            // 12
+/*@c3*/add10(2)(2)            // 期望 14，实际报错
+</script>
+
+<script>
+(() => {
+  'use strict'
+
+  const $ = (sel, root = document) => root.querySelector(sel)
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel))
+  const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ESC[c])
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  /* ---------- code panels ---------- */
+  const TOKEN_RE = /(\/\/.*$)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|\b(const|let|function|return|if|else|for|while|new|this|of|class|async|await|try|finally|throw|null|typeof|instanceof|delete)\b|\b(\d+)\b/g
+  const TAG_RE = /^\/\*@([\w-]+)\*\//
+  const TOKEN_CLASS = ['c', 's', 'k', 'n']
+
+  function highlight(line) {
+    let out = ''
+    let last = 0
+    for (const m of line.matchAll(TOKEN_RE)) {
+      out += esc(line.slice(last, m.index))
+      const group = [m[1], m[2], m[3], m[4]].findIndex((g) => g !== undefined)
+      out += `<span class="t-${TOKEN_CLASS[group]}">${esc(m[0])}</span>`
+      last = m.index + m[0].length
+    }
+    return out + esc(line.slice(last))
+  }
+
+  function createCode(pre, srcId, transform = (text) => text) {
+    const raw = transform(document.getElementById(srcId).textContent.replace(/^\s*\n/, '').replace(/\s+$/, ''))
+    const tags = new Map()
+    const lines = raw.split('\n').map((line, i) => {
+      const m = line.match(TAG_RE)
+      if (!m) return line
+      tags.set(m[1], i)
+      return line.slice(m[0].length)
+    })
+    pre.innerHTML = lines.map((l) => `<span class="ln">${highlight(l) || ' '}</span>`).join('')
+    const els = $$('.ln', pre)
+    const pick = (list) => new Set(list.map((t) => tags.get(t)).filter((i) => i !== undefined))
+    return {
+      set(list = []) {
+        const on = pick(list)
+        els.forEach((el, i) => el.classList.toggle('on', on.has(i)))
+      },
+      off(list = []) {
+        const off = pick(list)
+        els.forEach((el, i) => el.classList.toggle('off', off.has(i)))
+      },
+      flash(...list) {
+        for (const i of pick(list)) {
+          const el = els[i]
+          el.classList.remove('flash')
+          void el.offsetWidth
+          el.classList.add('flash')
+        }
+      },
+    }
+  }
+
+  /* ---------- shared helpers ---------- */
+  function segmented(group, onChange) {
+    const buttons = $$('button', group)
+    for (const b of buttons) {
+      b.addEventListener('click', () => {
+        for (const x of buttons) x.setAttribute('aria-pressed', String(x === b))
+        onChange(b.dataset.value)
+      })
+    }
+  }
+
+  function boxHTML({ title, sub = '', rows = [], tone = '', empty = '（空）' }) {
+    const body = rows.length
+      ? rows.map(([k, v, flag = '']) => `<div class="row ${flag}"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')
+      : `<div class="row empty">${empty}</div>`
+    const subHTML = sub ? `<span class="sub">${sub}</span>` : ''
+    return `<div class="box ${tone}"><div class="box-title"><span>${title}</span>${subHTML}</div>${body}</div>`
+  }
+
+  function createStepper(root, { build, render, getCode, interval = 1600 }) {
+    const note = $('[data-note]', root)
+    const counter = $('[data-counter]', root)
+    const btns = Object.fromEntries($$('[data-act]', root).map((b) => [b.dataset.act, b]))
+    let steps = []
+    let idx = 0
+    let timer = null
+
+    const setPlaying = (playing) => {
+      btns.play.textContent = playing ? '暂停' : '自动播放'
+      btns.play.setAttribute('aria-pressed', String(playing))
+    }
+    const stop = () => {
+      clearInterval(timer)
+      timer = null
+      setPlaying(false)
+    }
+    const show = () => {
+      const step = steps[idx]
+      render(step)
+      getCode().set(step.lines)
+      note.innerHTML = step.note
+      counter.textContent = `第 ${idx + 1} / ${steps.length} 步`
+      btns.prev.disabled = idx === 0
+      btns.next.disabled = idx === steps.length - 1
+      if (timer && idx === steps.length - 1) stop()
+    }
+    const go = (i) => {
+      idx = Math.max(0, Math.min(steps.length - 1, i))
+      show()
+    }
+
+    btns.prev.addEventListener('click', () => { stop(); go(idx - 1) })
+    btns.next.addEventListener('click', () => { stop(); go(idx + 1) })
+    btns.reset.addEventListener('click', () => { stop(); go(0) })
+    btns.play.addEventListener('click', () => {
+      if (timer) {
+        stop()
+        return
+      }
+      if (idx === steps.length - 1) go(0)
+      setPlaying(true)
+      timer = setInterval(() => go(idx + 1), interval)
+    })
+
+    return {
+      rebuild() {
+        stop()
+        steps = build()
+        go(0)
+      },
+    }
+  }
+
+  function createPlayback({ getDuration, getSpeed = () => 1, onFrame, onState }) {
+    let t = 0
+    let playing = false
+    let last = 0
+    let raf = 0
+    const tick = (ts) => {
+      if (!playing) return
+      if (last) t = Math.min(getDuration(), t + (ts - last) * getSpeed())
+      last = ts
+      onFrame(t)
+      if (t >= getDuration()) {
+        playing = false
+        onState(false)
+        return
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    return {
+      play() {
+        if (playing) return
+        if (t >= getDuration()) {
+          t = 0
+          onFrame(0)
+        }
+        playing = true
+        last = 0
+        onState(true)
+        raf = requestAnimationFrame(tick)
+      },
+      pause() {
+        playing = false
+        cancelAnimationFrame(raf)
+        onState(false)
+      },
+      toggle() {
+        if (playing) this.pause()
+        else this.play()
+      },
+      reset() {
+        this.pause()
+        t = 0
+        onFrame(0)
+      },
+    }
+  }
+
+  const playLabel = (btn) => (playing) => {
+    btn.textContent = playing ? '暂停' : '播放'
+  }
+
+  /* ---------- 1. debounce / throttle ---------- */
+  function initTiming() {
+    const root = $('#debounce')
+    const code = createCode($('pre', root), 'src-debounce')
+    const canvas = $('#tm-canvas')
+    const g = canvas.getContext('2d')
+    const countEls = Object.fromEntries($$('[data-count]', root).map((el) => [el.dataset.count, el]))
+    const delayInput = $('#tm-delay')
+    const delayOut = $('#tm-delay-out')
+
+    const WINDOW = 8000
+    const LANE_H = 58
+    const AXIS_H = 22
+    const PAD_X = 8
+    const PAD_SAMPLE_MS = 50
+    const LANES = [
+      { key: 'ev', label: '触发事件' },
+      { key: 'd', label: '防抖 debounce：停下满 delay 才执行' },
+      { key: 'l', label: '防抖 · 立即执行：每轮第一次立刻执行' },
+      { key: 'th', label: '节流 throttle：每 delay 最多执行一次' },
+    ]
+    const HEIGHT = LANES.length * LANE_H + AXIS_H
+    const FONT = '12px "Noto Sans SC", "PingFang SC", system-ui, sans-serif'
+    const MONO = '11px "JetBrains Mono", ui-monospace, Menlo, monospace'
+
+    let delay = 600
+    let gen = 0
+    let events = []
+    let execs = { d: [], l: [], th: [] }
+    let fns = null
+    let lastActivity = -Infinity
+    let scriptTimers = []
+    let width = 0
+    let raf = 0
+    let visible = false
+    let autoPlayed = false
+    let lastPad = 0
+
+    // the same functions shown in the code panel
+    function debounce(fn, wait) {
+      let timer = null
+      return function (...args) {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          fn.apply(this, args)
+        }, wait)
+      }
+    }
+    function debounceLeading(fn, wait) {
+      let timer = null
+      return function (...args) {
+        const callNow = timer === null
+        clearTimeout(timer)
+        timer = setTimeout(() => { timer = null }, wait)
+        if (callNow) fn.apply(this, args)
+      }
+    }
+    function throttle(fn, wait) {
+      let last = 0
+      return function (...args) {
+        const now = Date.now()
+        if (now - last >= wait) {
+          last = now
+          fn.apply(this, args)
+        }
+      }
+    }
+
+    function makeFns() {
+      gen += 1
+      const myGen = gen
+      const record = (key, tag) => () => {
+        if (myGen !== gen) return
+        execs[key].push({ t: performance.now(), delay })
+        code.flash(tag)
+        touch()
+      }
+      fns = {
+        d: debounce(record('d', 'd-exec'), delay),
+        l: debounceLeading(record('l', 'l-exec'), delay),
+        th: throttle(record('th', 't-exec'), delay),
+      }
+    }
+
+    function updateCounts() {
+      countEls.ev.textContent = events.length
+      countEls.d.textContent = execs.d.length
+      countEls.l.textContent = execs.l.length
+      countEls.th.textContent = execs.th.length
+    }
+
+    function touch() {
+      lastActivity = performance.now()
+      updateCounts()
+      if (!raf) raf = requestAnimationFrame(loop)
+    }
+
+    function trigger() {
+      events.push({ t: performance.now(), delay })
+      code.flash('d-clear', 'l-check', 't-check')
+      fns.d()
+      fns.l()
+      fns.th()
+      touch()
+    }
+
+    function clearAll() {
+      for (const id of scriptTimers) clearTimeout(id)
+      scriptTimers = []
+      events = []
+      execs = { d: [], l: [], th: [] }
+      makeFns()
+      touch()
+    }
+
+    function runScript() {
+      clearAll()
+      const times = []
+      for (let i = 0; i < 8; i++) times.push(i * 120)
+      for (let i = 0; i < 16; i++) times.push(2200 + i * 160)
+      times.push(6000)
+      scriptTimers = times.map((t) => setTimeout(trigger, t))
+    }
+
+    function loop() {
+      raf = 0
+      draw()
+      const idle = performance.now() - lastActivity > WINDOW + 2000
+      if (visible && !idle) raf = requestAnimationFrame(loop)
+    }
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1
+      width = canvas.parentElement.clientWidth
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(HEIGHT * dpr)
+      canvas.style.height = `${HEIGHT}px`
+      g.setTransform(dpr, 0, 0, dpr, 0, 0)
+      draw()
+    }
+
+    function bar(x0, y, w, h) {
+      g.beginPath()
+      if (g.roundRect) g.roundRect(x0, y, Math.max(w, 1.5), h, Math.min(3, h / 2))
+      else g.rect(x0, y, Math.max(w, 1.5), h)
+      g.fill()
+    }
+
+    function draw() {
+      if (!width) return
+      const css = getComputedStyle(document.documentElement)
+      const C = {}
+      for (const name of ['ink', 'muted', 'faint', 'line', 'accent', 'event', 'ok', 'surface']) {
+        C[name] = css.getPropertyValue(`--${name}`).trim()
+      }
+      const now = performance.now()
+      const plotW = width - PAD_X * 2
+      const minT = now - WINDOW
+      const x = (t) => PAD_X + (1 - (now - t) / WINDOW) * plotW
+      g.clearRect(0, 0, width, HEIGHT)
+
+      // fixed grid, 1 line per second back from "now"
+      g.lineWidth = 1
+      g.strokeStyle = C.line
+      g.font = MONO
+      g.fillStyle = C.faint
+      g.textBaseline = 'middle'
+      for (let s = 0; s <= WINDOW / 1000; s++) {
+        const gx = Math.round(PAD_X + plotW - (s * 1000 / WINDOW) * plotW) + 0.5
+        g.globalAlpha = 0.55
+        g.beginPath()
+        g.moveTo(gx, 0)
+        g.lineTo(gx, HEIGHT - AXIS_H)
+        g.stroke()
+        g.globalAlpha = 1
+        if (s % 2 === 0) {
+          const text = s === 0 ? '现在' : `${s}s 前`
+          const tw = g.measureText(text).width
+          const tx = Math.min(Math.max(gx - tw / 2, 0), width - tw)
+          g.fillText(text, tx, HEIGHT - AXIS_H / 2)
+        }
+      }
+
+      LANES.forEach((lane, i) => {
+        const top = i * LANE_H
+        const mid = top + 38
+        g.font = FONT
+        g.textBaseline = 'alphabetic'
+        g.fillStyle = C.muted
+        g.fillText(lane.label, PAD_X, top + 17)
+        g.strokeStyle = C.line
+        g.beginPath()
+        g.moveTo(PAD_X, mid + 0.5)
+        g.lineTo(width - PAD_X, mid + 0.5)
+        g.stroke()
+
+        if (lane.key === 'ev') {
+          g.strokeStyle = C.event
+          g.lineWidth = 2
+          for (const e of events) {
+            if (e.t < minT) continue
+            const ex = Math.round(x(e.t))
+            g.beginPath()
+            g.moveTo(ex, mid - 11)
+            g.lineTo(ex, mid + 11)
+            g.stroke()
+          }
+          g.lineWidth = 1
+          return
+        }
+
+        if (lane.key === 'th') {
+          for (const ex of execs.th) {
+            const end = ex.t + ex.delay
+            if (end < minT) continue
+            const x0 = Math.max(x(ex.t), PAD_X)
+            const x1 = x(Math.min(end, now))
+            g.fillStyle = C.accent
+            g.globalAlpha = 0.25
+            bar(x0, mid - 7, x1 - x0, 14)
+            g.globalAlpha = 1
+            if (now < end) {
+              g.font = MONO
+              g.fillStyle = C.accent
+              const text = `冷却中 ${Math.ceil(end - now)}ms`
+              g.fillText(text, Math.max(x1 - g.measureText(text).width, PAD_X), mid - 12)
+            }
+          }
+        } else {
+          for (let k = 0; k < events.length; k++) {
+            const e = events[k]
+            const end = e.t + e.delay
+            if (end < minT) continue
+            const next = events[k + 1]
+            const cancelled = Boolean(next) && next.t < end
+            const stopAt = cancelled ? next.t : Math.min(end, now)
+            const x0 = Math.max(x(e.t), PAD_X)
+            const x1 = x(stopAt)
+            g.fillStyle = cancelled ? C.faint : C.accent
+            let alpha = lane.key === 'l' ? 0.5 : 0.9
+            if (cancelled) alpha = 0.45
+            g.globalAlpha = alpha
+            bar(x0, mid - 3, x1 - x0, 6)
+            g.globalAlpha = 1
+            if (!cancelled && now < end) {
+              g.font = MONO
+              g.fillStyle = lane.key === 'd' ? C.accent : C.muted
+              const text = `${lane.key === 'd' ? '等待中' : '锁定中'} ${Math.ceil(end - now)}ms`
+              g.fillText(text, Math.max(x1 - g.measureText(text).width, PAD_X), mid - 12)
+            }
+          }
+        }
+
+        for (const ex of execs[lane.key]) {
+          if (ex.t < minT) continue
+          g.beginPath()
+          g.arc(x(ex.t), mid, 6, 0, Math.PI * 2)
+          g.fillStyle = C.ok
+          g.fill()
+          g.lineWidth = 2
+          g.strokeStyle = C.surface
+          g.stroke()
+          g.lineWidth = 1
+        }
+      })
+    }
+
+    delayInput.addEventListener('input', () => {
+      delay = Number(delayInput.value)
+      delayOut.textContent = `${delay}ms`
+      clearAll()
+    })
+    $('#tm-once').addEventListener('click', trigger)
+    $('#tm-clear').addEventListener('click', clearAll)
+    $('#tm-auto').addEventListener('click', runScript)
+
+    const pad = $('#tm-pad')
+    pad.addEventListener('pointermove', () => {
+      const now = performance.now()
+      if (now - lastPad < PAD_SAMPLE_MS) return
+      lastPad = now
+      trigger()
+    })
+    pad.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') return
+      e.preventDefault()
+      trigger()
+    })
+
+    new ResizeObserver(resize).observe(canvas.parentElement)
+    new IntersectionObserver((entries) => {
+      visible = entries.some((en) => en.isIntersecting)
+      if (!visible) return
+      if (!autoPlayed && !reduceMotion) {
+        autoPlayed = true
+        runScript()
+      } else if (!raf) {
+        raf = requestAnimationFrame(loop)
+      }
+    }, { threshold: 0.3 }).observe(canvas)
+
+    makeFns()
+    resize()
+  }
+
+  /* ---------- 2. Promise.all family ---------- */
+  function initPromiseAll() {
+    const root = $('#promise-all')
+    const code = createCode($('pre', root), 'src-all')
+    const rowsEl = $('#pa-rows')
+    const slotsEl = $('#pa-slots')
+    const doneEl = $('#pa-done')
+    const combosEl = $('#pa-combos')
+    const logEl = $('#pa-log')
+    const clockEl = $('#pa-clock')
+    const playBtn = $('#pa-play')
+
+    const ps = [
+      { name: 'p1', value: 'A', dur: 2000, fail: false },
+      { name: 'p2', value: 'B', dur: 900, fail: false },
+      { name: 'p3', value: 'C', dur: 2600, fail: false },
+      { name: 'p4', value: 'D', dur: 1500, fail: false },
+    ]
+    let model = null
+    let rowEls = []
+    let slotEls = []
+    let comboEls = []
+    let prevT = -1
+    let logCount = -1
+
+    const fmt = (ms) => `${(ms / 1000).toFixed(2)}s`
+    const shown = (p) => (p.fail ? `'${p.name} 出错'` : `'${p.value}'`)
+
+    function buildModel() {
+      const byTime = ps.map((p, i) => ({ ...p, i })).sort((a, b) => a.dur - b.dur)
+      const last = byTime[byTime.length - 1].dur
+      const firstReject = byTime.find((p) => p.fail) ?? null
+      const firstOk = byTime.find((p) => !p.fail) ?? null
+      let done = 0
+      const events = byTime.map((p) => {
+        if (!p.fail) done += 1
+        const allDead = firstReject !== null && p.dur > firstReject.dur
+        return { t: p.dur, p, done, allDead, first: p === firstReject }
+      })
+      const combos = [
+        {
+          name: 'Promise.all',
+          rule: '全部成功才成功；一个失败立刻失败',
+          at: firstReject ? firstReject.dur : last,
+          ok: !firstReject,
+          text: firstReject ? `reason: ${shown(firstReject)}` : `[${ps.map((p) => `'${p.value}'`).join(', ')}]`,
+        },
+        {
+          name: 'Promise.allSettled',
+          rule: '等全部结束，永远不会失败',
+          at: last,
+          ok: true,
+          text: ps.map((p) => (p.fail ? `✗${p.name}` : `✓${p.value}`)).join(' '),
+        },
+        {
+          name: 'Promise.race',
+          rule: '跟随第一个结束的，不管成败',
+          at: byTime[0].dur,
+          ok: !byTime[0].fail,
+          text: shown(byTime[0]),
+        },
+        {
+          name: 'Promise.any',
+          rule: '取第一个成功的；全部失败才失败',
+          at: firstOk ? firstOk.dur : last,
+          ok: firstOk !== null,
+          text: firstOk ? shown(firstOk) : 'AggregateError',
+        },
+      ]
+      return { byTime, last, firstReject, events, combos, maxT: last + 300 }
+    }
+
+    function buildDOM() {
+      rowsEl.innerHTML = ps.map((p, i) => `
+        <div class="prow" data-state="pending">
+          <span>${p.name}</span>
+          <div class="ptrack"><div class="pghost"></div><div class="pfill"></div></div>
+          <span class="pres">等待中</span>
+          <button type="button" class="ptoggle" data-i="${i}" aria-pressed="${p.fail}" aria-label="切换 ${p.name} 成功或失败">${p.fail ? '失败' : '成功'}</button>
+        </div>`).join('')
+      rowEls = $$('.prow', rowsEl).map((el) => ({ el, ghost: $('.pghost', el), fill: $('.pfill', el), res: $('.pres', el) }))
+      slotsEl.innerHTML = ps.map((_, i) => `<div class="slot"><small>[${i}]</small><span></span></div>`).join('')
+      slotEls = $$('.slot', slotsEl).map((el) => ({ el, value: $('span', el) }))
+      combosEl.innerHTML = model.combos.map((c) => `
+        <div class="combo" data-state="pending">
+          <span class="name">${c.name}</span>
+          <span class="rule">${c.rule}</span>
+          <span class="status">pending</span>
+          <span class="value">…</span>
+        </div>`).join('')
+      comboEls = $$('.combo', combosEl).map((el) => ({ el, status: $('.status', el), value: $('.value', el) }))
+    }
+
+    function logLine(e) {
+      const { p } = e
+      if (p.fail) {
+        const tail = e.first
+          ? 'Promise.all 立刻变成 rejected'
+          : 'Promise.all 早已失败，这次 reject 不再起作用'
+        return `<li${e.first ? '' : ' class="ignored"'}><b>${fmt(e.t)}</b> ${p.name} 失败 → 调用 reject，${tail}</li>`
+      }
+      let text = `<b>${fmt(e.t)}</b> ${p.name} 成功 → <code>results[${p.i}] = '${p.value}'</code>，done = ${e.done}`
+      if (e.allDead) return `<li class="ignored">${text}（Promise.all 已失败，这个结果没人要了）</li>`
+      if (e.done === ps.length) text += '，等于 items.length → resolve(results)'
+      return `<li>${text}</li>`
+    }
+
+    function render(t) {
+      if (t < prevT) {
+        prevT = -1
+        logCount = -1
+      }
+      clockEl.textContent = `t = ${fmt(t)}`
+      ps.forEach((p, i) => {
+        const r = rowEls[i]
+        const settled = t >= p.dur
+        r.ghost.style.width = `${(p.dur / model.maxT) * 100}%`
+        r.fill.style.width = `${(Math.min(t, p.dur) / model.maxT) * 100}%`
+        r.el.dataset.state = settled ? (p.fail ? 'rejected' : 'fulfilled') : 'pending'
+        r.res.textContent = settled ? (p.fail ? '✗ 出错' : `✓ '${p.value}'`) : '等待中'
+      })
+
+      const deadAt = model.firstReject ? model.firstReject.dur : Infinity
+      let done = 0
+      ps.forEach((p, i) => {
+        const filled = !p.fail && t >= p.dur
+        if (filled) done += 1
+        slotEls[i].value.textContent = filled ? `'${p.value}'` : ''
+        slotEls[i].el.classList.toggle('filled', filled)
+        slotEls[i].el.classList.toggle('ignored', filled && p.dur > deadAt)
+      })
+      doneEl.textContent = `done = ${done} / ${ps.length}`
+
+      model.combos.forEach((c, i) => {
+        const el = comboEls[i]
+        const settled = t >= c.at
+        el.el.dataset.state = settled ? (c.ok ? 'fulfilled' : 'rejected') : 'pending'
+        el.status.textContent = settled ? `${c.ok ? 'fulfilled' : 'rejected'} @ ${fmt(c.at)}` : 'pending'
+        el.value.textContent = settled ? c.text : '…'
+      })
+
+      const passed = model.events.filter((e) => e.t <= t)
+      if (passed.length !== logCount) {
+        logCount = passed.length
+        logEl.innerHTML = passed.map(logLine).join('')
+        logEl.scrollTop = logEl.scrollHeight
+      }
+      for (const e of model.events) {
+        if (e.t > prevT && e.t <= t) {
+          if (e.p.fail) code.flash('reject')
+          else code.flash('store', 'count', ...(e.done === ps.length ? ['resolve'] : []))
+        }
+      }
+      prevT = t
+
+      const lastEvent = passed[passed.length - 1]
+      let lines = ['wrap']
+      if (lastEvent) lines = lastEvent.p.fail ? ['reject'] : ['store', 'count']
+      if (passed.length === ps.length) lines = model.firstReject ? ['reject'] : ['resolve']
+      code.set(lines)
+    }
+
+    const playback = createPlayback({
+      getDuration: () => model.maxT,
+      onFrame: render,
+      onState: playLabel(playBtn),
+    })
+
+    function rebuild() {
+      playback.pause()
+      model = buildModel()
+      buildDOM()
+      prevT = -1
+      logCount = -1
+      playback.reset()
+    }
+
+    rowsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.ptoggle')
+      if (!btn) return
+      const p = ps[Number(btn.dataset.i)]
+      p.fail = !p.fail
+      rebuild()
+    })
+    playBtn.addEventListener('click', () => playback.toggle())
+    $('#pa-reset').addEventListener('click', () => playback.reset())
+    $('#pa-random').addEventListener('click', () => {
+      const pool = Array.from({ length: 23 }, (_, i) => 600 + i * 100)
+      for (const p of ps) {
+        const k = Math.floor(Math.random() * pool.length)
+        p.dur = pool.splice(k, 1)[0]
+      }
+      rebuild()
+    })
+
+    rebuild()
+  }
+
+  /* ---------- 3. concurrency pool ---------- */
+  function initPool() {
+    const root = $('#pool')
+    const code = createCode($('pre', root), 'src-pool')
+    const queueEl = $('#pl-queue')
+    const ganttEl = $('#pl-gantt')
+    const axisEl = $('#pl-axis')
+    const orderEl = $('#pl-order')
+    const slotsEl = $('#pl-slots')
+    const noteEl = $('#pl-note')
+    const clockEl = $('#pl-clock')
+    const playBtn = $('#pl-play')
+    const CLASSIC = [1000, 500, 300, 400]
+    const REAL_TIME_MS = 5200
+
+    let limit = 2
+    let durs = CLASSIC.slice()
+    let model = null
+    let barEls = []
+    let slotEls = []
+    let prevT = -1
+
+    function buildModel() {
+      const n = Math.min(limit, durs.length)
+      const workers = Array.from({ length: n }, (_, w) => ({ w, free: 0 }))
+      const tasks = durs.map((dur, i) => {
+        workers.sort((a, b) => a.free - b.free || a.w - b.w)
+        const wk = workers[0]
+        const task = { i, dur, w: wk.w, start: wk.free, end: wk.free + dur }
+        wk.free = task.end
+        return task
+      })
+      const end = Math.max(...tasks.map((t) => t.end))
+      const times = [...new Set(tasks.flatMap((t) => [t.start, t.end]))].sort((a, b) => a - b)
+      const byEnd = tasks.slice().sort((a, b) => a.end - b.end || a.w - b.w)
+      const moments = times.map((time) => ({
+        time,
+        finished: tasks.filter((t) => t.end === time).sort((a, b) => a.w - b.w),
+        started: tasks.filter((t) => t.start === time).sort((a, b) => a.i - b.i),
+      }))
+      return { n, tasks, end, moments, byEnd }
+    }
+
+    function niceStep(total) {
+      const candidates = [100, 200, 250, 500, 1000, 2000]
+      return candidates.find((s) => total / s <= 7) ?? 5000
+    }
+
+    function buildDOM() {
+      ganttEl.innerHTML = Array.from({ length: model.n }, (_, w) => `
+        <div class="lane">
+          <span class="lane-name">worker ${w + 1}</span>
+          <div class="lane-track" data-w="${w}"></div>
+        </div>`).join('')
+      const tracks = $$('.lane-track', ganttEl)
+      barEls = model.tasks.map((task) => {
+        const ghost = document.createElement('div')
+        ghost.className = 'gghost'
+        ghost.style.left = `${(task.start / model.end) * 100}%`
+        ghost.style.width = `${(task.dur / model.end) * 100}%`
+        const barEl = document.createElement('div')
+        barEl.className = 'gbar'
+        barEl.style.left = ghost.style.left
+        barEl.textContent = `任务${task.i + 1} · ${task.dur}ms`
+        tracks[task.w].append(ghost, barEl)
+        return { ghost, bar: barEl }
+      })
+      const step = niceStep(model.end)
+      const ticks = []
+      for (let v = 0; v <= model.end; v += step) ticks.push(v)
+      axisEl.innerHTML = ticks.map((v) => {
+        const pct = (v / model.end) * 100
+        const edge = pct > 92 ? ';transform:translateX(-100%)' : ''
+        return `<span style="left:${pct}%${edge}">${v}ms</span>`
+      }).join('')
+      slotsEl.innerHTML = durs.map((_, i) => `<div class="slot"><small>[${i}]</small><span></span></div>`).join('')
+      slotEls = $$('.slot', slotsEl).map((el) => ({ el, value: $('span', el) }))
+    }
+
+    function momentText(m) {
+      const parts = []
+      if (m.time === 0) parts.push(`开出 ${model.n} 个 worker`)
+      for (const t of m.finished) {
+        parts.push(`任务${t.i + 1} 完成 → <code>results[${t.i}] = ${t.dur}</code>`)
+        const again = m.started.find((s) => s.w === t.w)
+        if (!again && m.time !== model.end) parts.push(`worker ${t.w + 1} 发现 next 已到头，收工`)
+      }
+      for (const t of m.started) parts.push(`worker ${t.w + 1} 领取任务${t.i + 1}（next 变成 ${t.i + 1}）`)
+      if (m.time === model.end) {
+        const order = model.byEnd.map((t) => t.i + 1).join(' ')
+        parts.push(`全部完成。完成顺序 ${order}，results 仍按下标排列：[${durs.join(', ')}]`)
+      }
+      return `<b>${m.time}ms</b>　${parts.join('；')}`
+    }
+
+    function render(t) {
+      if (t < prevT) prevT = -1
+      clockEl.textContent = `t = ${Math.round(t)}ms`
+      const waiting = model.tasks.filter((task) => task.start > t)
+      const taken = model.tasks.length - waiting.length
+      queueEl.innerHTML = waiting.length
+        ? waiting.map((task) => `<span class="chip">任务${task.i + 1} · ${task.dur}ms</span>`).join('') + `<span class="label">next = ${taken}</span>`
+        : `<span class="label">空（next = ${taken}，已等于 items.length）</span>`
+
+      model.tasks.forEach((task, k) => {
+        const { ghost, bar: barEl } = barEls[k]
+        const started = t >= task.start
+        const finished = t >= task.end
+        const shownTo = Math.min(t, task.end)
+        barEl.hidden = !started
+        ghost.hidden = !started || finished
+        barEl.style.width = `${(Math.max(shownTo - task.start, 0) / model.end) * 100}%`
+        barEl.classList.toggle('done', finished)
+      })
+
+      const done = model.byEnd.filter((task) => task.end <= t)
+      orderEl.innerHTML = done.length
+        ? done.map((task) => `<span class="chip done">${task.i + 1}</span>`).join('')
+        : '<span class="label">还没有任务完成</span>'
+      model.tasks.forEach((task) => {
+        const filled = task.end <= t
+        slotEls[task.i].el.classList.toggle('filled', filled)
+        slotEls[task.i].value.textContent = filled ? task.dur : ''
+      })
+
+      const current = model.moments.filter((m) => m.time <= t).pop()
+      noteEl.innerHTML = current ? momentText(current) : ''
+
+      for (const m of model.moments) {
+        if (m.time > prevT && m.time <= t) {
+          if (m.time === 0) code.flash('spawn')
+          if (m.finished.length) code.flash('run')
+          if (m.started.length) code.flash('take')
+          if (m.time === model.end) code.flash('all')
+        }
+      }
+      prevT = t
+      const running = model.tasks.some((task) => task.start <= t && t < task.end)
+      code.set(t >= model.end ? ['all'] : running ? ['run'] : ['spawn'])
+    }
+
+    const playback = createPlayback({
+      getDuration: () => model.end,
+      getSpeed: () => model.end / REAL_TIME_MS,
+      onFrame: render,
+      onState: playLabel(playBtn),
+    })
+
+    function rebuild() {
+      playback.pause()
+      model = buildModel()
+      buildDOM()
+      prevT = -1
+      playback.reset()
+    }
+
+    segmented($('#pl-limit'), (v) => {
+      limit = Number(v)
+      rebuild()
+    })
+    $('#pl-classic').addEventListener('click', () => {
+      durs = CLASSIC.slice()
+      rebuild()
+    })
+    $('#pl-random').addEventListener('click', () => {
+      durs = Array.from({ length: 6 }, () => (2 + Math.floor(Math.random() * 11)) * 100)
+      rebuild()
+    })
+    playBtn.addEventListener('click', () => playback.toggle())
+    $('#pl-reset').addEventListener('click', () => playback.reset())
+
+    rebuild()
+  }
+
+  /* ---------- 4. deep clone ---------- */
+  function initClone() {
+    const root = $('#deep-clone')
+    const code = createCode($('pre', root), 'src-clone')
+    const srcEl = $('#dc-src')
+    const stackEl = $('#dc-stack')
+    const seenEl = $('#dc-seen')
+    const copyEl = $('#dc-copy')
+    const SRC = {
+      obj: [['name', { p: "'Ann'" }], ['info', { r: 'info' }], ['self', { r: 'obj' }]],
+      info: [['age', { p: '18' }]],
+    }
+    let useSeen = true
+
+    function buildSteps() {
+      const steps = []
+      const stack = []
+      const seen = []
+      const copies = []
+      let copyCount = 0
+      let objVisits = 0
+      const OVERFLOW = Symbol('overflow')
+
+      const snap = (lines, note, focus = null, extra = {}) => {
+        steps.push({
+          lines,
+          note,
+          focus,
+          stack: stack.slice(),
+          seen: seen.map((pair) => pair.slice()),
+          copies: copies.map((c) => ({ ...c, fields: c.fields.map((f) => f.slice()) })),
+          ...extra,
+        })
+      }
+
+      function clone(val, label) {
+        stack.push(label)
+        if (val.p !== undefined) {
+          snap(['prim'], `<code>${esc(val.p)}</code> 是基本类型，原样返回。`)
+          stack.pop()
+          return { kind: 'prim', text: val.p }
+        }
+        const id = val.r
+        if (useSeen) {
+          const hit = seen.find(([s]) => s === id)
+          if (hit) {
+            snap(['hit'], `seen 里已经有 <code>${id}</code> 了 → 直接返回 <code>copy${hit[1]}</code>，不再往下递归。循环在这里被截断。`, { src: id }, { hitRow: id })
+            stack.pop()
+            return { kind: 'ref', text: `copy${hit[1]}` }
+          }
+        } else if (id === 'obj') {
+          objVisits += 1
+          if (objVisits >= 3) {
+            snap(['make'], `又遇到 <code>obj</code>。没有 seen，函数不知道 obj 已经拷过了，只能再新建一个 copy、再递归它的 self……永远停不下来，最终抛出 <code>RangeError: Maximum call stack size exceeded</code>。`, { src: id }, { overflow: true })
+            throw OVERFLOW
+          }
+        }
+        copyCount += 1
+        const cid = copyCount
+        copies.push({ id: cid, of: id, fields: [] })
+        snap(['make'], `<code>${id}</code> 是对象，新建空对象 <code>copy${cid}</code>。`, { src: id }, { newCopy: cid })
+        if (useSeen) {
+          seen.push([id, cid])
+          snap(['save'], `先登记 <code>seen.set(${id}, copy${cid})</code>，再去递归它的属性。`, { src: id }, { newSeen: id })
+        }
+        for (const [key, child] of SRC[id]) {
+          snap(['assign'], `处理 <code>${id}.${key}</code>，递归调用 deepClone。`, { src: id, key })
+          const result = clone(child, `${label}.${key}`)
+          copies.find((c) => c.id === cid).fields.push([key, result])
+          snap(['assign'], `递归返回，赋值 <code>copy${cid}.${key} = ${esc(result.text)}</code>。`, { src: id, key }, { newField: [cid, key] })
+        }
+        snap(['ret'], `<code>${id}</code> 的属性拷完了，返回 <code>copy${cid}</code>。`, { src: id })
+        stack.pop()
+        return { kind: 'ref', text: `copy${cid}` }
+      }
+
+      snap(['start'], '准备：<code>obj.self = obj</code>，obj 自己引用自己。现在调用 <code>deepClone(obj)</code>。')
+      try {
+        clone({ r: 'obj' }, 'obj')
+        snap(['start'], '完成：<code>copy.self === copy</code> 为 true，<code>copy.info !== obj.info</code> 也为 true。循环结构被完整复制，没有死循环。', null, { done: true })
+      } catch (err) {
+        if (err !== OVERFLOW) throw err
+      }
+      return steps
+    }
+
+    function refText(v) {
+      if (v.p !== undefined) return esc(v.p)
+      return v.r === 'obj' ? '↺ obj（自己）' : `→ ${v.r}`
+    }
+
+    function render(step) {
+      const focus = step.focus ?? {}
+      srcEl.innerHTML = Object.entries(SRC).map(([id, fields]) => boxHTML({
+        title: id,
+        tone: focus.src === id ? 'focus' : '',
+        rows: fields.map(([k, v]) => [k, refText(v), focus.src === id && focus.key === k ? 'hot' : '']),
+      })).join('')
+
+      const frames = step.stack.map((label, i) => `<div class="frame${i === step.stack.length - 1 && !step.overflow ? ' top' : ''}">deepClone(${esc(label)})</div>`).reverse()
+      if (step.overflow) frames.unshift('<div class="frame overflow">…… 继续无限加深 → 栈溢出</div>')
+      stackEl.innerHTML = frames.length ? frames.join('') : '<p class="empty-note">调用栈为空</p>'
+
+      let seenRows = '<div class="row empty">没有 seen：无法知道哪个对象已经拷过</div>'
+      if (useSeen) {
+        seenRows = step.seen.length
+          ? step.seen.map(([s, c]) => {
+            let flag = ''
+            if (step.newSeen === s) flag = 'new'
+            if (step.hitRow === s) flag = 'hot'
+            return `<div class="row ${flag}"><span class="k">${s}</span><span class="v">→ copy${c}</span></div>`
+          }).join('')
+          : '<div class="row empty">（空）</div>'
+      }
+      seenEl.innerHTML = `<div class="box-title"><span>WeakMap</span></div>${seenRows}`
+
+      copyEl.innerHTML = step.copies.length
+        ? step.copies.map((c) => boxHTML({
+          title: `copy${c.id}`,
+          sub: `拷自 ${c.of}`,
+          tone: step.newCopy === c.id ? 'new' : '',
+          empty: '{ }（空对象）',
+          rows: c.fields.map(([k, r]) => {
+            let value = esc(r.text)
+            if (r.kind === 'ref') value = r.text === `copy${c.id}` ? `↺ ${r.text}（自己）` : `→ ${r.text}`
+            const isNew = step.newField && step.newField[0] === c.id && step.newField[1] === k
+            return [k, value, isNew ? 'new' : '']
+          }),
+        })).join('')
+        : '<p class="empty-note">还没有创建任何拷贝</p>'
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1500 })
+    segmented($('#dc-mode'), (v) => {
+      useSeen = v === 'seen'
+      code.off(useSeen ? [] : ['hit', 'save'])
+      stepper.rebuild()
+    })
+    stepper.rebuild()
+  }
+
+  /* ---------- 5. call / bind ---------- */
+  function initCallBind() {
+    const root = $('#call-bind')
+    const pres = { call: $('pre[data-code="call"]', root), bind: $('pre[data-code="bind"]', root) }
+    const codes = { call: createCode(pres.call, 'src-call'), bind: createCode(pres.bind, 'src-bind') }
+    const board = $('#cb-board')
+    let mode = 'call'
+
+    const VARS = (rows) => ({ title: 'myCall 里的变量', rows })
+    const CTX = (rows) => ({ title: 'ctx 对象', rows })
+    const STACK = (rows) => ({ title: '调用栈', sub: '上面是正在执行的', rows })
+    const baseVars = [['this', 'ƒ greet', 'hot'], ['context', "{ name: 'Tom' }"], ['args', "['Hi']"]]
+    const withCtx = [['this', 'ƒ greet'], ['context', "{ name: 'Tom' }"], ['args', "['Hi']"], ['ctx', "{ name: 'Tom' }"]]
+    const withKey = [...withCtx, ['key', 'Symbol(fn)']]
+
+    const CALL_STEPS = [
+      {
+        lines: ['start'],
+        note: "执行 <code>greet.myCall({ name: 'Tom' }, 'Hi')</code>。进入 myCall 时，<code>this</code> 就是 greet：谁调用了 myCall，this 就是谁。",
+        boxes: [VARS(baseVars), STACK([['myCall(…)', 'this = greet']])],
+      },
+      {
+        lines: ['box'],
+        note: 'context 是对象，<code>Object(context)</code> 会原样返回它。如果传 null / undefined，就用 globalThis；传 1 这样的原始值，会被包装成 Number 对象。',
+        boxes: [VARS([...withCtx.slice(0, 3), ['ctx', "{ name: 'Tom' }", 'new']]), CTX([['name', "'Tom'"]]), STACK([['myCall(…)', 'this = greet']])],
+      },
+      {
+        lines: ['key'],
+        note: '创建一个 Symbol 当临时键。Symbol 独一无二，就算 ctx 本来就有一个叫 fn 的属性，也不会被覆盖。',
+        boxes: [VARS([...withCtx, ['key', 'Symbol(fn)', 'new']]), CTX([['name', "'Tom'"]]), STACK([['myCall(…)', 'this = greet']])],
+      },
+      {
+        lines: ['mount'],
+        note: '<code>ctx[key] = this</code>：把 greet 临时挂到 ctx 上，变成 ctx 的一个“方法”。',
+        boxes: [VARS(withKey), CTX([['name', "'Tom'"], ['[Symbol(fn)]', 'ƒ greet', 'new']]), STACK([['myCall(…)', 'this = greet']])],
+      },
+      {
+        lines: ['invoke'],
+        note: '以 <code>ctx[key](...args)</code> 的形式调用。方法调用时，点号或方括号前面的对象就是 this，所以 greet 里的 this 是 ctx。',
+        boxes: [VARS(withKey), CTX([['name', "'Tom'"], ['[Symbol(fn)]', 'ƒ greet']]), STACK([["greet('Hi')", 'this = ctx', 'hot'], ['myCall(…)', '']])],
+      },
+      {
+        lines: ['body'],
+        note: "greet 读取 <code>this.name</code>，拿到 'Tom'，返回 <code>'Hi, Tom'</code>。",
+        boxes: [VARS(withKey), CTX([['name', "'Tom'", 'hot'], ['[Symbol(fn)]', 'ƒ greet']]), STACK([["greet('Hi')", "返回 'Hi, Tom'", 'new'], ['myCall(…)', '']])],
+      },
+      {
+        lines: ['clean'],
+        note: 'return 之前先执行 finally：删掉临时属性。用 try/finally，就算 greet 抛错，也一定会清理。',
+        boxes: [VARS(withKey), CTX([['name', "'Tom'"], ['[Symbol(fn)]', 'ƒ greet', 'gone']]), STACK([['myCall(…)', "拿到 'Hi, Tom'"]])],
+      },
+      {
+        lines: ['start'],
+        note: "myCall 返回 <code>'Hi, Tom'</code>，ctx 恢复成 <code>{ name: 'Tom' }</code>。apply 只是参数形式不同：<code>myApply(ctx, arr)</code> 就是 <code>this.myCall(ctx, ...arr)</code>。",
+        boxes: [CTX([['name', "'Tom'"]]), STACK([['（myCall 已返回）', "'Hi, Tom'", 'new']])],
+      },
+    ]
+
+    const CLOSURE = (flag = '') => ({ title: 'bound 的闭包', sub: 'myBind 返回后仍然保留', rows: [['fn', 'ƒ Point', flag], ['context', "{ tag: 'ctx' }", flag], ['preset', '[1]', flag]] })
+    const BCTX = (rows = [['tag', "'ctx'"]]) => ({ title: 'ctx 对象', sub: "{ tag: 'ctx' }", rows })
+    const CALL = (rows) => ({ title: '当前调用', rows })
+    const INST = (rows) => ({ title: 'new 出来的实例', rows, empty: '{ }（空对象）' })
+    const PROTO = (rows) => ({ title: '原型链', rows })
+    const protoRows = [['bound.prototype', '→ Point.prototype']]
+
+    const BIND_STEPS = [
+      {
+        lines: ['mk', 'fnsave'],
+        note: "执行 <code>Point.myBind({ tag: 'ctx' }, 1)</code>。进入 myBind 时，this 是 Point，先存成 <code>fn</code>。",
+        boxes: [CLOSURE('new'), BCTX()],
+      },
+      {
+        lines: ['proto'],
+        note: '<code>bound.prototype = Object.create(Point.prototype)</code>：以后 new bound() 创建的实例，沿着原型链能找到 Point.prototype。',
+        boxes: [CLOSURE(), BCTX(), PROTO([['bound.prototype', '→ Point.prototype', 'new']])],
+      },
+      {
+        lines: ['retb'],
+        note: '返回 bound。myBind 本身不会执行 Point，只返回一个新函数；fn、context、preset 都留在闭包里。',
+        boxes: [CLOSURE(), BCTX(), PROTO(protoRows), CALL([['BoundPoint', '= bound', 'new']])],
+      },
+      {
+        lines: ['call1', 'check'],
+        note: '普通调用 <code>BoundPoint(2)</code>：没有 new，bound 里的 this 是 undefined（严格模式）。',
+        boxes: [CLOSURE(), BCTX(), PROTO(protoRows), CALL([['调用', 'BoundPoint(2)'], ['this', 'undefined', 'hot'], ['rest', '[2]']])],
+      },
+      {
+        lines: ['check'],
+        note: '<code>undefined instanceof bound</code> → false，说明不是 new 调用。',
+        boxes: [CLOSURE(), BCTX(), PROTO(protoRows), CALL([['调用', 'BoundPoint(2)'], ['this', 'undefined'], ['rest', '[2]'], ['isNew', 'false', 'new']])],
+      },
+      {
+        lines: ['apply'],
+        note: '<code>fn.apply(context, [1, 2])</code>：预置参数 1 和本次传的 2 拼在一起。Point 把 x、y 写到了 ctx 上。',
+        boxes: [CLOSURE(), BCTX([['tag', "'ctx'"], ['x', '1', 'new'], ['y', '2', 'new']]), PROTO(protoRows), CALL([['调用', 'BoundPoint(2)'], ['this 用', 'context', 'hot'], ['参数', '[1, 2]']])],
+      },
+      {
+        lines: ['call2', 'check'],
+        note: '<code>new BoundPoint(2)</code>：new 先创建一个空对象，让它的原型指向 bound.prototype，再把它当作 this 调用 bound。',
+        boxes: [CLOSURE(), BCTX([['tag', "'ctx'"], ['x', '1'], ['y', '2']]), PROTO([['新实例', '→ bound.prototype', 'new'], ...protoRows]), CALL([['调用', 'new BoundPoint(2)'], ['this', '新实例', 'hot'], ['rest', '[2]']]), INST([])],
+      },
+      {
+        lines: ['check'],
+        note: '新实例的原型链上有 bound.prototype，所以 <code>this instanceof bound</code> 为 true，说明是 new 调用。',
+        boxes: [CLOSURE(), BCTX([['tag', "'ctx'"], ['x', '1'], ['y', '2']]), PROTO([['新实例', '→ bound.prototype', 'hot'], ...protoRows]), CALL([['调用', 'new BoundPoint(2)'], ['this', '新实例'], ['rest', '[2]'], ['isNew', 'true', 'new']]), INST([])],
+      },
+      {
+        lines: ['apply'],
+        note: '<code>fn.apply(this, [1, 2])</code>：这次 this 用新实例，绑定的 ctx 被忽略。x、y 写到了新实例上，ctx 没有变。',
+        boxes: [CLOSURE(), BCTX([['tag', "'ctx'"], ['x', '1'], ['y', '2']]), PROTO([['新实例', '→ bound.prototype'], ...protoRows]), CALL([['调用', 'new BoundPoint(2)'], ['this 用', '新实例', 'hot'], ['参数', '[1, 2]']]), INST([['x', '1', 'new'], ['y', '2', 'new']])],
+      },
+      {
+        lines: ['call2'],
+        note: 'Point 没有返回对象，所以 new 的结果就是这个实例 <code>{ x: 1, y: 2 }</code>，而且 <code>instanceof Point</code> 为 true。结论：bind 可以预置参数；被 new 调用时，绑定的 this 失效。',
+        boxes: [CLOSURE(), BCTX([['tag', "'ctx'"], ['x', '1'], ['y', '2']]), PROTO([['新实例', '→ bound.prototype'], ...protoRows]), CALL([['结果', '{ x: 1, y: 2 }', 'new'], ['instanceof Point', 'true', 'new']]), INST([['x', '1'], ['y', '2']])],
+      },
+    ]
+
+    const stepper = createStepper(root, {
+      build: () => (mode === 'call' ? CALL_STEPS : BIND_STEPS),
+      render: (step) => { board.innerHTML = step.boxes.map(boxHTML).join('') },
+      getCode: () => codes[mode],
+      interval: 1800,
+    })
+    segmented($('#cb-mode'), (v) => {
+      mode = v
+      pres.call.hidden = v !== 'call'
+      pres.bind.hidden = v !== 'bind'
+      stepper.rebuild()
+    })
+    stepper.rebuild()
+  }
+
+  /* ---------- 6. EventEmitter ---------- */
+  function initEmitter() {
+    const root = $('#emitter')
+    const BUG_FROM = 'for (const fn of [...list]) fn.apply(this, args) // 遍历副本'
+    const BUG_TO = 'for (const fn of list) fn.apply(this, args)      // ❌ 遍历原数组'
+    const pres = { copy: $('pre[data-code="emitter"]', root), bug: $('pre[data-code="emitter-bug"]', root) }
+    const codes = {
+      copy: createCode(pres.copy, 'src-emitter'),
+      bug: createCode(pres.bug, 'src-emitter', (text) => text.replace(BUG_FROM, BUG_TO)),
+    }
+    const listEl = $('#ee-list')
+    const copyEl = $('#ee-copy')
+    const logEl = $('#ee-log')
+    const W = 'wrapper(A)'
+    const B = 'B'
+    let mode = 'copy'
+
+    function buildSteps() {
+      const useCopy = mode === 'copy'
+      const iter = useCopy ? 'copy' : 'list'
+      const logA = ['A 执行', 'done']
+      const partials = [
+        {
+          lines: ['s1', 'raw', 'once-on'],
+          note: "<code>e.once('msg', A)</code>：once 不会直接注册 A，而是注册一个包装函数 wrapper，并记下 <code>wrapper.raw = A</code>，方便以后用 A 本身来 off。",
+          list: [[W, 'new']],
+        },
+        {
+          lines: ['s2', 'push'],
+          note: "<code>e.on('msg', B)</code>：B 直接 push 进数组，排在 wrapper 后面。",
+          list: [[W], [B, 'new']],
+        },
+        {
+          lines: ['s3', 'copy'],
+          note: useCopy
+            ? "第一次 <code>emit('msg')</code>：先用 <code>[...list]</code> 复制一份，下面遍历的是这份副本。"
+            : "第一次 <code>emit('msg')</code>：这个版本直接遍历原数组 list，没有复制。",
+          list: [[W], [B]],
+          copy: useCopy ? [[W, 'new'], [B, 'new']] : null,
+        },
+        {
+          lines: ['copy'],
+          note: 'i = 0：取到 wrapper(A)，调用它。',
+          copy: useCopy ? [[W], [B]] : null,
+          ptr: { arr: iter, i: 0 },
+        },
+        {
+          lines: ['w-off', 'find', 'splice'],
+          note: useCopy
+            ? 'wrapper 先调用 off 删掉自己：原数组变成 [B]，B 从下标 1 前移到了下标 0。副本没有变，下一个仍然是 B。'
+            : 'wrapper 先调用 off 删掉自己：原数组变成 [B]，B 从下标 1 前移到了下标 0。可循环的下一个下标是 1。',
+          list: [[B, 'hot']],
+          listNote: 'wrapper(A) 已被 splice 删掉，B 前移到了 [0]',
+          ptr: useCopy ? { arr: 'copy', i: 0 } : null,
+        },
+        {
+          lines: ['w-call'],
+          note: '然后执行原函数 A。',
+          list: [[B]],
+          log: [logA],
+          ptr: useCopy ? { arr: 'copy', i: 0 } : null,
+        },
+        useCopy
+          ? {
+            lines: ['copy'],
+            note: 'i = 1：副本的第 2 个元素还是 B，调用它。A、B 都执行了。',
+            log: [logA, ['B 执行', 'done']],
+            ptr: { arr: 'copy', i: 1 },
+          }
+          : {
+            lines: ['copy'],
+            note: 'i = 1：可 list 现在只剩 1 个元素，<code>list[1]</code> 不存在，for...of 直接结束。<b>B 被跳过了！</b>',
+            log: [logA, ['B 被跳过', 'bad']],
+            ptr: { arr: 'list', i: 1 },
+          },
+        {
+          lines: ['s4', 'copy'],
+          note: useCopy
+            ? '第二次 emit：数组里只剩 B，A 不会再执行，这就是 once 的效果。'
+            : '第二次 emit 时 B 才执行。第一次 emit 悄悄漏掉了一个回调，这种 bug 很难排查。',
+          list: [[B]],
+          copy: useCopy ? [[B, 'new']] : null,
+          ptr: { arr: iter, i: 0 },
+          log: useCopy
+            ? [logA, ['B 执行', 'done'], ['第二次：B 执行', 'done']]
+            : [logA, ['B 被跳过', 'bad'], ['第二次：B 才执行', 'done']],
+        },
+      ]
+      const steps = []
+      let prev = { list: [], copy: null, log: [] }
+      for (const part of partials) {
+        prev = { ...prev, ptr: null, listNote: '', ...part }
+        steps.push(prev)
+      }
+      return steps
+    }
+
+    function cellsHTML(cells, ptr, arrName) {
+      const hit = ptr && ptr.arr === arrName ? ptr.i : -1
+      const out = cells.map(([label, flag = ''], i) => {
+        const isPtr = hit === i
+        return `<div class="cell ${flag}${isPtr ? ' ptr' : ''}"><span class="ptr-mark">${isPtr ? `i = ${i} ↓` : ''}</span><span class="cell-box">${esc(label)}</span><small>[${i}]</small></div>`
+      })
+      if (hit >= cells.length) {
+        out.push(`<div class="cell hole ptr"><span class="ptr-mark">i = ${hit} ↓</span><span class="cell-box">undefined → 结束</span><small>[${hit}]</small></div>`)
+      }
+      return out.join('')
+    }
+
+    function render(step) {
+      const listNote = step.listNote ? `<p class="empty-note">${step.listNote}</p>` : ''
+      listEl.innerHTML = (step.list.length ? cellsHTML(step.list, step.ptr, 'list') : '<p class="empty-note">（空）</p>') + listNote
+      copyEl.innerHTML = step.copy
+        ? cellsHTML(step.copy, step.ptr, 'copy')
+        : `<p class="empty-note">${mode === 'copy' ? '（emit 时才会创建）' : '没有副本：直接遍历原数组'}</p>`
+      logEl.innerHTML = step.log.length
+        ? step.log.map(([text, tone]) => `<span class="chip ${tone}">${text}</span>`).join('')
+        : '<span class="label">还没有回调执行</span>'
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => codes[mode], interval: 1800 })
+    segmented($('#ee-mode'), (v) => {
+      mode = v
+      pres.copy.hidden = v !== 'copy'
+      pres.bug.hidden = v !== 'bug'
+      stepper.rebuild()
+    })
+    stepper.rebuild()
+  }
+
+  /* ---------- 7. new ---------- */
+  function initNew() {
+    const root = $('#new-op')
+    const pre = $('pre', root)
+    const board = $('#nw-board')
+    const RETURNS = { none: '  // 没有 return', prim: '  return 42', obj: '  return { x: 1 }' }
+    let mode = 'none'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-new', (text) => text.replace('__RETURN__', RETURNS[mode]))
+
+    function buildSteps() {
+      const isObj = mode === 'obj'
+      const VARS = (rows) => ({ title: 'myNew 里的变量', rows })
+      const PROTO = (sayHiFlag = '') => ({ title: 'Person.prototype', sub: '所有实例共享', rows: [['constructor', 'ƒ Person'], ['sayHi', 'ƒ', sayHiFlag]] })
+      const OBJ = (rows, extra = {}) => ({ title: 'obj（新对象）', rows, ...extra })
+      const RESULT_OBJ = (tone = '') => ({ title: 'return 的对象', rows: [['x', '1'], ['[[Prototype]]', '→ Object.prototype']], tone })
+      const base = [['Ctor', 'ƒ Person'], ['args', "['Ann']"]]
+      const protoRow = ['[[Prototype]]', '→ Person.prototype']
+      const nameRow = ['name', "'Ann'"]
+      const objVar = ['obj', "{ name: 'Ann' }"]
+      const resultText = { none: 'undefined', prim: '42', obj: '{ x: 1 }' }[mode]
+      const resultVar = ['result', resultText]
+      const extraBox = isObj ? [RESULT_OBJ()] : []
+
+      const retNote = {
+        none: 'Person 里没有 return，函数执行完返回 undefined，所以 <code>result = undefined</code>。',
+        prim: 'Person 执行 <code>return 42</code>，所以 <code>result = 42</code>。',
+        obj: 'Person 执行 <code>return { x: 1 }</code>，result 是一个全新的对象，和 obj 没有任何关系。',
+      }[mode]
+      const judgeNote = {
+        none: 'undefined 不是对象 → <code>isObj = false</code>。',
+        prim: '42 是基本类型 → <code>isObj = false</code>。构造函数返回的基本类型会被 new 忽略。',
+        obj: 'result 是对象 → <code>isObj = true</code>。',
+      }[mode]
+
+      const finalP = isObj
+        ? { title: 'p（new 的结果）', sub: 'p === result', rows: [['x', '1'], ['[[Prototype]]', '→ Object.prototype']], tone: 'new' }
+        : { title: 'p（new 的结果）', sub: 'p === obj', rows: [protoRow, nameRow], tone: 'new' }
+      const usedP = isObj
+        ? { title: 'p', rows: [['x', '1'], ['[[Prototype]]', '→ Object.prototype'], ['p.sayHi', 'undefined', 'bad'], ['p instanceof Person', 'false', 'bad']] }
+        : { title: 'p', rows: [[...protoRow, 'hot'], nameRow, ['p.sayHi()', "'hi, Ann'", 'new']] }
+      const discardedObj = OBJ([protoRow, nameRow], { title: 'obj（被丢弃）', tone: 'faded' })
+
+      return [
+        {
+          lines: ['start', 'proto'],
+          note: "Person.prototype 上有 sayHi 方法。现在调用 <code>myNew(Person, 'Ann')</code>。",
+          boxes: [VARS(base), PROTO()],
+        },
+        {
+          lines: ['check'],
+          note: 'Person 是函数，而且有 prototype，可以被 new。箭头函数没有 prototype，会在这一行被拦下，抛出 TypeError。',
+          boxes: [VARS(base), PROTO()],
+        },
+        {
+          lines: ['create'],
+          note: '<code>Object.create(Person.prototype)</code>：创建一个空对象，并把它的原型 [[Prototype]] 指向 Person.prototype。一行完成了 new 的前两件事。',
+          boxes: [VARS([...base, ['obj', '{ }', 'new']]), PROTO(), OBJ([[...protoRow, 'new']], { tone: 'new' })],
+        },
+        {
+          lines: ['apply', 'body'],
+          note: "<code>Person.apply(obj, ['Ann'])</code>：以 obj 为 this 执行构造函数，于是 <code>this.name = 'Ann'</code> 写到了 obj 上。",
+          boxes: [VARS([...base, objVar]), PROTO(), OBJ([protoRow, [...nameRow, 'new']])],
+        },
+        {
+          lines: ['retstmt'],
+          note: retNote,
+          boxes: [VARS([...base, objVar, [...resultVar, 'new']]), PROTO(), OBJ([protoRow, nameRow]), ...(isObj ? [RESULT_OBJ('new')] : [])],
+        },
+        {
+          lines: ['judge'],
+          note: judgeNote,
+          boxes: [VARS([...base, objVar, resultVar, ['isObj', String(isObj), 'new']]), PROTO(), OBJ([protoRow, nameRow]), ...extraBox],
+        },
+        {
+          lines: ['ret', 'start'],
+          note: isObj
+            ? '返回 result。前面建好的 obj 被直接丢掉了：p 是 <code>{ x: 1 }</code>，它的原型是 Object.prototype。'
+            : '返回 obj。p 就是这个原型指向 Person.prototype、身上带着 name 的新对象。',
+          boxes: [PROTO(), ...(isObj ? [discardedObj] : []), finalP],
+        },
+        {
+          lines: ['use'],
+          note: isObj
+            ? '<code>p.sayHi()</code>：p 的原型链上没有 Person.prototype，<code>p.sayHi</code> 是 undefined，一调用就报 TypeError。<code>p instanceof Person</code> 也是 false。'
+            : "<code>p.sayHi()</code>：p 自己身上没有 sayHi，沿 [[Prototype]] 找到 Person.prototype.sayHi，返回 'hi, Ann'。这正是 Object.create 那一步的意义。",
+          boxes: [PROTO(isObj ? '' : 'hot'), usedP],
+        },
+      ]
+    }
+
+    const stepper = createStepper(root, {
+      build: buildSteps,
+      render: (step) => { board.innerHTML = step.boxes.map(boxHTML).join('') },
+      getCode: () => code,
+      interval: 1800,
+    })
+    segmented($('#nw-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 8. array to tree ---------- */
+  function initTree() {
+    const root = $('#array-tree')
+    const code = createCode($('pre', root), 'src-tree')
+    const listEl = $('#tr-list')
+    const mapEl = $('#tr-map')
+    const treeEl = $('#tr-tree')
+    const LIST = [
+      { id: 4, pid: 3, name: '前端' },
+      { id: 1, pid: 0, name: 'CEO' },
+      { id: 2, pid: 1, name: '产品' },
+      { id: 3, pid: 1, name: '技术' },
+      { id: 5, pid: 3, name: '后端' },
+    ]
+    const itemText = (it) => `{ id: ${it.id}, pid: ${it.pid}, name: '${it.name}' }`
+    const PASS2_NOTES = {
+      4: '第二遍开始。4 的父节点是 3。3 在输入里排在后面，但第一遍已经把所有节点建好了，所以 <code>map.get(3)</code> 一定拿得到 → 4 进入 3 的 children。',
+      1: '1 的 pid 是 0，等于 rootPid → 放进 roots，成为根节点。',
+      3: '3 挂到 1 下面。3 的 children 里早就有 4 了：节点是同一个对象引用，所以子树 3 → 4 整个跟着挂了上去。',
+    }
+
+    function buildSteps() {
+      const steps = []
+      const nodes = []
+      const roots = []
+      const snap = (lines, note, extra = {}) => {
+        steps.push({
+          lines,
+          note,
+          nodes: nodes.map((n) => ({ ...n, children: n.children.slice() })),
+          roots: roots.slice(),
+          cur: -1,
+          pass: 0,
+          ...extra,
+        })
+      }
+      snap([], '输入里 4（前端）排在它的父节点 3（技术）前面。看看两遍遍历为什么不怕这种顺序。')
+      LIST.forEach((item, k) => {
+        nodes.push({ id: item.id, name: item.name, children: [] })
+        const note = k === 0
+          ? '第一遍只建节点，不管父子关系：<code>map.set(4, { ...item, children: [] })</code>。展开运算符新建了对象，不会改动输入。'
+          : `第一遍：<code>map.set(${item.id}, …)</code>。`
+        snap(['p1'], note, { cur: k, pass: 1, newId: item.id })
+      })
+      LIST.forEach((item, k) => {
+        if (item.pid === 0) {
+          roots.push(item.id)
+          snap(['get', 'root'], PASS2_NOTES[item.id], { cur: k, pass: 2, linked: item.id })
+          return
+        }
+        nodes.find((n) => n.id === item.pid).children.push(item.id)
+        const note = PASS2_NOTES[item.id] ?? `${item.id}（${item.name}）挂到 ${item.pid} 下面。`
+        snap(['get', 'link'], note, { cur: k, pass: 2, linked: item.id, parent: item.pid })
+      })
+      snap(['ret'], '返回 <code>roots = [1]</code>。两遍遍历一共 2n 次操作，是 O(n)。递归写法每一层都要把全表扫一遍，是 O(n²)：本地实测 5000 个节点，Map 版约 1.4ms，递归版约 96ms。', { pass: 3 })
+      return steps
+    }
+
+    function render(step) {
+      const passSub = { 1: '第 1 遍：建节点', 2: '第 2 遍：连父子' }[step.pass] ?? ''
+      listEl.innerHTML = boxHTML({
+        title: 'list',
+        sub: passSub,
+        rows: LIST.map((it, k) => [`[${k}]`, esc(itemText(it)), k === step.cur ? 'hot' : '']),
+      })
+      mapEl.innerHTML = boxHTML({
+        title: 'map',
+        sub: `${step.nodes.length} 个节点`,
+        empty: '（空）',
+        rows: step.nodes.map((n) => {
+          let flag = ''
+          if (n.id === step.newId) flag = 'new'
+          else if (n.id === step.parent) flag = 'hot'
+          return [String(n.id), `${esc(n.name)} · children [${n.children.join(', ')}]`, flag]
+        }),
+      })
+
+      const byId = new Map(step.nodes.map((n) => [n.id, n]))
+      const isChild = new Set(step.nodes.flatMap((n) => n.children))
+      const renderNode = (id) => {
+        const n = byId.get(id)
+        let cls = ''
+        if (id === step.linked) cls = 'new'
+        else if (id === step.parent) cls = 'hot'
+        const kids = n.children.length ? `<ul>${n.children.map(renderNode).join('')}</ul>` : ''
+        return `<li><span class="tnode ${cls}">${id}<span>${esc(n.name)}</span></span>${kids}</li>`
+      }
+      const rootsHTML = step.roots.length
+        ? `<ul class="tree">${step.roots.map(renderNode).join('')}</ul>`
+        : '<p class="empty-note">roots 还是空的</p>'
+      const fragments = step.nodes.filter((n) => !step.roots.includes(n.id) && !isChild.has(n.id) && n.children.length > 0)
+      const fragHTML = fragments.length
+        ? `<div class="fragment"><div class="tree-label">还没挂上的子树</div><ul class="tree">${fragments.map((n) => renderNode(n.id)).join('')}</ul></div>`
+        : ''
+      treeEl.innerHTML = `<div class="tree-group"><div><div class="tree-label">roots</div>${rootsHTML}</div>${fragHTML}</div>`
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1500 })
+    stepper.rebuild()
+  }
+
+  /* ---------- 9. instanceof ---------- */
+  function initInstanceof() {
+    const root = $('#instanceof')
+    const pre = $('pre', root)
+    const chainEl = $('#io-chain')
+    const varsEl = $('#io-vars')
+    const NULL_NODE = { t: 'null', s: '原型链的尽头', isNull: true }
+    const MODELS = {
+      ba: {
+        call: 'myInstanceof(b, A)       // true',
+        left: 'b',
+        target: 'A.prototype',
+        chain: [
+          { t: 'b', s: 'class B 的实例' },
+          { t: 'B.prototype', s: 'class B 的原型' },
+          { t: 'A.prototype', s: 'class A 的原型', target: true },
+          { t: 'Object.prototype', s: '几乎所有对象的祖先' },
+          NULL_NODE,
+        ],
+        steps: [
+          { lines: ['call'], note: '调用 <code>myInstanceof(b, A)</code>：问的是 <b>A.prototype</b> 在不在 b 的原型链上。左边就是 b 的整条链，虚线框是要找的目标。' },
+          { lines: ['prim', 'prim2', 'guard'], ptr: 0, note: 'b 是对象，不是原始值，isPrimitive 为 false，继续往下。' },
+          { lines: ['init'], ptr: 1, note: '<code>proto = Object.getPrototypeOf(b)</code>：从 b 的原型开始，也就是 B.prototype。' },
+          { lines: ['loop', 'cmp'], ptr: 1, marks: { 1: 'no' }, note: 'proto 不是 null，进入循环。<code>B.prototype === A.prototype</code>？不相等。' },
+          { lines: ['up'], ptr: 2, marks: { 1: 'no' }, note: '往上走一层：<code>Object.getPrototypeOf(B.prototype)</code> 得到 A.prototype。这一层是 <code>class B extends A</code> 连上的。' },
+          { lines: ['loop', 'cmp'], ptr: 2, marks: { 1: 'no', 2: 'yes' }, result: 'true', note: '<code>A.prototype === A.prototype</code>？相等，<b>返回 true</b>。在第 2 层找到了目标。' },
+        ],
+      },
+      ab: {
+        call: 'myInstanceof(new A(), B) // false',
+        left: 'new A()',
+        target: 'B.prototype',
+        offChain: true,
+        chain: [
+          { t: 'a', s: 'class A 的实例（new A()）' },
+          { t: 'A.prototype', s: 'class A 的原型' },
+          { t: 'Object.prototype', s: '几乎所有对象的祖先' },
+          NULL_NODE,
+        ],
+        steps: [
+          { lines: ['call'], note: '调用 <code>myInstanceof(new A(), B)</code>：问的是 <b>B.prototype</b> 在不在 a 的原型链上。B 是 A 的子类，可 a 是父类的实例，它的链上只有 A.prototype。' },
+          { lines: ['prim', 'prim2', 'guard'], ptr: 0, note: 'a 是对象，继续往下。' },
+          { lines: ['init'], ptr: 1, note: '<code>proto = Object.getPrototypeOf(a)</code>，得到 A.prototype。' },
+          { lines: ['loop', 'cmp'], ptr: 1, marks: { 1: 'no' }, note: '<code>A.prototype === B.prototype</code>？不相等。' },
+          { lines: ['up'], ptr: 2, marks: { 1: 'no' }, note: '往上走一层：Object.prototype。' },
+          { lines: ['loop', 'cmp'], ptr: 2, marks: { 1: 'no', 2: 'no' }, note: '<code>Object.prototype === B.prototype</code>？还是不相等。' },
+          { lines: ['up'], ptr: 3, marks: { 1: 'no', 2: 'no' }, note: '再往上：<code>Object.getPrototypeOf(Object.prototype)</code> 是 null。' },
+          { lines: ['loop'], ptr: 3, marks: { 1: 'no', 2: 'no' }, note: 'proto 是 null，while 的条件不成立，循环结束。' },
+          { lines: ['end'], ptr: 3, marks: { 1: 'no', 2: 'no' }, result: 'false', note: '走到链的尽头都没碰到 B.prototype，<b>返回 false</b>。子类的原型不会出现在父类实例的链上。' },
+        ],
+      },
+      prim: {
+        call: 'myInstanceof(1, Number)  // false',
+        left: '1',
+        target: 'Number.prototype',
+        offChain: true,
+        chain: [{ t: '1', s: '原始值（number），没有原型链' }],
+        steps: [
+          { lines: ['call'], note: '调用 <code>myInstanceof(1, Number)</code>。原生的 <code>1 instanceof Number</code> 是 false：1 是原始值，不是对象，没有原型链。' },
+          { lines: ['prim', 'prim2', 'guard'], ptr: 0, result: 'false', note: '<code>typeof 1</code> 是 \'number\'，既不是 object 也不是 function，isPrimitive 为 true，<b>直接返回 false</b>。' },
+          {
+            lines: ['init', 'cmp'],
+            off: ['prim', 'prim2', 'guard'],
+            ptr: 1,
+            marks: { 1: 'wrong' },
+            result: 'true（错误）',
+            chainOverride: [
+              { t: '1', s: '原始值（number）' },
+              { t: 'Number.prototype', s: '装箱后的 Number 对象的原型', target: true },
+              { t: 'Object.prototype', s: '' },
+              NULL_NODE,
+            ],
+            arrowFirst: '↓ 先装箱成 Number 对象，再取原型',
+            chainNote: '这是假设删掉第一个判断后的走法',
+            note: '如果删掉划线的两行会怎样？<code>Object.getPrototypeOf(1)</code> 会先把 1 <b>自动装箱</b>成 Number 对象，返回 Number.prototype，第一次比较就相等，<b>错误地返回 true</b>。传 null 更糟：<code>Object.getPrototypeOf(null)</code> 直接报 TypeError。所以原始值必须先拦下来。',
+          },
+        ],
+      },
+      bare: {
+        call: 'myInstanceof(Object.create(null), Object) // false',
+        left: 'Object.create(null)',
+        target: 'Object.prototype',
+        offChain: true,
+        chain: [{ t: 'obj', s: 'Object.create(null) 造出来的对象' }, NULL_NODE],
+        steps: [
+          { lines: ['call'], note: '调用 <code>myInstanceof(Object.create(null), Object)</code>。<code>Object.create(null)</code> 造出来的对象<b>没有原型</b>，它的链上只有它自己，连 Object.prototype 都没有。' },
+          { lines: ['prim', 'prim2', 'guard'], ptr: 0, note: '它是对象，不是原始值，继续往下。' },
+          { lines: ['init'], ptr: 1, note: '<code>proto = Object.getPrototypeOf(obj)</code>，结果直接就是 null。' },
+          { lines: ['loop'], ptr: 1, note: 'proto 一开始就是 null，while 循环一次都不执行。' },
+          { lines: ['end'], ptr: 1, result: 'false', note: '<b>返回 false</b>，没有报错。如果用 <code>obj.__proto__</code> 往上走就会出问题：__proto__ 是定义在 Object.prototype 上的访问器，这个对象的链上没有 Object.prototype，读到的是 undefined，下一步再读 <code>undefined.__proto__</code> 就报 TypeError。' },
+        ],
+      },
+    }
+    let mode = 'ba'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-instanceof', (text) => text.replace('__CALL__', MODELS[mode].call))
+
+    function render(step) {
+      const model = MODELS[mode]
+      const chain = step.chainOverride || model.chain
+      const marks = step.marks || {}
+      code.off(step.off || [])
+      const rows = []
+      chain.forEach((node, i) => {
+        if (i > 0) rows.push(`<div class="carrow">${i === 1 && step.arrowFirst ? step.arrowFirst : '↓ [[Prototype]]'}</div>`)
+        const cls = ['cnode']
+        if (node.isNull) cls.push('null')
+        if (node.target) cls.push('target')
+        if (step.ptr === i) cls.push('ptr')
+        const mark = marks[i]
+        if (mark === 'no') cls.push('miss')
+        if (mark === 'yes') cls.push('match')
+        if (mark === 'wrong') cls.push('wrong')
+        let markText = node.target ? '目标' : ''
+        if (mark === 'no') markText = `≠ ${model.target}`
+        if (mark === 'yes') markText = `= ${model.target} ✓`
+        if (mark === 'wrong') markText = `= ${model.target}（误判）`
+        let ptrText = i === 0 ? 'left' : ''
+        if (step.ptr === i && i > 0) ptrText = 'proto →'
+        rows.push(`<div class="cnode-row">
+            <span class="cptr${step.ptr === i ? ' on' : ''}">${ptrText}</span>
+            <div class="${cls.join(' ')}"><div><b>${esc(node.t)}</b>${node.s ? `<small>${esc(node.s)}</small>` : ''}</div><span class="cmark ${mark || ''}">${esc(markText)}</span></div>
+          </div>`)
+      })
+      if (step.chainNote) rows.push(`<p class="chain-note">${esc(step.chainNote)}</p>`)
+      chainEl.innerHTML = rows.join('')
+
+      const protoText = step.ptr !== undefined && step.ptr > 0 ? chain[step.ptr].t : '—'
+      const boxes = [
+        boxHTML({
+          title: 'myInstanceof 的变量',
+          rows: [
+            ['left', esc(model.left)],
+            ['Right.prototype', esc(model.target), 'hot'],
+            ['proto', esc(protoText), step.ptr !== undefined && step.ptr > 0 ? 'new' : ''],
+            ['返回值', esc(step.result || '—'), step.result ? (step.result.includes('错误') ? 'gone' : 'new') : ''],
+          ],
+        }),
+      ]
+      if (model.offChain && !step.chainOverride) {
+        boxes.push(boxHTML({
+          title: esc(model.target),
+          sub: '要找的目标',
+          rows: [['在左边这条链上吗', '不在']],
+        }))
+      }
+      varsEl.innerHTML = boxes.join('')
+    }
+
+    const stepper = createStepper(root, {
+      build: () => MODELS[mode].steps,
+      render,
+      getCode: () => code,
+      interval: 1800,
+    })
+    segmented($('#io-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 10. inheritance ---------- */
+  function initInherit() {
+    const root = $('#inherit')
+    const pre = $('pre', root)
+    const protosEl = $('#ih-protos')
+    const instsEl = $('#ih-insts')
+    const callsEl = $('#ih-calls')
+    const CALL = {
+      parasitic: '  Animal.call(this, name)            // 借用构造函数',
+      combo: '  Animal.call(this, name)            // 借用构造函数',
+      chain: '  // 没有借用构造函数：name 传进来也用不上',
+    }
+    const CREATE = {
+      parasitic: 'Dog.prototype = Object.create(Animal.prototype) // 不执行 Animal',
+      combo: 'Dog.prototype = new Animal()       // 执行了一次 Animal',
+      chain: 'Dog.prototype = new Animal()       // 执行了一次 Animal',
+    }
+    let mode = 'parasitic'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-inherit', (text) => text.replace('__CALL__', CALL[mode]).replace('__CREATE__', CREATE[mode]))
+
+    // st: { dog: 'default' | 'created' | 'ctor' | 'bark', protoTags, protoTagsFlag, d1, d2, fresh, lookup, calls, result }
+    function boxesFor(st) {
+      const viaNew = mode !== 'parasitic'
+      const lookup = st.lookup || {}
+      const animalProto = boxHTML({
+        title: 'Animal.prototype',
+        sub: '父类原型',
+        tone: lookup.animal ? 'focus' : '',
+        rows: [['sayName', lookup.animal ? 'ƒ ← 在这里找到' : 'ƒ', lookup.animal ? 'new' : ''], ['constructor', 'Animal']],
+      })
+
+      let dogRows
+      let dogSub = '默认的原型对象'
+      if (st.dog === 'default') {
+        dogRows = [['constructor', 'Dog'], ['[[Prototype]]', '→ Object.prototype']]
+      } else {
+        dogSub = viaNew ? 'new Animal() 造出来的' : 'Object.create 造出来的空对象'
+        dogRows = []
+        if (viaNew) {
+          dogRows.push(['name', 'undefined', 'bad'])
+          dogRows.push(['tags', st.protoTags || '[]', st.protoTagsFlag || 'bad'])
+        }
+        if (st.dog === 'created') dogRows.push(['constructor', '丢了（沿链会找到 Animal）', 'bad'])
+        else dogRows.push(['constructor', 'Dog', st.fresh === 'ctor' ? 'new' : ''])
+        if (st.dog === 'bark') dogRows.push(['bark', 'ƒ', st.fresh === 'bark' ? 'new' : ''])
+        dogRows.push(['[[Prototype]]', '→ Animal.prototype', st.fresh === 'create' ? 'new' : ''])
+        if (lookup.dog) dogRows.push(['sayName', '没有，继续往上', 'hot'])
+      }
+      const dogProto = boxHTML({
+        title: 'Dog.prototype',
+        sub: dogSub,
+        tone: st.fresh === 'create' ? 'new' : lookup.dog ? 'focus' : '',
+        rows: dogRows,
+      })
+
+      const inst = (key, data) => {
+        if (!data) return ''
+        const rows = []
+        if (data.name !== undefined) rows.push(['name', data.name, data.fresh ? 'new' : ''])
+        if (data.tags !== undefined) rows.push(['tags', data.tags, data.tagsFlag || (data.fresh ? 'new' : '')])
+        rows.push(['breed', data.breed, data.fresh ? 'new' : ''])
+        rows.push(['[[Prototype]]', '→ Dog.prototype', data.fresh ? 'new' : ''])
+        for (const extra of data.extra || []) rows.push(extra)
+        return boxHTML({ title: key, sub: data.sub || '', tone: data.fresh ? 'new' : data.focus ? 'focus' : '', rows })
+      }
+
+      protosEl.innerHTML = `${animalProto}<div class="ih-link">↑ [[Prototype]]</div>${dogProto}`
+      instsEl.innerHTML = inst('d1', st.d1) + inst('d2', st.d2) || '<p class="empty-note">还没有 new 任何实例</p>'
+      callsEl.innerHTML = boxHTML({
+        title: 'Animal 构造函数执行次数',
+        sub: `${st.calls.length} 次`,
+        empty: '还没有执行过',
+        rows: st.calls.map((c, i) => [`第 ${i + 1} 次`, esc(c.text), c.wasted ? 'bad' : (i === st.calls.length - 1 && st.freshCall ? 'new' : '')]),
+      }) + (st.result ? `<p class="ih-result">d1.sayName() → <b>${esc(st.result)}</b></p>` : '')
+    }
+
+    function buildSteps() {
+      const usesCall = mode !== 'chain'
+      const viaNew = mode !== 'parasitic'
+      const calls = []
+      const steps = []
+      let st = { dog: 'default', calls }
+      const push = (lines, note, patch) => {
+        st = { ...st, fresh: null, freshCall: false, lookup: null, ...patch, calls: calls.slice() }
+        steps.push({ lines, note, st })
+      }
+      const dogData = (name, breed, extra = {}) => (usesCall
+        ? { name: `'${name}'`, tags: '[]', breed: `'${breed}'`, ...extra }
+        : { breed: `'${breed}'`, sub: '身上没有 name、tags', ...extra })
+
+      push(['animal', 'animal2'], '父类 Animal：<code>name</code>、<code>tags</code> 是实例属性，写在 this 上；<code>sayName</code> 放在 Animal.prototype 上，所有实例共用。Dog.prototype 现在还是默认的原型对象，和 Animal 没有关系。', { dog: 'default' })
+
+      if (viaNew) {
+        calls.push({ text: '设置原型时：new Animal()，没有参数', wasted: true })
+        push(['create', 'animal', 'animal2'], mode === 'combo'
+          ? '组合继承用 <code>new Animal()</code> 当 Dog.prototype：这会<b>执行一次 Animal</b>，而且没有参数，于是 Dog.prototype 上多出了 <code>name: undefined</code> 和 <code>tags: []</code>。'
+          : '原型链继承用 <code>new Animal()</code> 当 Dog.prototype：执行一次 Animal，Dog.prototype 上有了 <code>name: undefined</code> 和 <code>tags: []</code>。这个 tags 数组，之后所有的狗都会共用。', { dog: 'created', fresh: 'create', freshCall: true })
+      } else {
+        push(['create'], '<code>Object.create(Animal.prototype)</code>：新建一个<b>空对象</b>，原型指向 Animal.prototype，用它替换 Dog 原来的 prototype。Dog → Animal 这一层接上了，而 <b>Animal 一次都没有执行</b>。', { dog: 'created', fresh: 'create' })
+      }
+
+      push(['ctor'], '替换 prototype 时，原来自带的 <code>constructor: Dog</code> 也跟着没了。手动指回 Dog。', { dog: 'ctor', fresh: 'ctor' })
+      push(['bark'], '先接链、再加方法：bark 加在<b>新的</b> Dog.prototype 上。顺序反过来，bark 会留在被换掉的旧对象上。', { dog: 'bark', fresh: 'bark' })
+
+      if (usesCall) calls.push({ text: "new d1：Animal.call(this, 'Rex')" })
+      push(usesCall ? ['new1', 'call', 'animal', 'animal2', 'breed'] : ['new1', 'breed'], usesCall
+        ? "<code>new Dog('Rex', 'husky')</code>：新对象 d1 的原型是 Dog.prototype。<code>Animal.call(this, name)</code> 在 d1 身上执行一遍 Animal，name、tags 写到了 <b>d1 自己身上</b>。"
+        : "<code>new Dog('Rex', 'husky')</code>：Dog 里没有调用 Animal，d1 身上只有 breed。<b>'Rex' 传进来了，却没有地方用。</b>", { d1: dogData('Rex', 'husky', { fresh: true }), freshCall: usesCall })
+
+      if (usesCall) calls.push({ text: "new d2：Animal.call(this, 'Max')" })
+      push(usesCall ? ['new2', 'call', 'animal', 'animal2', 'breed'] : ['new2', 'breed'], usesCall
+        ? 'd2 也一样，拿到了<b>自己的</b> name 和 tags：一个全新的空数组。'
+        : 'd2 也只有 breed。两只狗的 name、tags 都只能去原型上找。', { d1: dogData('Rex', 'husky'), d2: dogData('Max', 'corgi', { fresh: true }), freshCall: usesCall })
+
+      if (usesCall) {
+        push(['push'], mode === 'combo'
+          ? "<code>d1.tags.push('cute')</code>：d1 自己有 tags（遮住了原型上那份），只改 d1 自己的数组，d2 不受影响。"
+          : "<code>d1.tags.push('cute')</code>：tags 是 d1 自己的数组，d2.tags 还是 []。", {
+          d1: dogData('Rex', 'husky', { tags: "['cute']", tagsFlag: 'new' }),
+          d2: dogData('Max', 'corgi', { tags: '[]', tagsFlag: 'hot' }),
+        })
+      } else {
+        push(['push'], "<code>d1.tags.push('cute')</code>：d1 自己没有 tags，沿链找到 <b>Dog.prototype.tags</b>，往这个共享数组里 push。于是 <b>d2.tags 也变成了 ['cute']</b>！", {
+          protoTags: "['cute']",
+          protoTagsFlag: 'bad',
+          d1: dogData('Rex', 'husky', { extra: [['tags（来自原型）', "['cute']", 'bad']] }),
+          d2: dogData('Max', 'corgi', { extra: [['tags（来自原型）', "['cute']", 'bad']] }),
+        })
+      }
+
+      const settledD1 = usesCall ? dogData('Rex', 'husky', { tags: "['cute']", focus: true, extra: [['sayName', '自己没有，往上找', 'hot']] }) : dogData('Rex', 'husky', { focus: true, extra: [['sayName', '自己没有，往上找', 'hot'], ['name（来自原型）', 'undefined', 'bad']] })
+      const settledD2 = usesCall ? dogData('Max', 'corgi') : dogData('Max', 'corgi', { extra: [['tags（来自原型）', "['cute']", 'bad']] })
+      push(['say'], usesCall
+        ? "<code>d1.sayName()</code>：沿原型链找 sayName：d1 自己没有 → Dog.prototype 没有 → <b>Animal.prototype 找到了</b>，返回 'I am Rex'。"
+        : "<code>d1.sayName()</code>：一路找到 Animal.prototype.sayName，可里面的 <code>this.name</code> 在 d1 身上没有，只能取到 Dog.prototype 上的 undefined，返回 <b>'I am undefined'</b>。", {
+        protoTags: usesCall ? '[]' : "['cute']",
+        d1: settledD1,
+        d2: settledD2,
+        lookup: { dog: true, animal: true },
+        result: usesCall ? "'I am Rex'" : "'I am undefined'",
+      })
+
+      const summary = {
+        parasitic: '结论：Animal 一共执行 <b>2 次</b>，每 new 一只狗执行一次；Dog.prototype 上干干净净，只有 constructor 和 bark。这就是寄生组合继承：用 call 继承实例属性，用 Object.create 接链。',
+        combo: '结论：功能是对的，但 Animal 执行了 <b>3 次</b>。多出来的那次发生在设置原型时，Dog.prototype 上还留着一份永远用不到的 name、tags。寄生组合用 Object.create 接链，正好省掉这一次。',
+        chain: '结论：原型链继承有两个硬伤。① 引用类型的属性放在原型上，被所有实例共享，d1 改了 d2 也变；② new Dog 时没法把参数传给父类构造函数，name 永远是 undefined。',
+      }[mode]
+      push(['say'], summary, {})
+      return steps
+    }
+
+    const stepper = createStepper(root, {
+      build: buildSteps,
+      render: (step) => boxesFor(step.st),
+      getCode: () => code,
+      interval: 2000,
+    })
+    segmented($('#ih-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 11. currying ---------- */
+  function initCurry() {
+    const root = $('#curry')
+    const pres = { ok: $('pre[data-code="curry"]', root), bug: $('pre[data-code="curry-bug"]', root) }
+    const exprEl = $('#cu-expr')
+    const slotsEl = $('#cu-slots')
+    const resultEl = $('#cu-result')
+    const closuresEl = $('#cu-closures')
+    const slotsLabel = $('#cu-slots-label')
+    const closuresLabel = $('#cu-closures-label')
+    const CALLS = {
+      one: '/*@c1*/sum3(1)(2)(3)             // 6',
+      multi: '/*@c1*/sum3(1, 2)(3)            // 6',
+      reuse: '/*@c1*/const add10 = sum3(10)\n/*@c2*/add10(1)(1)               // 12\n/*@c3*/add10(2)(2)               // 14',
+    }
+    let mode = 'one'
+    let code = null
+    const bugCode = createCode(pres.bug, 'src-curry-bug')
+    const makeCode = () => createCode(pres.ok, 'src-curry', (text) => text.replace('__CALLS__', CALLS[mode] || CALLS.one))
+
+    // e(parts, on): expression split into call parts; `on` is the active part, earlier parts are done
+    const e = (parts, on) => ({ parts, on })
+    const C = (name, args, sub = '', flag = '') => ({ name, args, sub, flag })
+
+    function stepsFor() {
+      if (mode === 'one') {
+        const P = ['sum3', '(1)', '(2)', '(3)']
+        const sum3 = C('sum3', '（还没有参数）', '就是 curried')
+        return [
+          { lines: ['setup'], expr: e(P, 0), args: [], closures: [{ ...sum3, flag: 'new' }], note: '<code>curry(fn)</code> 只做一件事：返回 curried 函数，也就是 sum3。<code>fn.length</code> 是 3：要凑够 3 个参数才执行。' },
+          { lines: ['c1', 'check'], expr: e(P, 1), args: [1], closures: [sum3], note: '调用 <code>sum3(1)</code>：args = [1]，长度 1 &lt; 3，参数不够。' },
+          { lines: ['more'], expr: e(P, 1), args: [1], closures: [sum3, C('f1', '[1]', 'sum3(1) 返回的新函数', 'new')], note: '返回一个新的箭头函数 f1，它通过闭包<b>记住了 args = [1]</b>。' },
+          { lines: ['c1', 'more', 'check'], expr: e(P, 2), args: [1, 2], closures: [sum3, C('f1', '[1]', 'sum3(1) 返回的新函数', 'hot')], note: '调用 <code>f1(2)</code>：把记住的 [1] 和新参数 [2] 拼成<b>新数组</b> [1, 2]，再交给 curried。长度 2 &lt; 3，还不够。' },
+          { lines: ['more'], expr: e(P, 2), args: [1, 2], closures: [sum3, C('f1', '[1]', 'sum3(1) 返回的新函数'), C('f2', '[1, 2]', 'f1(2) 返回的新函数', 'new')], note: '又返回一个新函数 f2，它记住 args = [1, 2]。f1 记住的仍然是 [1]。' },
+          { lines: ['c1', 'more', 'check'], expr: e(P, 3), args: [1, 2, 3], closures: [sum3, C('f1', '[1]', 'sum3(1) 返回的新函数'), C('f2', '[1, 2]', 'f1(2) 返回的新函数', 'hot')], note: '调用 <code>f2(3)</code>：拼成 [1, 2, 3]，长度 3 &gt;= fn.length，<b>够了</b>。' },
+          { lines: ['exec'], expr: e(P, 4), args: [1, 2, 3], result: '6', closures: [sum3, C('f1', '[1]', 'sum3(1) 返回的新函数'), C('f2', '[1, 2]', 'f1(2) 返回的新函数')], note: '执行 <code>fn.apply(this, [1, 2, 3])</code>，返回 <b>6</b>。整个过程产生了两个中间函数 f1、f2，每个都记住了自己那一刻的参数。' },
+        ]
+      }
+      if (mode === 'multi') {
+        const P = ['sum3', '(1, 2)', '(3)']
+        const sum3 = C('sum3', '（还没有参数）', '就是 curried')
+        return [
+          { lines: ['setup'], expr: e(P, 0), args: [], closures: [{ ...sum3, flag: 'new' }], note: '还是 sum3，fn.length 是 3。' },
+          { lines: ['c1', 'check'], expr: e(P, 1), args: [1, 2], closures: [sum3], note: '调用 <code>sum3(1, 2)</code>：一次传了两个，args = [1, 2]，长度 2 &lt; 3，还不够。' },
+          { lines: ['more'], expr: e(P, 1), args: [1, 2], closures: [sum3, C('f1', '[1, 2]', 'sum3(1, 2) 返回的新函数', 'new')], note: '返回新函数 f1，记住 args = [1, 2]。' },
+          { lines: ['c1', 'more', 'check'], expr: e(P, 2), args: [1, 2, 3], closures: [sum3, C('f1', '[1, 2]', 'sum3(1, 2) 返回的新函数', 'hot')], note: '调用 <code>f1(3)</code>：拼成 [1, 2, 3]，够了。' },
+          { lines: ['exec'], expr: e(P, 3), args: [1, 2, 3], result: '6', closures: [sum3, C('f1', '[1, 2]', 'sum3(1, 2) 返回的新函数')], note: '执行 fn，返回 <b>6</b>。判断的是<b>收集到的参数总数</b>，不是调用了几次，所以一次传几个都行。' },
+        ]
+      }
+      if (mode === 'reuse') {
+        const L1 = ['const add10 = ', 'sum3', '(10)']
+        const L2 = ['add10', '(1)', '(1)']
+        const L3 = ['add10', '(2)', '(2)']
+        const sum3 = C('sum3', '（还没有参数）', '就是 curried')
+        const add10 = (flag = '') => C('add10', '[10]', 'sum3(10) 返回的新函数', flag)
+        return [
+          { lines: ['setup'], expr: e(L1, 0), args: [], closures: [{ ...sum3, flag: 'new' }], note: '这个例子先固定一个参数得到 add10，再用它算两次，看两次之间会不会互相影响。' },
+          { lines: ['c1', 'check', 'more'], expr: e(L1, 2), args: [10], closures: [sum3, add10('new')], note: '<code>sum3(10)</code>：args = [10]，不够，返回新函数 <b>add10</b>，它记住 [10]。这就是"部分应用"：先把第一个参数固定下来。' },
+          { lines: ['c2', 'more', 'check'], expr: e(L2, 1), args: [10, 1], closures: [sum3, add10('hot'), C('g1', '[10, 1]', 'add10(1) 返回的新函数', 'new')], note: '<code>add10(1)</code>：用 add10 记住的 [10] 和 [1] 拼出<b>一个新数组</b> [10, 1]，不够，返回 g1。注意 add10 记住的仍然是 [10]。' },
+          { lines: ['c2', 'more', 'check', 'exec'], expr: e(L2, 2), args: [10, 1, 1], result: '12', closures: [sum3, add10(), C('g1', '[10, 1]', 'add10(1) 返回的新函数', 'hot')], note: '<code>g1(1)</code>：拼成 [10, 1, 1]，够了，执行得到 <b>12</b>。' },
+          { lines: ['c3', 'more', 'check'], expr: e(L3, 1), args: [10, 2], closures: [sum3, add10('hot'), C('g1', '[10, 1]', '上一次用过的'), C('g2', '[10, 2]', 'add10(2) 返回的新函数', 'new')], note: '再用一次 <code>add10(2)</code>：add10 记住的还是干干净净的 [10]，拼成新数组 [10, 2]，返回 g2。上一次的 1 没有混进来。' },
+          { lines: ['c3', 'more', 'check', 'exec'], expr: e(L3, 2), args: [10, 2, 2], result: '14', closures: [sum3, add10(), C('g1', '[10, 1]', '上一次用过的'), C('g2', '[10, 2]', 'add10(2) 返回的新函数', 'hot')], note: '<code>g2(2)</code>：拼成 [10, 2, 2]，执行得到 <b>14</b>。每次都用 <code>[...args, ...rest]</code> 拼新数组，旧闭包里的数组从来没被改过，所以 add10 可以一直复用。' },
+        ]
+      }
+      // bug: one shared array
+      const L1 = ['const add10 = ', 'sum3', '(10)']
+      const L2 = ['add10', '(1)', '(1)']
+      const L3 = ['add10', '(2)', '(2)']
+      const all = (value, flag = '') => C('all（共享）', value, '只在 curry 调用时创建一次', flag)
+      return [
+        { lines: ['setup', 'all'], expr: e(L1, 0), args: [], closures: [all('[]', 'new')], note: '这个版本把参数都 push 进<b>同一个数组 all</b>。all 只在调用 curry 时创建一次，之后每次调用都往里加。' },
+        { lines: ['c1', 'push', 'check', 'more'], expr: e(L1, 2), args: [10], closures: [all('[10]', 'hot')], note: '<code>sum3(10)</code>：all = [10]，不够，返回 curried <b>本身</b>。所以 add10 和 sum3 其实是同一个函数。' },
+        { lines: ['c2', 'push', 'check', 'more'], expr: e(L2, 1), args: [10, 1], closures: [all('[10, 1]', 'hot')], note: '<code>add10(1)</code>：all = [10, 1]，不够，返回 curried。' },
+        { lines: ['c2', 'push', 'check'], expr: e(L2, 2), args: [10, 1, 1], result: '12', closures: [all('[10, 1, 1]', 'hot')], note: '再传 1：all = [10, 1, 1]，够了，执行得到 <b>12</b>。到这里看起来完全正常。<b>但 all 没有被清空。</b>' },
+        { lines: ['c3', 'push', 'check'], expr: e(L3, 1), args: [10, 1, 1, 2], result: '12', resultNote: '提前返回了数字', closures: [all('[10, 1, 1, 2]', 'bad')], note: '<code>add10(2)</code>：2 被 push 进同一个 all，变成 [10, 1, 1, 2]。长度 4 &gt;= 3，<b>直接执行了</b>，返回 fn(10, 1, 1, 2) = 12。这里本该返回一个函数。' },
+        { lines: ['c3'], expr: e(L3, 2), args: [10, 1, 1, 2], error: 'TypeError: add10(...) is not a function', closures: [all('[10, 1, 1, 2]', 'bad')], note: '接着对返回的数字 12 再调用 <code>(2)</code>，直接报错 <b>add10(...) is not a function</b>。根源是所有调用共用一个 all，上一次的参数没清掉。正确写法每次用 <code>[...args, ...rest]</code> 拼新数组，互不干扰。' },
+      ]
+    }
+
+    function render(step) {
+      exprEl.innerHTML = step.expr.parts.map((part, i) => {
+        let cls = ''
+        if (i < step.expr.on) cls = 'done'
+        if (i === step.expr.on) cls = 'on'
+        return `<span class="${cls}">${esc(part)}</span>`
+      }).join('')
+
+      const slots = []
+      const names = ['a', 'b', 'c']
+      const total = Math.max(3, step.args.length)
+      for (let i = 0; i < total; i++) {
+        const has = i < step.args.length
+        const extra = i >= 3
+        slots.push(`<div class="cu-slot ${extra ? 'extra' : has ? 'filled' : ''}"><small>${extra ? '多余' : names[i]}</small><span>${has ? esc(step.args[i]) : ''}</span></div>`)
+      }
+      slotsEl.innerHTML = slots.join('')
+      slotsLabel.textContent = mode === 'bug' ? 'all 里现在的参数（fn.length = 3）' : '这一次收集到的参数（fn.length = 3）'
+      closuresLabel.textContent = mode === 'bug' ? '所有调用共用的数组' : '闭包里记住的参数'
+
+      if (step.error) {
+        resultEl.className = 'cu-result bad'
+        resultEl.innerHTML = `<b>${esc(step.error)}</b>`
+      } else if (step.result) {
+        resultEl.className = `cu-result ${step.resultNote ? 'bad' : 'ok'}`
+        resultEl.innerHTML = `结果 <b>${esc(step.result)}</b>${step.resultNote ? `（${esc(step.resultNote)}）` : ''}`
+      } else {
+        resultEl.className = 'cu-result'
+        resultEl.textContent = step.args.length ? `${step.args.length} < 3，还不够` : ''
+      }
+
+      closuresEl.innerHTML = step.closures.map((c) => boxHTML({
+        title: esc(c.name),
+        sub: esc(c.sub),
+        tone: c.flag === 'new' ? 'new' : c.flag === 'hot' ? 'focus' : '',
+        rows: [['args', esc(c.args), c.flag === 'bad' ? 'bad' : c.flag === 'new' ? 'new' : '']],
+      })).join('')
+    }
+
+    const stepper = createStepper(root, {
+      build: stepsFor,
+      render,
+      getCode: () => (mode === 'bug' ? bugCode : code),
+      interval: 1900,
+    })
+    segmented($('#cu-mode'), (v) => {
+      mode = v
+      pres.ok.hidden = v === 'bug'
+      pres.bug.hidden = v !== 'bug'
+      if (v !== 'bug') code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  initTiming()
+  initPromiseAll()
+  initPool()
+  initClone()
+  initCallBind()
+  initEmitter()
+  initNew()
+  initTree()
+  initInstanceof()
+  initInherit()
+  initCurry()
+})()
+</script>
+
+</body></html>
