@@ -76,7 +76,7 @@ button svg{width:17px;height:17px;flex:none}
 .top .grow{flex:1}
 .icon-btn{width:34px;padding:0}
 .menu-btn{display:inline-flex}
-.layout{display:grid;grid-template-columns:236px minmax(0,1fr);max-width:1560px;margin:0 auto}
+.layout{display:grid;grid-template-columns:256px minmax(0,1fr);max-width:1560px;margin:0 auto}
 @media (min-width:861px){body.nav-hidden .layout{grid-template-columns:minmax(0,1fr)}body.nav-hidden #nav{display:none}}
 #nav{position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto;padding:12px 10px 48px 14px;border-right:0.5px solid var(--border)}
 .progress{font-size:13px;color:var(--text-secondary);padding:4px 8px 0}
@@ -97,6 +97,25 @@ article>.phead,article>.sec:not(.card),article>.pager,article>footer,article>.rv
 #nav .today-link small{margin-left:auto;font-family:var(--font-mono);font-size:12px;font-weight:400;color:var(--text-secondary)}
 #nav a[aria-current="page"].today-link small{color:inherit}
 #nav .mk{margin-left:auto;flex:none;font-size:12px;line-height:1}
+#nav .df{margin-left:auto;flex:none;font-size:11px}
+#nav .df+.mk{margin-left:6px;min-width:8px}
+.lv{display:inline-flex;align-items:flex-end;gap:1.5px;flex:none;vertical-align:middle;height:12px}
+.lv i{display:block;width:3px;border-radius:1px;background:var(--border-strong)}
+.lv i:nth-child(1){height:4px}.lv i:nth-child(2){height:6px}.lv i:nth-child(3){height:8px}.lv i:nth-child(4){height:10px}.lv i:nth-child(5){height:12px}
+.lv1 i:nth-child(-n+1){background:var(--text-danger)}
+.lv2 i:nth-child(-n+2){background:var(--text-warning)}
+.lv3 i:nth-child(-n+3),.lv4 i:nth-child(-n+4),.lv5 i{background:var(--text-success)}
+#nav .lv{margin-left:auto;align-self:center}
+#nav .lv+.df{margin-left:6px}
+.rv-lv{display:inline-flex;align-items:center;gap:5px;color:var(--text-primary)}
+.tlist .st{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.tlist .stl{display:inline-flex;align-items:center;gap:5px;color:var(--text-secondary)}
+.tlist .st .todo{color:var(--text-muted)}
+.lvsum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:13px;color:var(--text-secondary);margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)}
+.lvsum>span{display:inline-flex;align-items:center;gap:5px}
+.lvsum b{font-weight:500;color:var(--text-primary)}
+.df-E{color:var(--text-success)}.df-M{color:var(--text-warning)}.df-H{color:var(--text-danger)}
+.tags .df-E{background:var(--bg-success)}.tags .df-M{background:var(--bg-warning)}.tags .df-H{background:var(--bg-danger)}
 #nav .mk.due::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border-accent);vertical-align:middle}
 .g-good{color:var(--text-success)}.g-hard{color:var(--text-warning)}.g-again{color:var(--text-danger)}
 .rv{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 12px;border-radius:var(--radius);background:var(--surface-1);font-size:14px}
@@ -124,7 +143,7 @@ article>.phead,article>.sec:not(.card),article>.pager,article>footer,article>.rv
 .start{margin-top:14px}
 .hint{font-size:13px;color:var(--text-secondary);margin-top:10px!important}
 .warn{font-size:13px;color:var(--text-danger)}
-@media (max-width:860px){.tlist a{grid-template-columns:22px 36px minmax(0,1fr);}.tlist .st{grid-column:3}}
+@media (max-width:860px){.tlist a{grid-template-columns:22px 36px minmax(0,1fr);}.tlist .st{grid-column:3;flex-direction:row;align-items:center;gap:10px}}
 .crumb{font-size:13px;color:var(--text-secondary)}
 .phead h2{font-size:22px;margin:2px 0 10px}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -177,6 +196,11 @@ article>.phead,article>.sec:not(.card),article>.pager,article>footer,article>.rv
 .steplink{flex:none;height:26px;font-size:12px;padding:0 9px;background:var(--bg-accent);color:var(--text-accent);border-color:transparent;font-family:var(--font-mono)}
 .steplink:hover{background:var(--bg-accent);filter:brightness(.96)}
 .steplink.static{display:inline-flex;align-items:center;border-radius:var(--radius);background:var(--surface-1);color:var(--text-secondary);cursor:default}
+.stmt .ex{margin-top:8px!important;font-size:14px;color:var(--text-secondary)}
+.stmt .ex code{word-break:break-all}
+.stmt .src{margin-top:6px!important;font-size:13px}
+.stmt .src a{color:var(--text-accent);text-decoration:none}
+.stmt .src a:hover{text-decoration:underline}
 .concept{margin-top:14px!important;padding:12px 14px;border-radius:var(--radius);background:var(--surface-1);font-size:15px}
 .concept b{font-weight:500}
 .pager{display:flex;justify-content:space-between;gap:12px;margin-top:36px}
@@ -851,6 +875,13 @@ const CATS=[
 ['多维动态规划',[[62,'不同路径'],[64,'最小路径和'],[5,'最长回文子串'],[1143,'最长公共子序列'],[72,'编辑距离']]],
 ['技巧',[[136,'只出现一次的数字'],[169,'多数元素'],[75,'颜色分类'],[31,'下一个排列']]]
 ];
+const DIFF={1:'E',283:'E',160:'E',206:'E',234:'E',141:'E',21:'E',94:'E',104:'E',226:'E',101:'E',543:'E',108:'E',35:'E',20:'E',121:'E',70:'E',118:'E',136:'E',169:'E',42:'H',239:'H',25:'H',23:'H'};  /* 力扣官方难度：E 简单、H 困难，其余都是中等 */
+const DN={E:'简单',M:'中等',H:'困难'},DS={E:'简',M:'中',H:'难'};
+/* 题意：自己的话概括（不照抄力扣原文），s 是力扣中国站的题目 slug，o 是默认例子输出的说明（不写就用运行结果） */
+const STMT={"1":{"s":"two-sum","d":"给一个整数数组 `nums` 和目标值 `target`，找出和为 `target` 的两个数，返回它们的下标。保证恰好有一组答案，同一个元素不能用两次。","o":"[3,0]（下标顺序不限）"},"2":{"s":"add-two-numbers","d":"两个链表按逆序存放两个非负整数的各位数字（个位在表头），返回两数之和，同样按逆序存成链表。","o":"[2,0,1]（97 + 5 = 102）"},"3":{"s":"longest-substring-without-repeating-characters","d":"求字符串中不含重复字符的最长连续子串的长度。"},"5":{"s":"longest-palindromic-substring","d":"找出字符串中最长的回文子串。"},"11":{"s":"container-with-most-water","d":"`height[i]` 是第 i 根竖线的高度，任选两根线和 x 轴组成容器，求最多能装多少水（宽度 × 较矮那根的高度）。"},"15":{"s":"3sum","d":"找出数组中所有和为 0 的三元组 `[a, b, c]`（三个下标互不相同），答案中不能有重复的三元组。"},"17":{"s":"letter-combinations-of-a-phone-number","d":"数字 2～9 各对应手机九宫格上的几个字母，给一串数字，返回它能表示的所有字母组合。"},"19":{"s":"remove-nth-node-from-end-of-list","d":"删除链表的倒数第 `n` 个节点，返回链表的头节点。"},"20":{"s":"valid-parentheses","d":"判断只含 `()[]{}` 的字符串是否有效：每个左括号都要被同类型的右括号按正确的顺序闭合。"},"21":{"s":"merge-two-sorted-lists","d":"把两个升序链表合并成一个升序链表并返回。"},"22":{"s":"generate-parentheses","d":"给定 `n` 对括号，生成所有合法（能正确配对）的括号组合。"},"23":{"s":"merge-k-sorted-lists","d":"给 k 个升序链表，把它们合并成一个升序链表并返回。"},"24":{"s":"swap-nodes-in-pairs","d":"两两交换链表中相邻的节点（交换节点本身，不能只改值），返回交换后的头节点。"},"25":{"s":"reverse-nodes-in-k-group","d":"每 `k` 个节点一组翻转链表，最后不足 `k` 个的保持原样；只能改变节点之间的指向。"},"31":{"s":"next-permutation","d":"把数组原地改成字典序中的下一个更大的排列；如果已经是最大的排列，就改成最小的排列（升序）。"},"33":{"s":"search-in-rotated-sorted-array","d":"一个值互不相同的升序数组在某个位置被旋转过（例如 [4,5,6,7,0,1,2]），在其中查找 `target` 的下标，找不到返回 -1。要求 O(log n)。"},"34":{"s":"find-first-and-last-position-of-element-in-sorted-array","d":"在非递减数组中找出 `target` 出现的开始和结束下标，不存在返回 `[-1, -1]`。要求 O(log n)。"},"35":{"s":"search-insert-position","d":"在升序数组中查找 `target`：找到返回下标，找不到返回它应该插入的位置。要求 O(log n)。"},"39":{"s":"combination-sum","d":"从互不相同的候选数中选出和为 `target` 的所有组合，同一个数可以选多次；只是顺序不同的组合算同一种。"},"42":{"s":"trapping-rain-water","d":"数组表示一排宽度为 1 的柱子的高度，下雨后柱子之间一共能接住多少雨水。"},"45":{"s":"jump-game-ii","d":"规则同上，并且保证一定能到达终点，求到达最后一个下标的最少跳跃次数。"},"46":{"s":"permutations","d":"给一个不含重复数字的数组，返回它的所有排列。"},"48":{"s":"rotate-image","d":"把 n × n 的矩阵顺时针旋转 90 度，必须原地修改，不能另开一个矩阵。"},"49":{"s":"group-anagrams","d":"给一组字符串，把字母异位词（字母完全相同、只是顺序不同的单词）分到同一组，返回所有分组，顺序不限。"},"53":{"s":"maximum-subarray","d":"找出和最大的连续子数组（至少包含一个元素），返回这个最大和。"},"54":{"s":"spiral-matrix","d":"按顺时针螺旋顺序（右 → 下 → 左 → 上，一圈圈往里）返回矩阵中的所有元素。"},"55":{"s":"jump-game","d":"从下标 0 出发，`nums[i]` 是在位置 i 最多能向后跳的步数，判断能否到达最后一个下标。"},"56":{"s":"merge-intervals","d":"给若干区间 `[start, end]`，把所有有重叠的区间合并，返回合并后互不重叠的区间。"},"62":{"s":"unique-paths","d":"机器人在 m × n 网格的左上角，每次只能向右或向下走一步，走到右下角一共有多少条不同的路径。"},"64":{"s":"minimum-path-sum","d":"网格里都是非负整数，从左上角走到右下角，每次只能向右或向下走，求路径上数字之和的最小值。"},"70":{"s":"climbing-stairs","d":"每次可以爬 1 或 2 个台阶，爬到第 `n` 阶一共有多少种不同的方法。"},"72":{"s":"edit-distance","d":"每次可以插入、删除或替换一个字符，求把 `word1` 变成 `word2` 最少需要几次操作。"},"73":{"s":"set-matrix-zeroes","d":"如果矩阵中某个元素是 0，就把它所在的整行和整列都置为 0，原地修改。"},"74":{"s":"search-a-2d-matrix","d":"矩阵每一行升序，并且每行第一个数大于上一行的最后一个数，判断 `target` 是否在矩阵中。"},"75":{"s":"sort-colors","d":"数组只含 0、1、2（分别代表红、白、蓝），把它原地排成 0 在前、1 在中、2 在后，不能用库里的排序函数。"},"78":{"s":"subsets","d":"给一个元素互不相同的数组，返回它的所有子集（包括空集），不能有重复的子集。"},"79":{"s":"word-search","d":"判断单词能否在字母网格中由上下左右相邻的格子按顺序连成，同一个格子不能重复使用。"},"94":{"s":"binary-tree-inorder-traversal","d":"按「左子树 → 根 → 右子树」的顺序，返回二叉树所有节点的值。"},"98":{"s":"validate-binary-search-tree","d":"判断二叉树是否是有效的二叉搜索树：左子树所有值都小于根、右子树所有值都大于根，左右子树本身也都是二叉搜索树。"},"101":{"s":"symmetric-tree","d":"判断一棵二叉树是否左右镜像对称。"},"102":{"s":"binary-tree-level-order-traversal","d":"从上到下一层一层、每层从左到右返回节点的值，每一层单独放成一个数组。"},"104":{"s":"maximum-depth-of-binary-tree","d":"求二叉树的最大深度，即从根到最远叶子节点那条路径上的节点个数。"},"105":{"s":"construct-binary-tree-from-preorder-and-inorder-traversal","d":"根据一棵二叉树的前序遍历和中序遍历结果（节点值互不相同）构造出这棵树，返回根节点。","o":"[3,9,8,null,null,5]（层序）"},"108":{"s":"convert-sorted-array-to-binary-search-tree","d":"把升序数组转换成一棵高度平衡的二叉搜索树（每个节点左右子树的高度差不超过 1）。","o":"[4,-2,9,-7]（层序，答案不唯一）"},"114":{"s":"flatten-binary-tree-to-linked-list","d":"把二叉树原地展开成一条「链表」：用 `right` 指针串起来、`left` 全部置为 `null`，节点顺序和前序遍历一致。","o":"1 → 2 → 3 → 4（都用 right 串起来，left 为 null）"},"118":{"s":"pascals-triangle","d":"生成杨辉三角的前 `numRows` 行：每行两端是 1，中间每个数等于它左上方和右上方两个数之和。"},"121":{"s":"best-time-to-buy-and-sell-stock","d":"给每天的股价，选某一天买入、之后的某一天卖出（只交易一次），求最大利润；赚不到钱返回 0。"},"128":{"s":"longest-consecutive-sequence","d":"给一个未排序的整数数组，求数值连续的最长序列的长度（这些数在原数组里不要求相邻），要求 O(n) 时间。"},"131":{"s":"palindrome-partitioning","d":"把字符串分割成若干子串，使每个子串都是回文串，返回所有可能的分割方案。"},"136":{"s":"single-number","d":"数组中只有一个数出现一次，其余每个数都恰好出现两次，找出那个只出现一次的数。要求 O(n) 时间、O(1) 额外空间。"},"138":{"s":"copy-list-with-random-pointer","d":"链表的每个节点除了 `next` 还有一个 `random` 指针，指向任意节点或 `null`。深拷贝这个链表：新链表里的指针都必须指向新节点。输入里每项是 `[值, random 指向的下标]`。","o":"结构相同、节点全是新建的链表 [[5,2],[8,null],[3,0]]"},"139":{"s":"word-break","d":"判断字符串能否拆分成若干个字典里的单词（字典里的单词可以重复使用）。"},"141":{"s":"linked-list-cycle","d":"判断链表中是否有环：顺着 `next` 走，能不能回到走过的节点。`pos` 是尾节点连回的位置，-1 表示无环（只用来构造输入）。"},"142":{"s":"linked-list-cycle-ii","d":"如果链表有环，返回开始入环的第一个节点；没有环返回 `null`。","o":"下标 1 的节点（值为 6）"},"146":{"s":"lru-cache","d":"设计一个容量固定的缓存：`get(key)` 取值（不存在返回 -1），`put(key, value)` 写入；容量满时淘汰最久没被使用的那个。两种操作都要 O(1)。"},"148":{"s":"sort-list","d":"把链表按升序排序，返回排序后的头节点（进阶要求 O(n log n) 时间）。"},"152":{"s":"maximum-product-subarray","d":"找出乘积最大的非空连续子数组，返回这个乘积。"},"153":{"s":"find-minimum-in-rotated-sorted-array","d":"一个值互不相同的升序数组被旋转过若干次，找出其中的最小值。要求 O(log n)。"},"155":{"s":"min-stack","d":"设计一个栈，除了 `push`、`pop`、`top` 之外，还要能在 O(1) 时间内取到栈中的最小值 `getMin`。"},"160":{"s":"intersection-of-two-linked-lists","d":"给两个单链表的头节点，找出它们相交的起始节点，不相交返回 `null`。相交指同一个节点，不只是值相等。","o":"值为 2 的那个公共节点（listA 从下标 1、listB 从下标 2 开始共用节点）"},"169":{"s":"majority-element","d":"找出数组中出现次数超过 ⌊n / 2⌋ 的元素（保证存在）。"},"189":{"s":"rotate-array","d":"把数组的元素向右轮转 `k` 个位置（末尾的元素绕到开头），原地修改。"},"198":{"s":"house-robber","d":"一排房子里各有一些钱，不能同时偷相邻的两间，求一晚上最多能偷到多少钱。"},"199":{"s":"binary-tree-right-side-view","d":"站在二叉树的右侧往左看，从上到下返回每一层能看到的节点值（每层最右边那个）。"},"200":{"s":"number-of-islands","d":"网格中 `\"1\"` 是陆地、`\"0\"` 是水，上下左右相连的陆地算同一座岛，求岛屿的数量。"},"206":{"s":"reverse-linked-list","d":"反转一个单链表，返回反转后的头节点。"},"215":{"s":"kth-largest-element-in-an-array","d":"返回数组排序后的第 `k` 大元素（不是第 k 个不同的元素）。要求 O(n)。"},"226":{"s":"invert-binary-tree","d":"把二叉树每个节点的左右子树交换（镜像翻转），返回根节点。","o":"[1,3,2,null,null,null,4]（层序）"},"230":{"s":"kth-smallest-element-in-a-bst","d":"返回二叉搜索树中第 `k` 小的值（`k` 从 1 开始数）。"},"234":{"s":"palindrome-linked-list","d":"判断单链表的值从前往后读和从后往前读是否一样。"},"236":{"s":"lowest-common-ancestor-of-a-binary-tree","d":"找出二叉树中两个指定节点 `p`、`q` 的最近公共祖先：同时是两者祖先、并且深度最大的节点（一个节点也可以是自己的祖先）。","o":"值为 8 的节点"},"238":{"s":"product-of-array-except-self","d":"返回数组 `answer`，`answer[i]` 等于 `nums` 中除 `nums[i]` 以外所有元素的乘积。不能用除法，要求 O(n)。"},"239":{"s":"sliding-window-maximum","d":"大小为 `k` 的窗口从数组最左边滑到最右边，每次右移一格，返回每个位置上窗口里的最大值。"},"240":{"s":"search-a-2d-matrix-ii","d":"矩阵每一行从左到右升序、每一列从上到下升序，判断 `target` 是否在矩阵中。"},"279":{"s":"perfect-squares","d":"把正整数 `n` 表示成若干个完全平方数（1、4、9、16……）的和，求最少需要几个。","o":"3（14 = 9 + 4 + 1）"},"283":{"s":"move-zeroes","d":"把数组里所有的 0 移到末尾，非零元素保持原来的相对顺序，必须原地修改。"},"300":{"s":"longest-increasing-subsequence","d":"求数组中最长的严格递增子序列的长度（子序列不要求连续，但顺序不能变）。"},"322":{"s":"coin-change","d":"给几种面额的硬币（每种数量不限），求凑出总金额 `amount` 最少需要几枚，凑不出返回 -1。"},"347":{"s":"top-k-frequent-elements","d":"返回数组中出现频率最高的 `k` 个元素，顺序不限。"},"394":{"s":"decode-string","d":"编码规则是 `k[内容]`，表示方括号里的内容重复 k 次，可以嵌套，例如 `3[a2[c]]` 解码成 `accaccacc`。返回解码后的字符串。"},"416":{"s":"partition-equal-subset-sum","d":"判断能否把只含正整数的数组分成两个子集，使两个子集的元素和相等。"},"438":{"s":"find-all-anagrams-in-a-string","d":"在字符串 `s` 中找出所有是 `p` 的字母异位词的子串，返回这些子串的起始下标。"},"543":{"s":"diameter-of-binary-tree","d":"求二叉树中任意两个节点之间最长路径的长度（按边数算），这条路径不一定经过根节点。"},"560":{"s":"subarray-sum-equals-k","d":"统计数组中和恰好等于 `k` 的连续子数组的个数，数组里可能有负数。"},"739":{"s":"daily-temperatures","d":"给每天的气温，对每一天求还要等几天才会出现更高的气温；之后都不会更高就填 0。"},"763":{"s":"partition-labels","d":"把字符串划分成尽可能多的片段，同一个字母只能出现在一个片段里，返回每个片段的长度。"},"994":{"s":"rotting-oranges","d":"网格中 0 是空格、1 是新鲜橘子、2 是腐烂的橘子；每过一分钟，腐烂橘子会让上下左右相邻的新鲜橘子腐烂。求所有橘子都腐烂需要几分钟，做不到返回 -1。"},"1143":{"s":"longest-common-subsequence","d":"求两个字符串的最长公共子序列的长度（子序列不要求连续，但字符的先后顺序不能变），没有公共子序列返回 0。"}};
+const INPLACE={283:'nums',189:'nums',73:'matrix',48:'matrix',75:'nums',31:'nums'};
+const exIn=P=>P.fields.map(f=>f.k+' = '+f.def).join(', ');
+const exOut=P=>{const t=STMT[P.id];if(t&&t.o)return t.o;const r=JSON.stringify(P.def.res);return INPLACE[P.id]?INPLACE[P.id]+' 变为 '+r:r};
 
 /* ===== 其余题目 开始 ===== */
 /* ===== A 组：3、438（滑动窗口）· 560、239（子串）· 53、56、189、238（普通数组） ===== */
@@ -7425,7 +7456,7 @@ concept:'删除和插入看哪一格最容易搞反。上面 dp[i - 1][j] 是「
 /* ===== 其余题目 结束 ===== */
 /* ===== 页面 ===== */
 const ORDER={};CATS.forEach(([,l])=>l.forEach(([id])=>{ORDER[id]=Object.keys(ORDER).length}));PROBLEMS.sort((a,b)=>ORDER[a.id]-ORDER[b.id]);
-const PM={};for(const P of PROBLEMS){PM[P.id]=P;Object.assign(P,parseCode(CODE[P.id]));P.defIn={};for(const f of P.fields)P.defIn[f.k]=f.parse(f.def);P.def=P.gen(P.defIn)}
+const PM={};for(const P of PROBLEMS){PM[P.id]=P;P.diff=DIFF[P.id]||'M';Object.assign(P,parseCode(CODE[P.id]));P.defIn={};for(const f of P.fields)P.defIn[f.k]=f.parse(f.def);P.def=P.gen(P.defIn)}
 const md=t=>esc(t).replace(/`([^`]+)`/g,'<code>$1</code>');
 const attr=t=>String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 let curP=null,isDefault=true;
@@ -7456,33 +7487,39 @@ function grade(id,g){const t=todayStr(),old=SRS.cards[id]||{},base=old.last===t&
 let iv=g==='again'?1:g==='hard'?(base.interval<=1?2:Math.round(base.interval*1.5)):(base.interval?Math.max(base.interval+1,Math.round(base.interval*2.5)):4);iv=Math.min(iv,60);
 SRS.cards[id]={interval:iv,reps:base.reps+1,lapses:base.lapses+(g==='again'?1:0),last:t,due:addDays(t,iv),grade:g,base};
 const day=todayPlan();if(day.list.includes(id))day.done[id]=g;else day.extra[id]=g;srsSave()}
+/* 熟练度：按最近一次打分和当前复习间隔分 6 级（0 新题 … 5 精通），用信号格式的 5 根竖条显示 */
+const LV=['新题','不会','模糊','会了','熟练','精通'];
+const levelOf=id=>{const c=SRS.cards[id];if(!c)return 0;if(c.grade==='again')return 1;if(c.grade==='hard')return 2;return c.interval>=25?5:c.interval>=10?4:3};
+const lvBar=lv=>'<span class="lv lv'+lv+'" role="img" aria-label="熟练度：'+LV[lv]+'" title="熟练度：'+LV[lv]+'">'+'<i></i>'.repeat(5)+'</span>';
 function nextUndone(id){const day=todayPlan(),k=day.list.indexOf(id),order=k>=0?[...day.list.slice(k+1),...day.list.slice(0,k)]:day.list;return order.find(x=>x!==id&&!day.done[x])}
 
 function buildNav(){
 let h=`<a href="#today" data-id="today" class="today-link"><span>今日复习</span><small id="navToday"></small></a>`;
-for(const [cat,list] of CATS){h+=`<div class="cat">${cat}</div>`;for(const [id,title] of list){h+=PM[id]?`<a href="#${id}" data-id="${id}"><span class="num">${id}</span><span>${title}</span><span class="mk" id="mk${id}"></span></a>`:`<span class="todo" title="还没做"><span class="num">${id}</span><span>${title}</span><small>未做</small></span>`}}
+for(const [cat,list] of CATS){h+=`<div class="cat">${cat}</div>`;for(const [id,title] of list){h+=PM[id]?`<a href="#${id}" data-id="${id}"><span class="num">${id}</span><span>${title}</span><span class="lv lv0" id="lv${id}" role="img"><i></i><i></i><i></i><i></i><i></i></span><span class="df df-${PM[id].diff}" title="${DN[PM[id].diff]}">${DS[PM[id].diff]}</span><span class="mk" id="mk${id}"></span></a>`:`<span class="todo" title="还没做"><span class="num">${id}</span><span>${title}</span><small>未做</small></span>`}}
 $('nav').innerHTML=h;refreshNav();
 }
-function refreshNav(){const day=todayPlan();$('navToday').textContent=Object.keys(day.done).length+' / '+day.list.length;for(const P of PROBLEMS){const el=$('mk'+P.id);if(!el)continue;const g=day.done[P.id]||day.extra[P.id],inList=day.list.includes(P.id);el.className='mk'+(g?' g-'+g:inList?' due':'');el.textContent=g?'✓':'';el.title=g?'今天评过：'+GN[g]:inList?'在今天的复习清单里':''}}
+function refreshNav(){const day=todayPlan();$('navToday').textContent=Object.keys(day.done).length+' / '+day.list.length;for(const P of PROBLEMS){const el=$('mk'+P.id);if(!el)continue;const g=day.done[P.id]||day.extra[P.id],inList=day.list.includes(P.id);el.className='mk'+(g?' g-'+g:inList?' due':'');el.textContent=g?'✓':'';el.title=g?'今天评过：'+GN[g]:inList?'在今天的复习清单里':'';const lb=$('lv'+P.id),lv=levelOf(P.id);if(lb){lb.className='lv lv'+lv;lb.title='熟练度：'+LV[lv];lb.setAttribute('aria-label','熟练度：'+LV[lv])}}}
 function markNav(id){for(const a of $('nav').querySelectorAll('a')){if(a.dataset.id===String(id))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
 function renderRV(id){const el=$('rv');if(!el)return;const day=todayPlan(),k=day.list.indexOf(id),g=day.done[id]||day.extra[id],c=SRS.cards[id],nx=nextUndone(id);
 const head=k>=0?`今日复习 第 ${k+1} / ${day.list.length} 题`:'不在今天的清单里';
 const info=g?`今天评了「${GN[g]}」，下次 ${fmtDay(c.due)}`:c?`上次 ${ago(c.last)}，评的是「${GN[c.grade]}」`:'还没复习过';
-el.innerHTML=`<span class="rv-t"><b>${head}</b>　${info}</span>${['good','hard','again'].map(x=>`<button type="button" class="gb g-${x}" data-g="${x}" aria-pressed="${g===x}">${GN[x]}</button>`).join('')}<a class="rv-next" href="#${nx||'today'}">${nx?'今日下一题 →':k>=0||Object.keys(day.done).length===day.list.length?'今天的都复习完了 →':'回到今日复习 →'}</a>`;
+const lv=levelOf(id);el.innerHTML=`<span class="rv-t"><b>${head}</b>　<span class="rv-lv">熟练度 ${lvBar(lv)} ${LV[lv]}</span>　${info}</span>${['good','hard','again'].map(x=>`<button type="button" class="gb g-${x}" data-g="${x}" aria-pressed="${g===x}">${GN[x]}</button>`).join('')}<a class="rv-next" href="#${nx||'today'}">${nx?'今日下一题 →':k>=0||Object.keys(day.done).length===day.list.length?'今天的都复习完了 →':'回到今日复习 →'}</a>`;
 for(const b of el.querySelectorAll('.gb'))b.onclick=()=>{grade(id,b.dataset.g);renderRV(id);refreshNav()}}
 function showToday(){
 stop();curP=null;F=[];const t=todayStr(),day=todayPlan(),done=day.done,L=day.list.length,n=Object.keys(done).length;
 const kind={due:0,new:0,fill:0},gc={good:0,hard:0,again:0};for(const id of day.list)kind[day.why[id][0]]++;for(const id in done)gc[done[id]]++;
 const tmr=addDays(t,1),dueT=PROBLEMS.filter(P=>{const c=SRS.cards[P.id];return c&&c.due<=tmr}).length,first=day.list.find(x=>!done[x]),d=parseDay(t);
-const rows=day.list.map((id,i)=>{const P=PM[id],g=done[id];return `<li class="${g?'done':''}"><a href="#${id}"><span class="i">${i+1}</span><span class="num">${id}</span><span><span>${P.title}</span><br><span class="why">${P.cat} · ${day.why[id][1]}</span></span><span class="st ${g?'g-'+g:'todo'}">${g?'✓ '+GN[g]:'未复习'}</span></a></li>`}).join('');
+const rows=day.list.map((id,i)=>{const P=PM[id],g=done[id];return `<li class="${g?'done':''}"><a href="#${id}"><span class="i">${i+1}</span><span class="num">${id}</span><span><span>${P.title}</span><br><span class="why">${P.cat} · <span class="df-${P.diff}">${DN[P.diff]}</span> · ${day.why[id][1]}</span></span><span class="st"><span class="stl">${lvBar(levelOf(id))} ${LV[levelOf(id)]}</span><span class="${g?'g-'+g:'todo'}">${g?'今天 ✓ '+GN[g]:'今天未复习'}</span></span></a></li>`}).join('');
+const lc=[0,0,0,0,0,0];for(const P of PROBLEMS)lc[levelOf(P.id)]++;
+const lvSum=`<div class="lvsum"><span>全部 ${PROBLEMS.length} 题的熟练度：</span>${[5,4,3,2,1,0].map(l=>`<span>${lvBar(l)} ${LV[l]} <b>${lc[l]}</b></span>`).join('')}</div>`;
 $('main').innerHTML=`<article>
 <header class="phead"><div class="crumb">${d.getMonth()+1} 月 ${d.getDate()} 日 · 周${WEEK[d.getDay()]}</div><h2>今日复习</h2><div class="tags"><span>${L} 题</span>${kind.due?`<span>到期 ${kind.due}</span>`:''}${kind.new?`<span>新题 ${kind.new}</span>`:''}${kind.fill?`<span>补齐 ${kind.fill}</span>`:''}</div></header>
 <section class="sec today"><div class="sum"><span>已复习 <b>${n} / ${L}</b></span>${n?`<span class="g-good">会 ${gc.good}</span><span class="g-hard">模糊 ${gc.hard}</span><span class="g-again">不会 ${gc.again}</span>`:''}<span>明天已到期 ${dueT} 题</span></div>
 <div class="bar" role="progressbar" aria-label="今日复习进度" aria-valuemin="0" aria-valuemax="${L}" aria-valuenow="${n}"><span style="width:${L?Math.round(n/L*100):0}%"></span></div>
 ${first?`<a class="rv-next start" href="#${first}">${n?'接着复习：':'从第 1 题开始：'}${first}. ${PM[first].title} →</a>`:'<p>今天的 30 题都复习完了。</p>'}
-${STORE_OK?'':'<p class="warn">这个浏览器不让页面保存数据，关掉页面后今天的进度会丢失。</p>'}</section>
+${STORE_OK?'':'<p class="warn">这个浏览器不让页面保存数据，关掉页面后今天的进度会丢失。</p>'}${lvSum}</section>
 <section class="sec today"><ol class="tlist">${rows}</ol>
-<p class="hint">每道题看完演示后，在题目顶部给自己打分：「不会」明天再来，「模糊」隔 2 天起，「会」隔 4 天起，之后每次间隔大约翻 2.5 倍。每天先排到期的题，不够 30 题再用新题和最久没复习的补齐；清单当天固定，第二天自动重排。进度保存在这个浏览器里，换浏览器或清除网站数据会重新开始。</p></section>
+<p class="hint">每道题看完演示后，在题目顶部给自己打分：「不会」明天再来，「模糊」隔 2 天起，「会」隔 4 天起，之后每次间隔大约翻 2.5 倍。熟练度按最近一次打分和复习间隔算：不会 1 格、模糊 2 格、会了 3 格（间隔不到 10 天）、熟练 4 格（10～24 天）、精通 5 格（25 天以上），还没评过分的是新题。每天先排到期的题，不够 30 题再用新题和最久没复习的补齐；清单当天固定，第二天自动重排。进度保存在这个浏览器里，换浏览器或清除网站数据会重新开始。</p></section>
 </article>`;
 markNav('today');refreshNav();document.body.classList.remove('nav-open');syncMenu();scrollTo(0,0)}
 function route(){const h=location.hash.slice(1);if(!h||h==='today')showToday();else{show(+h);scrollTo(0,0)}}
@@ -7493,8 +7530,9 @@ const P=PM[id]||PROBLEMS[0];curP=P;stop();C=P.C;CM=P.CM;
 const idx=PROBLEMS.indexOf(P),prev=PROBLEMS[idx-1],next=PROBLEMS[idx+1];
 const notes=P.notes.map(nt=>({...nt,i:stepNo(P,nt.k)})).sort((x,y)=>x.i-y.i).map(nt=>{const i=nt.i;return `<li>${i>=0?`<button type="button" class="steplink" data-step="${i}">第 ${i+1} 步</button>`:''}<span>${md(nt.t)}</span></li>`}).join('')+(P.extra?`<li><span class="steplink static">例子外</span><span>${md(P.extra)}</span></li>`:'');
 $('main').innerHTML=`<article>
-<header class="phead"><div class="crumb">${P.cat}</div><h2>${P.id}. ${P.title}</h2><div class="tags"><span>${P.method}</span><span>时间 ${P.time}</span><span>空间 ${P.space}</span></div></header>
+<header class="phead"><div class="crumb">${P.cat}</div><h2>${P.id}. ${P.title}</h2><div class="tags"><span class="df-${P.diff}">${DN[P.diff]}</span><span>${P.method}</span><span>时间 ${P.time}</span><span>空间 ${P.space}</span></div></header>
 <div class="rv" id="rv"></div>
+<section class="sec stmt"><h3>题目</h3><p>${md(STMT[P.id].d)}</p><p class="ex">例：<code>${esc(exIn(P))}</code> → ${/[\u4e00-\u9fff]/.test(exOut(P))?esc(exOut(P)):'<code>'+esc(exOut(P))+'</code>'}</p><p class="src"><a href="https://leetcode.cn/problems/${STMT[P.id].s}/" target="_blank" rel="noopener">力扣原题 ↗</a></p></section>
 <section class="sec"><h3>核心直觉</h3><p>${md(P.intuition)}</p></section>
 <section class="sec card demo" id="demo" aria-labelledby="demo-h">
 <div class="demo-head"><h3 id="demo-h">逐行演示</h3><span class="badge" id="mode">默认例子</span></div>
