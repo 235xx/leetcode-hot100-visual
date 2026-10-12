@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>每日学习</title>
+<meta name="description" content="手撕题和力扣 Hot 100 的每日任务：设好每天几道，按记忆曲线排今天的清单。">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface-2: #f0eee8;
+    --ink: #1f1e1d;
+    --muted: #5e5d59;
+    --faint: #8f8d86;
+    --line: #e3e0d7;
+    --hs: #2a55c9;
+    --hs-soft: #e9eefb;
+    --lc: #b45309;
+    --lc-soft: #fbf0e3;
+    --ok: #2e7d4f;
+    --ok-soft: #e2f1e7;
+    --warn: #a15c07;
+    --warn-soft: #faefdc;
+    --bad: #b42318;
+    --bad-soft: #fbe9e7;
+    --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    --font-mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+    --radius: 12px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #191918;
+      --surface: #222220;
+      --surface-2: #2c2c2a;
+      --ink: #f1efe8;
+      --muted: #b4b2a9;
+      --faint: #878580;
+      --line: #383733;
+      --hs: #8ea8ff;
+      --hs-soft: rgba(142, 168, 255, 0.14);
+      --lc: #f0a050;
+      --lc-soft: rgba(240, 160, 80, 0.14);
+      --ok: #5cc489;
+      --ok-soft: rgba(92, 196, 137, 0.15);
+      --warn: #e9a23b;
+      --warn-soft: rgba(233, 162, 59, 0.14);
+      --bad: #f07167;
+      --bad-soft: rgba(240, 113, 103, 0.14);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #191918;
+    --surface: #222220;
+    --surface-2: #2c2c2a;
+    --ink: #f1efe8;
+    --muted: #b4b2a9;
+    --faint: #878580;
+    --line: #383733;
+    --hs: #8ea8ff;
+    --hs-soft: rgba(142, 168, 255, 0.14);
+    --lc: #f0a050;
+    --lc-soft: rgba(240, 160, 80, 0.14);
+    --ok: #5cc489;
+    --ok-soft: rgba(92, 196, 137, 0.15);
+    --warn: #e9a23b;
+    --warn-soft: rgba(233, 162, 59, 0.14);
+    --bad: #f07167;
+    --bad-soft: rgba(240, 113, 103, 0.14);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; }
+  a { color: inherit; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--hs); outline-offset: 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  /* top bar */
+  .top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .top-in { max-width: 1120px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-size: 14px; }
+  .grow { flex: 1; }
+  .site-nav { display: flex; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .site-nav a { font-size: 13.5px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+  .site-nav a:hover { background: var(--surface-2); color: var(--ink); }
+  .icon-btn { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); cursor: pointer; }
+  .icon-btn svg { width: 17px; height: 17px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+  h1, h2 { margin: 0; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .dot.hs { background: var(--hs); }
+  .dot.lc { background: var(--lc); }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) 340px; }
+  .hero-main { padding: 24px 26px; display: grid; gap: 12px; align-content: start; }
+  .date { margin: 0; font-size: 13px; color: var(--muted); }
+  .hero h1 { font-size: clamp(26px, 4vw, 34px); line-height: 1.2; letter-spacing: -0.01em; }
+  .summary { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font-size: 14px; }
+  .summary b { color: var(--ink); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .summary span { display: inline-flex; align-items: center; gap: 6px; }
+  .progress { height: 10px; border-radius: 999px; background: var(--surface-2); display: flex; overflow: hidden; }
+  .progress span { height: 100%; transition: width 0.3s ease; }
+  .progress .hs { background: var(--hs); }
+  .progress .lc { background: var(--lc); }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 4px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; font-weight: 600; font-size: 14.5px; }
+  .btn.primary { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .btn.primary:hover { opacity: 0.9; }
+  .btn.done { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+  .chip { font-size: 13px; color: var(--muted); }
+  .chip b { color: var(--ink); font-family: var(--font-mono); }
+
+  /* quota */
+  .quota { margin: 0; padding: 22px 22px 18px; border-left: 1px solid var(--line); display: grid; gap: 12px; align-content: start; background: var(--surface-2); border-radius: 0 var(--radius) var(--radius) 0; }
+  .quota h2 { font-size: 15px; }
+  .qrow { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 4px 8px; }
+  .qname { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+  .qhint { grid-column: 1 / -1; font-size: 12.5px; color: var(--faint); margin-top: -2px; }
+  .stepper { display: inline-flex; align-items: stretch; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); overflow: hidden; }
+  .stepper button { width: 34px; border: 0; background: transparent; cursor: pointer; font-size: 17px; line-height: 1; color: var(--muted); }
+  .stepper button:hover { background: var(--surface-2); color: var(--ink); }
+  .stepper input { width: 46px; border: 0; border-inline: 1px solid var(--line); background: transparent; text-align: center; font-family: var(--font-mono); font-size: 15px; padding: 6px 0; -moz-appearance: textfield; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .unit { font-size: 13.5px; color: var(--muted); }
+  .note { margin: 0; font-size: 12.5px; color: var(--faint); line-height: 1.55; }
+
+  /* task lists */
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .thead { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; }
+  .thead h2 { font-size: 15px; display: inline-flex; align-items: center; gap: 8px; }
+  .count { font-size: 13px; color: var(--muted); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .more { margin-left: auto; font-size: 13px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+  .more:hover { color: var(--ink); text-decoration: underline; }
+  .tlist { list-style: none; margin: 0; padding: 0 8px 8px; display: grid; gap: 2px; }
+  .trow { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 8px; border-radius: 9px; text-decoration: none; }
+  .trow:hover { background: var(--surface-2); }
+  .check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 12px; color: transparent; }
+  .done .check { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+  .tname { display: block; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tname .num { font-family: var(--font-mono); font-size: 13px; color: var(--faint); margin-right: 6px; }
+  .done .tname { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+  .tsub { display: block; font-size: 12.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { font-size: 12px; line-height: 1.5; padding: 1px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); }
+  .pill.due { color: var(--warn); border-color: transparent; background: var(--warn-soft); }
+  .pill.new { color: var(--hs); border-color: transparent; background: var(--hs-soft); }
+  .pill.good, .pill.ok { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+  .pill.hard { color: var(--warn); border-color: transparent; background: var(--warn-soft); }
+  .pill.again { color: var(--bad); border-color: transparent; background: var(--bad-soft); }
+  .df-E { color: var(--ok); }
+  .df-H { color: var(--bad); }
+  .empty { margin: 0; padding: 4px 16px 16px; font-size: 13.5px; color: var(--muted); }
+  .fold { margin: 2px 8px 10px; width: calc(100% - 16px); padding: 7px; border: 1px dashed var(--line); border-radius: 9px; background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .fold:hover { color: var(--ink); border-style: solid; }
+
+  /* calendar */
+  .cal-body { padding: 0 16px 14px; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+  .cal .wd { font-size: 12px; color: var(--faint); text-align: center; padding-bottom: 2px; }
+  .cell { aspect-ratio: 1.25; border-radius: 8px; background: var(--surface-2); display: grid; place-items: center; position: relative; font-size: 12.5px; font-family: var(--font-mono); color: var(--faint); }
+  .cell.part { background: color-mix(in srgb, var(--ok) 22%, var(--surface-2)); color: var(--ink); }
+  .cell.full { background: var(--ok); color: var(--surface); font-weight: 600; }
+  .cell.future { background: transparent; border: 1px dashed var(--line); }
+  .cell.today { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; background: var(--surface-2); }
+  .legend .part { background: color-mix(in srgb, var(--ok) 22%, var(--surface-2)); }
+  .legend .full { background: var(--ok); }
+
+  /* mastery */
+  .mastery { padding: 0 16px 16px; display: grid; gap: 18px; }
+  .mrow h3 { margin: 0 0 8px; font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .mrow h3 small { font-weight: 400; color: var(--muted); font-size: 12.5px; }
+  .stack { height: 12px; border-radius: 999px; display: flex; overflow: hidden; background: var(--surface-2); }
+  .stack span { height: 100%; }
+  .mlegend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .mlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .mlegend b { color: var(--ink); font-family: var(--font-mono); margin-left: 3px; }
+  .c-master { background: var(--ok); }
+  .c-skilled { background: color-mix(in srgb, var(--ok) 72%, var(--surface)); }
+  .c-know { background: color-mix(in srgb, var(--ok) 45%, var(--surface)); }
+  .c-learning { background: var(--hs); }
+  .c-hard { background: var(--warn); }
+  .c-again { background: var(--bad); }
+  .c-new { background: var(--line); }
+
+  .foot { margin: 0; font-size: 12.5px; color: var(--faint); text-align: center; }
+  .warn-box { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 13.5px; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .quota { border-left: 0; border-top: 1px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .hero-main { padding: 20px 18px; }
+    .quota { padding: 18px; }
+    .brand .label { display: none; }
+    .site-nav a { padding: 6px 7px; font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="index.html" aria-current="page"><span class="mark" aria-hidden="true">学</span><span class="label">每日学习</span></a>
+    <span class="grow"></span>
+    <nav class="site-nav" aria-label="网站">
+      <a href="pages/手撕练习场.html">手撕练习场</a>
+      <a href="pages/力扣Hot100.html">力扣 Hot100</a>
+      <a href="pages/手写题慢放.html">手写题慢放</a>
+    </nav>
+    <button class="icon-btn" id="theme" type="button" aria-label="切换深色 / 浅色"></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card hero" aria-labelledby="headline">
+    <div class="hero-main">
+      <p class="date" id="date"></p>
+      <h1 id="headline">今日任务</h1>
+      <p class="summary" id="summary"></p>
+      <div class="progress" id="progress" role="progressbar" aria-label="今日任务进度" aria-valuemin="0"><span class="hs" id="bar-hs"></span><span class="lc" id="bar-lc"></span></div>
+      <div class="hero-actions"><span id="next"></span><span class="chip" id="streak"></span></div>
+      <p class="warn-box" id="storage-warn" hidden>这个浏览器不让页面保存数据，题量设置和进度在关掉页面后会丢失。</p>
+    </div>
+    <form class="quota" id="quota" aria-labelledby="quota-title" novalidate>
+      <h2 id="quota-title">每天学多少</h2>
+      <div class="qrow">
+        <label class="qname" for="q-hs"><i class="dot hs" aria-hidden="true"></i>手撕题</label>
+        <div class="stepper"><button type="button" data-kind="hs" data-step="-1" aria-label="手撕题少一道">−</button><input id="q-hs" data-kind="hs" type="number" inputmode="numeric" min="0" max="20" step="1"><button type="button" data-kind="hs" data-step="1" aria-label="手撕题多一道">+</button></div>
+        <span class="unit">道</span>
+        <span class="qhint" id="q-hs-hint"></span>
+      </div>
+      <div class="qrow">
+        <label class="qname" for="q-lc"><i class="dot lc" aria-hidden="true"></i>力扣 Hot 100</label>
+        <div class="stepper"><button type="button" data-kind="lc" data-step="-1" aria-label="力扣题少一题">−</button><input id="q-lc" data-kind="lc" type="number" inputmode="numeric" min="0" max="100" step="1"><button type="button" data-kind="lc" data-step="1" aria-label="力扣题多一题">+</button></div>
+        <span class="unit">题</span>
+        <span class="qhint" id="q-lc-hint"></span>
+      </div>
+      <p class="note">改完马上生效：今天的清单只在末尾增减还没做的题，做过的保留；明天按新的题量重排。每天先排到期要复习的，再排新题，不够再用最久没练的补齐。</p>
+    </form>
+  </section>
+
+  <div class="cols">
+    <section class="card" aria-labelledby="hs-title">
+      <header class="thead"><h2 id="hs-title"><i class="dot hs" aria-hidden="true"></i>手撕题</h2><span class="count" id="hs-count"></span><a class="more" href="pages/手撕练习场.html">打开练习场 →</a></header>
+      <div id="hs-body"></div>
+    </section>
+    <section class="card" aria-labelledby="lc-title">
+      <header class="thead"><h2 id="lc-title"><i class="dot lc" aria-hidden="true"></i>力扣 Hot 100</h2><span class="count" id="lc-count"></span><a class="more" href="pages/力扣Hot100.html#today">打开今日复习 →</a></header>
+      <div id="lc-body"></div>
+    </section>
+  </div>
+
+  <div class="cols">
+    <section class="card" aria-labelledby="cal-title">
+      <header class="thead"><h2 id="cal-title">最近 5 周</h2><span class="count" id="cal-sum"></span></header>
+      <div class="cal-body">
+        <div class="cal" id="cal"></div>
+        <div class="legend"><span><i></i>没练</span><span><i class="part"></i>做了一部分</span><span><i class="full"></i>当天任务全部完成</span></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="mastery-title">
+      <header class="thead"><h2 id="mastery-title">熟练度</h2></header>
+      <div class="mastery" id="mastery"></div>
+    </section>
+  </div>
+
+  <p class="foot">进度保存在这个浏览器里，主页和三个页面共用；换浏览器或清除网站数据会重新开始。手撕题在练习场里跑通测试算完成，力扣题在题目顶部打分（会 / 模糊 / 不会）算完成。</p>
+</main>
+
+<script>
+'use strict'
+/* ===== 每日计划 开始：主页、手撕练习场、力扣 Hot100 三个页面里各有一份，内容完全相同，改的时候三处一起改 =====
+   每天的题量存在 localStorage 的 study:quota（{ hs: 手撕题道数, lc: 力扣题道数 }），三个页面共用。
+   当天第一次打开任意一个页面时定下清单：先排到期的（过期最久的在前），再排新题（按题目顺序），还不够就用最久没练的补齐。
+   清单当天固定；当天改了题量，只在清单末尾增减还没做的题，做过的保留。
+   力扣的清单存在 lc-srs 的 days[日期] 里（和原来的格式一样）；手撕的清单存在 hs:days[日期] 里。 */
+const DailyPlan = (() => {
+  const QUOTA_KEY = 'study:quota'
+  const HS_DAYS_KEY = 'hs:days'
+  const DEFAULT_QUOTA = { hs: 3, lc: 30 } // 和合并前一样：手撕每天 3 道，力扣每天 30 题
+  const MAX_QUOTA = { hs: 20, lc: 100 }
+  const KEEP_DAYS = 90
+
+  const read = (key) => {
+    try {
+      return JSON.parse(localStorage.getItem(key) ?? 'null')
+    } catch {
+      return null
+    }
+  }
+  const write = (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const pad2 = (n) => String(n).padStart(2, '0')
+  const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+  const parseDay = (t) => {
+    const [y, m, d] = t.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  const addDays = (t, n) => {
+    const d = parseDay(t)
+    d.setDate(d.getDate() + n)
+    return ymd(d)
+  }
+  const dayDiff = (a, b) => Math.round((parseDay(b) - parseDay(a)) / 864e5)
+  const ago = (t, today) => {
+    const n = dayDiff(t, today)
+    if (n <= 0) return '今天'
+    return n === 1 ? '昨天' : `${n} 天前`
+  }
+  const fmtDay = (t, today) => {
+    const d = parseDay(t)
+    const n = dayDiff(today, t)
+    let rel = ''
+    if (n === 1) rel = '（明天）'
+    else if (n === 2) rel = '（后天）'
+    else if (n > 0) rel = `（${n} 天后）`
+    return `${d.getMonth() + 1} 月 ${d.getDate()} 日${rel}`
+  }
+  const keepRecent = (days) => {
+    const out = {}
+    for (const k of Object.keys(days).sort().slice(-KEEP_DAYS)) out[k] = days[k]
+    return out
+  }
+
+  const clampQuota = (kind, value, fallback) => {
+    const n = Number(value)
+    return Number.isInteger(n) && n >= 0 ? Math.min(n, MAX_QUOTA[kind]) : fallback
+  }
+  function quota() {
+    const saved = read(QUOTA_KEY) || {}
+    // 合并前手撕练习场自己存过"每天几道新题"，第一次用这个值当手撕的题量
+    const legacyHs = clampQuota('hs', (read('hs:meta') || {}).target, DEFAULT_QUOTA.hs) || DEFAULT_QUOTA.hs
+    return { hs: clampQuota('hs', saved.hs, legacyHs), lc: clampQuota('lc', saved.lc, DEFAULT_QUOTA.lc) }
+  }
+  function setQuota(patch) {
+    const next = quota()
+    for (const kind of ['hs', 'lc']) if (kind in patch) next[kind] = clampQuota(kind, patch[kind], next[kind])
+    write(QUOTA_KEY, next)
+    return next
+  }
+
+  // 把当天的清单调整到 n 道：不够就按候选顺序往后补，多了就从末尾去掉还没做的题
+  function fit(day, n, candidates, isDone) {
+    let changed = false
+    if (day.list.length < n) {
+      for (const [id, why] of candidates()) {
+        if (day.list.length >= n) break
+        if (day.list.includes(id)) continue
+        day.list.push(id)
+        day.why[id] = why
+        changed = true
+      }
+    }
+    for (let i = day.list.length - 1; i >= 0 && day.list.length > n; i--) {
+      const id = day.list[i]
+      if (isDone(id)) continue
+      day.list.splice(i, 1)
+      delete day.why[id]
+      changed = true
+    }
+    return changed
+  }
+
+  /* ---- 力扣：卡片 { interval, reps, lapses, last, due, grade }，lc-srs = { cards, days } ---- */
+  function lcCandidates(srs, ids, t) {
+    const card = (id) => srs.cards[id]
+    const due = []
+    const fresh = []
+    const rest = []
+    for (const id of ids) {
+      const c = card(id)
+      if (!c) fresh.push(id)
+      else if (c.due <= t) due.push(id)
+      else rest.push(id)
+    }
+    due.sort((a, b) => card(a).due.localeCompare(card(b).due) || (card(b).lapses || 0) - (card(a).lapses || 0))
+    rest.sort((a, b) => card(a).last.localeCompare(card(b).last) || card(a).due.localeCompare(card(b).due))
+    const dueWhy = (c) => (c.due < t ? `到期（晚了 ${dayDiff(c.due, t)} 天）` : '今天到期')
+    return [
+      ...due.map((id) => [id, ['due', dueWhy(card(id))]]),
+      ...fresh.map((id) => [id, ['new', '新题']]),
+      ...rest.map((id) => [id, ['fill', `补齐 · 上次 ${ago(card(id).last, t)}，原定 ${fmtDay(card(id).due, t)}`]]),
+    ]
+  }
+  // 返回 { day, changed }；changed 为 true 时由调用方保存 srs
+  function lcDay(srs, ids, t, n) {
+    let changed = false
+    let day = srs.days[t]
+    if (!day || !Array.isArray(day.list)) {
+      day = { list: [], why: {}, done: {}, extra: {} }
+      srs.days[t] = day
+      changed = true
+    }
+    day.why = day.why || {}
+    day.done = day.done || {}
+    day.extra = day.extra || {}
+    const known = new Set(ids)
+    const kept = day.list.filter((id) => known.has(id) || day.done[id])
+    if (kept.length !== day.list.length) {
+      day.list = kept
+      changed = true
+    }
+    if (fit(day, n, () => lcCandidates(srs, ids, t), (id) => Boolean(day.done[id]))) changed = true
+    return { day, changed }
+  }
+  function lcRead() {
+    const raw = read('lc-srs')
+    return raw && typeof raw === 'object' ? { cards: raw.cards || {}, days: raw.days || {} } : { cards: {}, days: {} }
+  }
+  function lcWrite(srs) {
+    return write('lc-srs', { cards: srs.cards, days: keepRecent(srs.days) })
+  }
+
+  /* ---- 手撕：记录 { box, due, best, code, history: [{ day, result, ... }] }，hs:records = { id: 记录 } ---- */
+  const hsLast = (rec) => {
+    const h = rec && Array.isArray(rec.history) ? rec.history : []
+    return h.length > 0 ? h[h.length - 1].day : ''
+  }
+  const hsDoneOn = (rec, t) => Boolean(rec && Array.isArray(rec.history) && rec.history.some((h) => h.day === t))
+  function hsCandidates(records, ids, t) {
+    const due = []
+    const fresh = []
+    const rest = []
+    for (const id of ids) {
+      const rec = records[id]
+      if (!hsLast(rec)) fresh.push(id)
+      else if (rec.due && rec.due <= t) due.push(id)
+      else rest.push(id)
+    }
+    due.sort((a, b) => records[a].due.localeCompare(records[b].due))
+    rest.sort((a, b) => hsLast(records[a]).localeCompare(hsLast(records[b])))
+    const dueWhy = (rec) => (rec.due < t ? `到期（晚了 ${dayDiff(rec.due, t)} 天）` : '今天到期')
+    return [
+      ...due.map((id) => [id, ['due', dueWhy(records[id])]]),
+      ...fresh.map((id) => [id, ['new', '新题']]),
+      ...rest.map((id) => [id, ['fill', `巩固 · 上次 ${ago(hsLast(records[id]), t)}`]]),
+    ]
+  }
+  // 返回当天的清单 { list, why }，有变化时直接写回 hs:days
+  function hsDay(records, ids, t, n) {
+    const days = read(HS_DAYS_KEY) || {}
+    let changed = false
+    let day = days[t]
+    if (!day || !Array.isArray(day.list)) {
+      day = { list: [], why: {} }
+      days[t] = day
+      changed = true
+    }
+    day.why = day.why || {}
+    const known = new Set(ids)
+    const kept = day.list.filter((id) => known.has(id))
+    if (kept.length !== day.list.length) {
+      day.list = kept
+      changed = true
+    }
+    if (fit(day, n, () => hsCandidates(records, ids, t), (id) => hsDoneOn(records[id], t))) changed = true
+    if (changed) write(HS_DAYS_KEY, keepRecent(days))
+    return day
+  }
+  const hsReadDays = () => read(HS_DAYS_KEY) || {}
+
+  return { QUOTA_KEY, HS_DAYS_KEY, MAX_QUOTA, read, write, ymd, parseDay, addDays, dayDiff, quota, setQuota, lcDay, lcRead, lcWrite, hsDay, hsDoneOn, hsReadDays }
+})()
+/* ===== 每日计划 结束 ===== */
+
+/* 题目目录：页面打开时会把最新的目录写进 study:catalog:hs / study:catalog:lc，这里是还没打开过时用的备份 */
+const FALLBACK = {
+  hs: [
+    ["debounce", "防抖 / 节流", "S", 10],
+    ["promise-all", "Promise.all", "S", 10],
+    ["pool", "异步并发数限制", "S", 12],
+    ["deep-clone", "深拷贝", "S", 10],
+    ["call-bind", "call / apply / bind", "S", 10],
+    ["emitter", "发布订阅 EventEmitter", "S", 12],
+    ["new", "手写 new", "S", 8],
+    ["tree", "数组转树", "S", 10],
+    ["instanceof", "instanceof", "A", 6],
+    ["inherit", "继承（寄生组合式）", "A", 10],
+    ["curry", "函数柯里化", "A", 8],
+    ["flat", "数组扁平化 flat", "A", 8],
+    ["array-api", "map / filter / reduce", "A", 10],
+    ["big-add", "大数加法", "A", 8],
+    ["thousands", "千分位格式化", "B", 6],
+    ["parse-query", "URL 参数解析", "B", 8],
+    ["async-add", "异步加法", "B", 10],
+    ["is-equal", "对象深比较 isEqual", "B", 8],
+    ["shuffle", "洗牌算法", "B", 5],
+    ["ajax", "Ajax 封装", "B", 10]
+  ],
+  lc: [
+    [1, "两数之和", "哈希", "E"],
+    [49, "字母异位词分组", "哈希", "M"],
+    [128, "最长连续序列", "哈希", "M"],
+    [283, "移动零", "双指针", "E"],
+    [11, "盛最多水的容器", "双指针", "M"],
+    [15, "三数之和", "双指针", "M"],
+    [42, "接雨水", "双指针", "H"],
+    [3, "无重复字符的最长子串", "滑动窗口", "M"],
+    [438, "找到字符串中所有字母异位词", "滑动窗口", "M"],
+    [560, "和为 K 的子数组", "子串", "M"],
+    [239, "滑动窗口最大值", "子串", "H"],
+    [53, "最大子数组和", "普通数组", "M"],
+    [56, "合并区间", "普通数组", "M"],
+    [189, "轮转数组", "普通数组", "M"],
+    [238, "除自身以外数组的乘积", "普通数组", "M"],
+    [73, "矩阵置零", "矩阵", "M"],
+    [54, "螺旋矩阵", "矩阵", "M"],
+    [48, "旋转图像", "矩阵", "M"],
+    [240, "搜索二维矩阵 II", "矩阵", "M"],
+    [160, "相交链表", "链表", "E"],
+    [206, "反转链表", "链表", "E"],
+    [234, "回文链表", "链表", "E"],
+    [141, "环形链表", "链表", "E"],
+    [142, "环形链表 II", "链表", "M"],
+    [21, "合并两个有序链表", "链表", "E"],
+    [2, "两数相加", "链表", "M"],
+    [19, "删除链表的倒数第 N 个结点", "链表", "M"],
+    [24, "两两交换链表中的节点", "链表", "M"],
+    [25, "K 个一组翻转链表", "链表", "H"],
+    [138, "随机链表的复制", "链表", "M"],
+    [148, "排序链表", "链表", "M"],
+    [23, "合并 K 个升序链表", "链表", "H"],
+    [146, "LRU 缓存", "链表", "M"],
+    [94, "二叉树的中序遍历", "二叉树", "E"],
+    [104, "二叉树的最大深度", "二叉树", "E"],
+    [226, "翻转二叉树", "二叉树", "E"],
+    [101, "对称二叉树", "二叉树", "E"],
+    [543, "二叉树的直径", "二叉树", "E"],
+    [102, "二叉树的层序遍历", "二叉树", "M"],
+    [108, "将有序数组转换为二叉搜索树", "二叉树", "E"],
+    [98, "验证二叉搜索树", "二叉树", "M"],
+    [230, "二叉搜索树中第 K 小的元素", "二叉树", "M"],
+    [199, "二叉树的右视图", "二叉树", "M"],
+    [114, "二叉树展开为链表", "二叉树", "M"],
+    [105, "从前序与中序遍历序列构造二叉树", "二叉树", "M"],
+    [236, "二叉树的最近公共祖先", "二叉树", "M"],
+    [200, "岛屿数量", "图论", "M"],
+    [994, "腐烂的橘子", "图论", "M"],
+    [46, "全排列", "回溯", "M"],
+    [78, "子集", "回溯", "M"],
+    [17, "电话号码的字母组合", "回溯", "M"],
+    [39, "组合总和", "回溯", "M"],
+    [22, "括号生成", "回溯", "M"],
+    [79, "单词搜索", "回溯", "M"],
+    [131, "分割回文串", "回溯", "M"],
+    [35, "搜索插入位置", "二分查找", "E"],
+    [74, "搜索二维矩阵", "二分查找", "M"],
+    [34, "在排序数组中查找元素的第一个和最后一个位置", "二分查找", "M"],
+    [33, "搜索旋转排序数组", "二分查找", "M"],
+    [153, "寻找旋转排序数组中的最小值", "二分查找", "M"],
+    [20, "有效的括号", "栈", "E"],
+    [155, "最小栈", "栈", "M"],
+    [394, "字符串解码", "栈", "M"],
+    [739, "每日温度", "栈", "M"],
+    [215, "数组中的第K个最大元素", "堆", "M"],
+    [347, "前 K 个高频元素", "堆", "M"],
+    [121, "买卖股票的最佳时机", "贪心算法", "E"],
+    [55, "跳跃游戏", "贪心算法", "M"],
+    [45, "跳跃游戏 II", "贪心算法", "M"],
+    [763, "划分字母区间", "贪心算法", "M"],
+    [70, "爬楼梯", "动态规划", "E"],
+    [118, "杨辉三角", "动态规划", "E"],
+    [198, "打家劫舍", "动态规划", "M"],
+    [279, "完全平方数", "动态规划", "M"],
+    [322, "零钱兑换", "动态规划", "M"],
+    [139, "单词拆分", "动态规划", "M"],
+    [300, "最长递增子序列", "动态规划", "M"],
+    [152, "乘积最大子数组", "动态规划", "M"],
+    [416, "分割等和子集", "动态规划", "M"],
+    [62, "不同路径", "多维动态规划", "M"],
+    [64, "最小路径和", "多维动态规划", "M"],
+    [5, "最长回文子串", "多维动态规划", "M"],
+    [1143, "最长公共子序列", "多维动态规划", "M"],
+    [72, "编辑距离", "多维动态规划", "M"],
+    [136, "只出现一次的数字", "技巧", "E"],
+    [169, "多数元素", "技巧", "E"],
+    [75, "颜色分类", "技巧", "M"],
+    [31, "下一个排列", "技巧", "M"]
+  ],
+}
+
+const HS_PAGE = 'pages/手撕练习场.html'
+const LC_PAGE = 'pages/力扣Hot100.html'
+const TIER = { S: 'S 档', A: 'A 档', B: 'B 档' }
+const DIFF = { E: '简单', M: '中等', H: '困难' }
+const GRADE = { good: '会', hard: '模糊', again: '不会' }
+const LV = ['新题', '不会', '模糊', '会了', '熟练', '精通']
+const LV_CLASS = ['c-new', 'c-again', 'c-hard', 'c-know', 'c-skilled', 'c-master']
+const WEEK = '日一二三四五六'
+const MASTERED_BOX = 3 // 和练习场一样：独立完成 3 次算掌握
+const FOLD_AT = 10
+const CAL_WEEKS = 5
+const ICON = {
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+}
+
+const $ = (id) => document.getElementById(id)
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ESC[c])
+const todayKey = () => DailyPlan.ymd(new Date())
+const unfolded = { hs: false, lc: false }
+
+function catalog(kind) {
+  const saved = DailyPlan.read(`study:catalog:${kind}`)
+  return Array.isArray(saved) && saved.length > 0 ? saved : FALLBACK[kind]
+}
+
+// 力扣熟练度：和 Hot100 页面的 levelOf 一样
+function lcLevel(card) {
+  if (!card) return 0
+  if (card.grade === 'again') return 1
+  if (card.grade === 'hard') return 2
+  if (card.interval >= 25) return 5
+  return card.interval >= 10 ? 4 : 3
+}
+
+function collect() {
+  const t = todayKey()
+  const quota = DailyPlan.quota()
+  const hsCat = catalog('hs')
+  const lcCat = catalog('lc')
+  const hsInfo = new Map(hsCat.map(([id, title, tier, minutes]) => [id, { id, title, tier, minutes }]))
+  const lcInfo = new Map(lcCat.map(([id, title, cat, diff]) => [id, { id, title, cat, diff }]))
+  const records = DailyPlan.read('hs:records') || {}
+  const hsDay = DailyPlan.hsDay(records, hsCat.map(([id]) => id), t, quota.hs)
+  const srs = DailyPlan.lcRead()
+  const { day: lcDay, changed } = DailyPlan.lcDay(srs, lcCat.map(([id]) => id), t, quota.lc)
+  if (changed) DailyPlan.lcWrite(srs)
+  const hsItems = hsDay.list
+    .filter((id) => hsInfo.has(id))
+    .map((id) => ({ ...hsInfo.get(id), why: hsDay.why[id] || ['fill', ''], done: DailyPlan.hsDoneOn(records[id], t) }))
+  const lcItems = lcDay.list
+    .filter((id) => lcInfo.has(id))
+    .map((id) => ({ ...lcInfo.get(id), why: lcDay.why[id] || ['fill', ''], grade: lcDay.done[id] || null }))
+  const hsExtra = Object.keys(records).filter((id) => !hsDay.list.includes(id) && DailyPlan.hsDoneOn(records[id], t)).length
+  const lcExtra = Object.keys(lcDay.extra || {}).length
+  return { t, quota, records, srs, hsCat, lcCat, hsItems, lcItems, hsExtra, lcExtra }
+}
+
+// 某一天的完成情况：有清单的按清单算，没有清单的只看有没有练
+function dayStats(d, data, hsDays) {
+  const hsList = Array.isArray(hsDays[d]?.list) ? hsDays[d].list : []
+  const lcDay = data.srs.days[d]
+  const lcList = Array.isArray(lcDay?.list) ? lcDay.list : []
+  const hsDone = hsList.filter((id) => DailyPlan.hsDoneOn(data.records[id], d)).length
+  const lcDone = lcList.filter((id) => lcDay.done?.[id]).length
+  const hsPracticed = Object.values(data.records).filter((rec) => DailyPlan.hsDoneOn(rec, d)).length
+  const lcPracticed = lcDay ? Object.keys(lcDay.done || {}).length + Object.keys(lcDay.extra || {}).length : 0
+  const planned = hsList.length + lcList.length
+  const done = hsDone + lcDone
+  let state = 'none'
+  if (planned > 0 && done === planned) state = 'full'
+  else if (done > 0 || hsPracticed + lcPracticed > 0) state = 'part'
+  return { hs: [hsDone, hsList.length], lc: [lcDone, lcList.length], hsPracticed, lcPracticed, state }
+}
+
+function streakOf(data, hsDays) {
+  let day = data.t
+  if (dayStats(day, data, hsDays).state !== 'full') day = DailyPlan.addDays(day, -1)
+  let n = 0
+  while (n < 1000 && dayStats(day, data, hsDays).state === 'full') {
+    n += 1
+    day = DailyPlan.addDays(day, -1)
+  }
+  return n
+}
+
+function rowHS(item) {
+  const [kind, detail] = item.why
+  const sub = [TIER[item.tier] || item.tier, `${item.minutes} 分钟`, kind === 'new' ? '' : detail].filter(Boolean).join(' · ')
+  const pill = item.done ? '<span class="pill ok">完成</span>' : `<span class="pill ${kind}">${{ due: '复习', new: '新题', fill: '巩固' }[kind] || '巩固'}</span>`
+  return `<li><a class="trow${item.done ? ' done' : ''}" href="${HS_PAGE}#${encodeURIComponent(item.id)}">
+    <span class="check" aria-hidden="true">✓</span>
+    <span><span class="tname">${esc(item.title)}</span><span class="tsub">${esc(sub)}</span></span>
+    ${pill}<span class="sr-only">${item.done ? '今天已完成' : '还没做'}</span></a></li>`
+}
+
+function rowLC(item) {
+  const [kind, detail] = item.why
+  const sub = `${esc(item.cat)} · <span class="df-${item.diff}">${DIFF[item.diff] || '中等'}</span>${kind === 'new' ? '' : ` · ${esc(detail)}`}`
+  const pill = item.grade ? `<span class="pill ${item.grade}">${GRADE[item.grade]}</span>` : `<span class="pill ${kind}">${{ due: '复习', new: '新题', fill: '补齐' }[kind] || '补齐'}</span>`
+  return `<li><a class="trow${item.grade ? ' done' : ''}" href="${LC_PAGE}#${item.id}">
+    <span class="check" aria-hidden="true">✓</span>
+    <span><span class="tname"><span class="num">${item.id}</span>${esc(item.title)}</span><span class="tsub">${sub}</span></span>
+    ${pill}<span class="sr-only">${item.grade ? `今天已评：${GRADE[item.grade]}` : '还没复习'}</span></a></li>`
+}
+
+function renderList(kind, items, extra, row, emptyText) {
+  const doneN = items.filter((x) => (kind === 'hs' ? x.done : x.grade)).length
+  $(`${kind}-count`).textContent = `${doneN} / ${items.length}${extra ? ` · 另练 ${extra}` : ''}`
+  if (items.length === 0) {
+    $(`${kind}-body`).innerHTML = `<p class="empty">${emptyText}</p>`
+    return
+  }
+  const folded = !unfolded[kind] && items.length > FOLD_AT
+  const shown = folded ? items.slice(0, FOLD_AT) : items
+  const fold = items.length > FOLD_AT
+    ? `<button type="button" class="fold" data-fold="${kind}" aria-expanded="${!folded}">${folded ? `展开剩下的 ${items.length - FOLD_AT} 题` : '收起'}</button>`
+    : ''
+  $(`${kind}-body`).innerHTML = `<ol class="tlist">${shown.map(row).join('')}</ol>${fold}`
+}
+
+function renderHero(data) {
+  const d = DailyPlan.parseDay(data.t)
+  $('date').textContent = `${d.getMonth() + 1} 月 ${d.getDate()} 日 · 周${WEEK[d.getDay()]}`
+  const hsDone = data.hsItems.filter((x) => x.done).length
+  const lcDone = data.lcItems.filter((x) => x.grade).length
+  const total = data.hsItems.length + data.lcItems.length
+  const left = total - hsDone - lcDone
+  const minutesLeft = data.hsItems.filter((x) => !x.done).reduce((sum, x) => sum + (x.minutes || 0), 0)
+  if (total === 0) $('headline').textContent = '还没安排今天的任务'
+  else if (left === 0) $('headline').textContent = '今天的任务都完成了'
+  else $('headline').textContent = `今天还剩 ${left} 项`
+  $('summary').innerHTML = [
+    `<span><i class="dot hs" aria-hidden="true"></i>手撕 <b>${hsDone} / ${data.hsItems.length}</b></span>`,
+    `<span><i class="dot lc" aria-hidden="true"></i>力扣 <b>${lcDone} / ${data.lcItems.length}</b></span>`,
+    minutesLeft ? `<span>手撕还要约 <b>${minutesLeft}</b> 分钟</span>` : '',
+  ].join('')
+  const pct = (n) => (total ? `${(n / total) * 100}%` : '0%')
+  $('bar-hs').style.width = pct(hsDone)
+  $('bar-lc').style.width = pct(lcDone)
+  $('progress').setAttribute('aria-valuemax', String(total))
+  $('progress').setAttribute('aria-valuenow', String(hsDone + lcDone))
+
+  const nextHs = data.hsItems.find((x) => !x.done)
+  const nextLc = data.lcItems.find((x) => !x.grade)
+  let next = ''
+  if (nextHs) next = `<a class="btn primary" href="${HS_PAGE}#${encodeURIComponent(nextHs.id)}">下一项：手撕 · ${esc(nextHs.title)} →</a>`
+  else if (nextLc) next = `<a class="btn primary" href="${LC_PAGE}#${nextLc.id}">下一项：力扣 ${nextLc.id}. ${esc(nextLc.title)} →</a>`
+  else if (total > 0) next = '<span class="btn done">✓ 今天的都做完了</span>'
+  else next = '<span class="chip">在右边设一下每天几道。</span>'
+  $('next').innerHTML = next
+}
+
+function renderQuota(data) {
+  for (const kind of ['hs', 'lc']) {
+    const input = $(`q-${kind}`)
+    if (document.activeElement !== input) input.value = String(data.quota[kind])
+  }
+  const avg = data.hsCat.reduce((sum, x) => sum + (x[3] || 0), 0) / Math.max(1, data.hsCat.length)
+  $('q-hs-hint').textContent = data.quota.hs ? `共 ${data.hsCat.length} 道，每道约 ${Math.round(avg)} 分钟，每天约 ${Math.round(avg * data.quota.hs)} 分钟` : '设成 0 就是今天不练手撕题'
+  const due = data.lcCat.filter(([id]) => {
+    const c = data.srs.cards[id]
+    return c && c.due <= data.t
+  }).length
+  $('q-lc-hint').textContent = data.quota.lc ? `共 ${data.lcCat.length} 题，今天到期 ${due} 题` : '设成 0 就是今天不复习力扣题'
+}
+
+function renderCalendar(data, hsDays) {
+  const today = DailyPlan.parseDay(data.t)
+  const mondayOffset = (today.getDay() + 6) % 7
+  const start = DailyPlan.addDays(data.t, -(7 * (CAL_WEEKS - 1) + mondayOffset))
+  const cells = ['一', '二', '三', '四', '五', '六', '日'].map((w) => `<span class="wd" aria-hidden="true">${w}</span>`)
+  let full = 0
+  for (let i = 0; i < CAL_WEEKS * 7; i++) {
+    const day = DailyPlan.addDays(start, i)
+    const d = DailyPlan.parseDay(day)
+    const label = `${d.getMonth() + 1} 月 ${d.getDate()} 日`
+    if (day > data.t) {
+      cells.push(`<span class="cell future" aria-label="${label}">${d.getDate()}</span>`)
+      continue
+    }
+    const st = dayStats(day, data, hsDays)
+    if (st.state === 'full') full += 1
+    const parts = []
+    if (st.hs[1]) parts.push(`手撕 ${st.hs[0]}/${st.hs[1]}`)
+    else if (st.hsPracticed) parts.push(`手撕练了 ${st.hsPracticed} 道`)
+    if (st.lc[1]) parts.push(`力扣 ${st.lc[0]}/${st.lc[1]}`)
+    else if (st.lcPracticed) parts.push(`力扣复习了 ${st.lcPracticed} 题`)
+    const tip = `${label}：${parts.join('，') || '没练'}${st.state === 'full' ? '，全部完成' : ''}`
+    cells.push(`<span class="cell ${st.state}${day === data.t ? ' today' : ''}" title="${tip}" aria-label="${tip}">${d.getDate()}</span>`)
+  }
+  $('cal').innerHTML = cells.join('')
+  $('cal-sum').textContent = `完成 ${full} 天`
+}
+
+function renderMastery(data) {
+  const hsCounts = { master: 0, learning: 0, new: 0 }
+  for (const [id] of data.hsCat) {
+    const rec = data.records[id]
+    if (!rec || !Array.isArray(rec.history) || rec.history.length === 0) hsCounts.new += 1
+    else if ((rec.box || 0) >= MASTERED_BOX) hsCounts.master += 1
+    else hsCounts.learning += 1
+  }
+  const lvCounts = [0, 0, 0, 0, 0, 0]
+  for (const [id] of data.lcCat) lvCounts[lcLevel(data.srs.cards[id])] += 1
+  const bar = (parts, total) =>
+    `<div class="stack" role="img" aria-label="${parts.map(([name, n]) => `${name} ${n}`).join('，')}">${parts
+      .filter(([, n]) => n > 0)
+      .map(([, n, cls]) => `<span class="${cls}" style="width:${(n / total) * 100}%"></span>`)
+      .join('')}</div>`
+  const legend = (parts) => `<div class="mlegend">${parts.map(([name, n, cls]) => `<span><i class="${cls}"></i>${name}<b>${n}</b></span>`).join('')}</div>`
+  const hsParts = [['已掌握', hsCounts.master, 'c-master'], ['学习中', hsCounts.learning, 'c-learning'], ['新题', hsCounts.new, 'c-new']]
+  const lcParts = [5, 4, 3, 2, 1, 0].map((lv) => [LV[lv], lvCounts[lv], LV_CLASS[lv]])
+  $('mastery').innerHTML = `
+    <div class="mrow"><h3><i class="dot hs" aria-hidden="true"></i>手撕题 <small>${data.hsCat.length} 道 · 独立完成 ${MASTERED_BOX} 次算掌握</small></h3>${bar(hsParts, data.hsCat.length)}${legend(hsParts)}</div>
+    <div class="mrow"><h3><i class="dot lc" aria-hidden="true"></i>力扣 Hot 100 <small>${data.lcCat.length} 题 · 按最近一次打分和复习间隔</small></h3>${bar(lcParts, data.lcCat.length)}${legend(lcParts)}</div>`
+}
+
+let renderedDay = ''
+function render() {
+  const data = collect()
+  const hsDays = DailyPlan.hsReadDays()
+  renderedDay = data.t
+  renderHero(data)
+  renderQuota(data)
+  renderList('hs', data.hsItems, data.hsExtra, rowHS, '每天的手撕题设成了 0 道。想练的话，在上面把题量调高，或者直接打开练习场挑一道。')
+  renderList('lc', data.lcItems, data.lcExtra, rowLC, '每天的力扣题设成了 0 题。想复习的话，在上面把题量调高，或者直接打开 Hot 100 页面挑题。')
+  renderCalendar(data, hsDays)
+  renderMastery(data)
+  const s = streakOf(data, hsDays)
+  $('streak').innerHTML = s ? `连续完成 <b>${s}</b> 天` : '今天全部做完，就开始连续打卡'
+}
+
+function applyTheme(theme) {
+  if (theme) document.documentElement.dataset.theme = theme
+  else delete document.documentElement.dataset.theme
+  const dark = theme ? theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+  $('theme').innerHTML = dark ? ICON.sun : ICON.moon
+}
+
+function setQuota(kind, value) {
+  DailyPlan.setQuota({ [kind]: value })
+  render()
+}
+
+function init() {
+  applyTheme(DailyPlan.read('study:theme'))
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyTheme(document.documentElement.dataset.theme))
+  $('theme').addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme
+    const dark = current ? current === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+    const next = dark ? 'light' : 'dark'
+    DailyPlan.write('study:theme', next)
+    applyTheme(next)
+  })
+  if (!DailyPlan.write('study:probe', 1)) $('storage-warn').hidden = false
+
+  $('quota').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-step]')
+    if (!btn) return
+    const kind = btn.dataset.kind
+    setQuota(kind, DailyPlan.quota()[kind] + Number(btn.dataset.step))
+  })
+  $('quota').addEventListener('change', (e) => {
+    const input = e.target.closest('input[data-kind]')
+    if (!input) return
+    const n = Math.round(Number(input.value))
+    if (Number.isFinite(n)) setQuota(input.dataset.kind, Math.max(0, n))
+    else render()
+  })
+  $('quota').addEventListener('submit', (e) => e.preventDefault())
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-fold]')
+    if (!btn) return
+    unfolded[btn.dataset.fold] = !unfolded[btn.dataset.fold]
+    render()
+  })
+
+  // 在别的标签页里练完回来，或者跨过了零点，都重新算一遍
+  const KEYS = new Set([DailyPlan.QUOTA_KEY, DailyPlan.HS_DAYS_KEY, 'hs:records', 'lc-srs', 'study:catalog:hs', 'study:catalog:lc'])
+  window.addEventListener('storage', (e) => {
+    if (e.key === null || KEYS.has(e.key)) render()
+  })
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') render()
+  })
+  setInterval(() => {
+    if (todayKey() !== renderedDay) render()
+  }, 60 * 1000)
+  render()
+}
+
+init()
+</script>
+</body>
+</html>

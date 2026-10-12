@@ -106,6 +106,9 @@
 
   /* masthead */
   .masthead { display: grid; gap: 14px; max-width: 760px; }
+  .site-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
+  .site-nav a { color: var(--muted); text-decoration: none; }
+  .site-nav a:hover { color: var(--ink); text-decoration: underline; }
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -596,6 +599,97 @@
   .cu-result.bad b { color: var(--bad); }
   .cu-result.ok b { color: var(--ok); }
 
+  /* demo 12: flat */
+  .fl-input {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    white-space: nowrap;
+    overflow-x: auto;
+    font-variant-ligatures: none;
+  }
+  .fl-arr { border-radius: 5px; padding: 1px 2px; transition: background-color 0.2s, color 0.2s; }
+  .fl-el { border-radius: 4px; padding: 1px 3px; transition: background-color 0.2s, color 0.2s; }
+  .fl-input .on { color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .fl-input .done { color: var(--faint); }
+  .fl-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 560px) { .fl-cols { grid-template-columns: minmax(0, 1fr); } }
+  .fl-out { font-family: var(--font-mono); font-size: 14px; display: grid; gap: 4px; }
+  .fl-out .ok { color: var(--ok); }
+
+  /* demo 13: array API */
+  .ap-cells { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; min-height: 64px; }
+  .ap-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 560px) { .ap-cols { grid-template-columns: minmax(0, 1fr); } }
+  .cell.keep .cell-box { border-color: var(--ok); background: var(--ok-soft); }
+  .cell.drop .cell-box { opacity: 0.45; text-decoration: line-through; }
+  .cell.empty .cell-box { border-style: dashed; color: var(--faint); }
+  .ap-error { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--bad-soft); color: var(--bad); font-family: var(--font-mono); font-size: 13px; }
+
+  /* demo 14: big-number add */
+  .ba-wrap { overflow-x: auto; }
+  .ba-grid { display: grid; gap: 4px 2px; justify-content: start; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .ba-cell { width: 30px; height: 34px; display: grid; place-items: center; font-size: 18px; border-radius: 6px; transition: background-color 0.2s, color 0.2s; }
+  .ba-cell.carry { height: 18px; font-size: 12px; color: var(--accent); }
+  .ba-cell.op { color: var(--muted); }
+  .ba-cell.pad { color: var(--faint); }
+  .ba-cell.res { color: var(--ok); font-weight: 600; }
+  .ba-cell.cur { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .ba-line { grid-column: 1 / -1; height: 1.5px; background: var(--ink); opacity: 0.6; }
+  .ba-cols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 560px) { .ba-cols { grid-template-columns: minmax(0, 1fr); } }
+
+  /* B tier demos: shared bits */
+  .b-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 560px) { .b-cols { grid-template-columns: minmax(0, 1fr); } }
+  .mono-line {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    white-space: nowrap;
+    overflow-x: auto;
+    font-variant-ligatures: none;
+  }
+  .mono-line .on { color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); border-radius: 4px; }
+  .mono-line .off { color: var(--faint); text-decoration: line-through; }
+  .mono-line .pick { color: var(--ok); background: var(--ok-soft); border-radius: 4px; }
+  .mono-line .dim { color: var(--faint); }
+
+  /* 15 thousands */
+  .th-row { display: flex; align-items: flex-end; gap: 0; font-family: var(--font-mono); overflow-x: auto; padding-bottom: 2px; }
+  .th-d { width: 30px; height: 40px; display: grid; place-items: center; font-size: 22px; border-radius: 6px; }
+  .th-d.dec { color: var(--faint); }
+  .th-gap { width: 20px; display: grid; justify-items: center; gap: 2px; }
+  .th-gap .mk { height: 40px; width: 4px; border-radius: 2px; background: transparent; display: grid; place-items: center; font-size: 22px; }
+  .th-gap.yes .mk { width: auto; color: var(--ok); font-weight: 600; background: transparent; }
+  .th-gap.cur .mk { width: 4px; background: var(--accent); }
+  .th-gap.yes.cur .mk { width: auto; background: var(--ok-soft); }
+  .th-gap small { font-size: 10.5px; color: var(--faint); height: 14px; white-space: nowrap; }
+  .th-gap.cur small { color: var(--accent); }
+
+  /* 17 async add: reuse the pool gantt (.lane, .gbar, .axis) */
+  .aa-lanes { display: grid; gap: 6px; }
+
+  /* 19 shuffle */
+  .sh-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .sh-table th, .sh-table td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); }
+  .sh-table th:first-child, .sh-table td:first-child { text-align: left; }
+  .sh-table th { color: var(--muted); font-weight: 500; font-family: var(--font-sans); }
+  .sh-table td.bad { color: var(--bad); background: var(--bad-soft); }
+  .sh-table td.ok { color: var(--ok); }
+
+  /* 20 ajax */
+  .rs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rs-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; color: var(--faint); background: var(--surface); }
+  .rs-chip.done { color: var(--muted); border-color: var(--line); background: var(--surface-2); }
+  .rs-chip.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+
   @media (prefers-reduced-motion: reduce) {
     .ln.flash { animation: none; background: var(--code-flash); }
     * { transition: none !important; }
@@ -604,9 +698,10 @@
 
 <div class="page">
   <header class="masthead">
-    <div class="eyebrow">前端手写题 · 11 道</div>
+    <nav class="site-nav" aria-label="网站"><a href="../index.html">← 主页</a><a href="手撕练习场.html">手撕练习场</a><a href="力扣Hot100.html">力扣 Hot100</a></nav>
+    <div class="eyebrow">前端手写题 · 20 道</div>
     <h1>手写题慢放</h1>
-    <p class="lede">前 8 道是 S 档全部，第 9 到 11 道（instanceof、继承、柯里化）是 A 档的题。每道题左边是代码，右边是它运行时的样子。动画严格按左边代码的逻辑推进，第一题的时间轴直接调用页面里真实的防抖、节流函数。</p>
+    <p class="lede">前 8 道是 S 档全部，第 9 到 14 道是 A 档，第 15 到 20 道是 B 档。每道题左边是代码，右边是它运行时的样子。动画严格按左边代码的逻辑推进，第一题的时间轴直接调用页面里真实的防抖、节流函数。</p>
     <div class="legend">
       <span><i class="swatch on"></i>当前正在执行的行</span>
       <span><i class="swatch flash"></i>刚刚被执行过的行（闪一下）</span>
@@ -623,6 +718,15 @@
       <a href="#instanceof"><b>9</b>instanceof</a>
       <a href="#inherit"><b>10</b>继承</a>
       <a href="#curry"><b>11</b>柯里化</a>
+      <a href="#flat"><b>12</b>flat</a>
+      <a href="#array-api"><b>13</b>map / filter / reduce</a>
+      <a href="#big-add"><b>14</b>大数加法</a>
+      <a href="#thousands"><b>15</b>千分位</a>
+      <a href="#parse-query"><b>16</b>URL 解析</a>
+      <a href="#async-add"><b>17</b>异步加法</a>
+      <a href="#is-equal"><b>18</b>isEqual</a>
+      <a href="#shuffle"><b>19</b>洗牌</a>
+      <a href="#ajax"><b>20</b>Ajax</a>
     </nav>
   </header>
 
@@ -1059,6 +1163,349 @@
         <li><strong>判断的是收集到的总数：</strong><code>args.length &gt;= fn.length</code>，一次传几个都行；共用一个数组的写法，会把上一次的参数带进下一次。</li>
       </ul>
     </section>
+    <!-- 12 -->
+    <section class="demo" id="flat">
+      <div class="demo-head">
+        <span class="rank">12</span>
+        <h2>数组扁平化 flat：递归一层，depth 减 1</h2>
+        <p>同一个输入 [1, [2, [3, [4]]], 5]，分别用 depth = 1、2、Infinity 展开。看每遇到一个数组，是递归展开还是原样放进去，以及调用栈里每一层的 depth 和 result。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="flat"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="fl-mode" role="group" aria-label="展开深度">
+              <button type="button" data-value="1" aria-pressed="true">depth = 1</button>
+              <button type="button" data-value="2" aria-pressed="false">depth = 2</button>
+              <button type="button" data-value="Infinity" aria-pressed="false">depth = Infinity</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">输入（高亮的是正在处理的元素）</div><p class="fl-input" id="fl-input"></p></div>
+          <div class="fl-cols">
+            <div class="panel"><div class="panel-label">调用栈（最上面是当前这层）</div><div class="panel-body" id="fl-stack"></div></div>
+            <div class="panel"><div class="panel-label">结果</div><div class="fl-out" id="fl-out"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>遇到数组并且 depth &gt; 0 才递归：</strong>递归时传 depth - 1；depth 用完了，剩下的数组整个原样放进结果。</li>
+        <li><strong>每一层都有自己的 result：</strong>递归返回后用 <code>result.push(...sub)</code> 展开一层再放进来。</li>
+        <li><strong>Infinity - 1 还是 Infinity：</strong>所以"全部展开"不需要特殊处理。</li>
+      </ul>
+    </section>
+
+    <!-- 13 -->
+    <section class="demo" id="array-api">
+      <div class="demo-head">
+        <span class="rank">13</span>
+        <h2>map / filter / reduce：自己写 for 循环</h2>
+        <p>挂在 Array.prototype 上的普通函数，用 this 拿到数组，下标 i 一格格往后走，把 (item, index, array) 交给回调。重点看 reduce：传没传初始值，开始的下标不一样；空数组又没初始值时要抛错。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col">
+          <pre class="code" data-code="ap-map"></pre>
+          <pre class="code" data-code="ap-filter" hidden></pre>
+          <pre class="code" data-code="ap-reduce" hidden></pre>
+        </div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="ap-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="map" aria-pressed="true">map</button>
+              <button type="button" data-value="filter" aria-pressed="false">filter</button>
+              <button type="button" data-value="init" aria-pressed="false">reduce 有初始值</button>
+              <button type="button" data-value="noinit" aria-pressed="false">reduce 没初始值</button>
+              <button type="button" data-value="empty" aria-pressed="false">空数组</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">this（调用方法的数组）</div><div class="ap-cells" id="ap-src"></div></div>
+          <div class="ap-cols">
+            <div class="panel"><div class="panel-label">这一次调用回调</div><div class="panel-body" id="ap-call"></div></div>
+            <div class="panel"><div class="panel-label" id="ap-out-label">结果</div><div class="panel-body" id="ap-out"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>必须用普通 function：</strong>箭头函数没有自己的 this，拿不到调用方法的那个数组。</li>
+        <li><strong>reduce 用 <code>arguments.length</code> 判断有没有传初始值：</strong>没传就拿第一项当 acc，循环从下标 1 开始；传了就从 0 开始。</li>
+        <li><strong>空数组又没初始值要抛 TypeError：</strong>和原生一致。用 <code>initialValue === undefined</code> 判断会把"传了 undefined"误当成没传。</li>
+      </ul>
+    </section>
+
+    <!-- 14 -->
+    <section class="demo" id="big-add">
+      <div class="demo-head">
+        <span class="rank">14</span>
+        <h2>大数加法：模拟竖式，逐位相加</h2>
+        <p>两个指针从个位往前走，每一位算 x + y + carry，当前位写 sum % 10，进位是 Math.floor(sum / 10)。最后一个例子对比：为什么不能直接转成 Number 相加。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="big-add"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="ba-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="a" aria-pressed="true">987 + 65</button>
+              <button type="button" data-value="b" aria-pressed="false">999 + 1</button>
+              <button type="button" data-value="c" aria-pressed="false">9007199254740993 + 1</button>
+            </div>
+          </div>
+          <div class="ba-cols">
+            <div class="panel"><div class="panel-label">竖式（上面一行小字是进位）</div><div class="ba-wrap"><div class="ba-grid" id="ba-grid"></div></div></div>
+            <div class="panel"><div class="panel-label">变量</div><div class="panel-body" id="ba-vars"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>循环条件带上 carry：</strong>999 + 1 算完个、十、百位后还有进位 1，要再走一轮写出最高位。</li>
+        <li><strong>短的那个数走完了就当 0：</strong><code>i &gt;= 0 ? Number(a[i]) : 0</code>。</li>
+        <li><strong>为什么要用字符串：</strong>超过 2^53 - 1 的整数一转成 Number 就丢精度，按位相加每次只处理 0 到 9 的小数字，永远不会丢。</li>
+      </ul>
+    </section>
+    <!-- 15 -->
+    <section class="demo" id="thousands">
+      <div class="demo-head">
+        <span class="rank">15</span>
+        <h2>千分位：正则在每个空隙试一次</h2>
+        <p><code>/\B(?=(\d{3})+$)/g</code> 从左往右检查数字之间的每一个空隙：这里是不是"非单词边界"、后面到结尾还剩几位数字、是不是 3 的倍数。满足就在这个空隙插一个逗号。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="thousands"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="th-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="a" aria-pressed="true">1234567</button>
+              <button type="button" data-value="b" aria-pressed="false">-1234567.891</button>
+              <button type="button" data-value="c" aria-pressed="false">123456</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">整数部分（竖线是正在检查的空隙）</div><div class="th-row" id="th-row"></div></div>
+          <div class="b-cols">
+            <div class="panel"><div class="panel-label">变量</div><div class="panel-body" id="th-vars"></div></div>
+            <div class="panel"><div class="panel-label">结果</div><p class="mono-line" id="th-res"></p></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>只处理整数部分：</strong>先 <code>split('.')</code>，整个字符串一起套正则，小数部分也会被加上逗号。</li>
+        <li><strong><code>\B</code> 保证开头和负号后面不插：</strong>第一位数字前面、负号和数字之间都是单词边界。</li>
+        <li><strong><code>(?=(\d{3})+$)</code> 是先行断言：</strong>只检查后面剩下的数字个数是不是 3 的倍数，不消耗字符，所以逗号是插在"位置"上的。</li>
+      </ul>
+    </section>
+
+    <!-- 16 -->
+    <section class="demo" id="parse-query">
+      <div class="demo-head">
+        <span class="rank">16</span>
+        <h2>URL 解析：去 hash、取 query、拆参数</h2>
+        <p>用一个包含了几种情况的 URL：中文要解码、同名参数 x 出现两次、debug 没有等号、t 的值里还有等号、最后带着 #hash。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="parse-query"></pre></div>
+        <div class="stage">
+          <div class="panel"><div class="panel-label">URL</div><p class="mono-line" id="qs-url"></p></div>
+          <div class="panel"><div class="panel-label">按 &amp; 拆出来的每一对</div><div class="queue-row" id="qs-pairs"></div></div>
+          <div class="b-cols">
+            <div class="panel"><div class="panel-label">当前这一对</div><div class="panel-body" id="qs-pair"></div></div>
+            <div class="panel"><div class="panel-label">result</div><div class="panel-body" id="qs-result"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>先去掉 # 后面，再取 ? 后面：</strong>顺序反了，hash 里的 ? 也会被当成查询参数。</li>
+        <li><strong>按第一个 = 拆：</strong>用 <code>indexOf('=')</code>，值里还有等号也不会被截断；没有等号的参数，值记为 true。</li>
+        <li><strong>同名参数用 <code>[].concat(old, value)</code> 合并：</strong>第二次出现时，旧值和新值变成一个数组。</li>
+      </ul>
+    </section>
+
+    <!-- 17 -->
+    <section class="demo" id="async-add">
+      <div class="demo-head">
+        <span class="rank">17</span>
+        <h2>异步加法：串行和并行同时开跑</h2>
+        <p>8 个数求和，每次 asyncAdd 耗时 500ms。串行要一个接一个做 7 次加法；并行两两一组同时算，每一轮数量减半，3 轮就算完。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="async-add"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <button class="btn primary" type="button" id="aa-play">播放</button>
+            <button class="btn" type="button" id="aa-reset">重置</button>
+            <span class="spacer"></span>
+            <span class="clock" id="aa-clock">t = 0ms</span>
+          </div>
+          <div class="aa-lanes" id="aa-lanes"></div>
+          <div class="axis" id="aa-axis"></div>
+          <div class="b-cols">
+            <div class="panel"><div class="panel-label">串行 sumSerial</div><div class="panel-body" id="aa-serial"></div></div>
+            <div class="panel"><div class="panel-label">并行 sumParallel</div><div class="panel-body" id="aa-par"></div></div>
+          </div>
+          <p class="note" id="aa-note"></p>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>串行：</strong>n 个数要 n - 1 次加法，每次都等上一次，耗时 (n - 1) × 500ms。</li>
+        <li><strong>并行：</strong>每一轮用 Promise.all 同时算，数量减半，轮数是 ⌈log₂ n⌉；8 个数 3 轮，10 个数 4 轮。</li>
+        <li><strong>落单的数直接进下一轮：</strong>奇数个时不用浪费一次 + 0。</li>
+      </ul>
+    </section>
+
+    <!-- 18 -->
+    <section class="demo" id="is-equal">
+      <div class="demo-head">
+        <span class="rank">18</span>
+        <h2>isEqual：一层层递归，哪一步返回 false</h2>
+        <p>左边两个值里高亮的是正在比较的位置。切换例子，看嵌套对象怎样逐个键递归比较，以及三个常见的坑分别在哪一行被拦下。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="is-equal"></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="ie-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="deep" aria-pressed="true">嵌套对象（相等）</button>
+              <button type="button" data-value="arrobj" aria-pressed="false">[] 和 {}</button>
+              <button type="button" data-value="keys" aria-pressed="false">键名不同</button>
+              <button type="button" data-value="null" aria-pressed="false">null</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">a</div><p class="mono-line" id="ie-a"></p></div>
+          <div class="panel"><div class="panel-label">b</div><p class="mono-line" id="ie-b"></p></div>
+          <div class="panel"><div class="panel-label">调用栈（最上面是当前这层）</div><div class="panel-body" id="ie-stack"></div></div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>先排除 null：</strong><code>typeof null === 'object'</code>，不排除的话 <code>Object.keys(null)</code> 直接报错。</li>
+        <li><strong>数组和对象要分开：</strong><code>[]</code> 和 <code>{}</code> 的键数都是 0，只比键数会误判成相等。</li>
+        <li><strong>键数相同还不够：</strong>每个键都要确认 b 自己也有，<code>{ a: undefined }</code> 和 <code>{ b: undefined }</code> 才不会被判成相等。</li>
+      </ul>
+    </section>
+
+    <!-- 19 -->
+    <section class="demo" id="shuffle">
+      <div class="demo-head">
+        <span class="rank">19</span>
+        <h2>洗牌：Fisher–Yates 从后往前定位置</h2>
+        <p>每次在还没确定的范围 [0, i] 里随机挑一个，换到第 i 位，第 i 位就定下来了（绿色）。为了演示可以重复，这里的随机数是固定的；下面的统计用的是真随机。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="shuffle"></pre></div>
+        <div class="stage">
+          <div class="panel"><div class="panel-label">arr</div><div class="ap-cells" id="sh-cells"></div></div>
+          <div class="panel">
+            <div class="panel-label">打乱 [1, 2, 3] 三万次，6 种排列各出现几次（理想是各 16.7%）</div>
+            <div class="controls"><button class="btn" type="button" id="sh-run">在浏览器里统计一次</button><span class="label" id="sh-run-note"></span></div>
+            <div class="ba-wrap"><table class="sh-table" id="sh-table"></table></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>j 的范围是 [0, i]，包含 i 本身：</strong>可以不换。范围取整个数组 [0, n) 时，结果就不均匀了。</li>
+        <li><strong>每种排列的概率都是 1/n!：</strong>第一步 n 种选择，第二步 n - 1 种……Math.random 只调用 n - 1 次。</li>
+        <li><strong><code>sort(() =&gt; Math.random() - 0.5)</code> 不均匀：</strong>统计表里一眼就能看出来。</li>
+      </ul>
+    </section>
+
+    <!-- 20 -->
+    <section class="demo" id="ajax">
+      <div class="demo-head">
+        <span class="rank">20</span>
+        <h2>Ajax：readyState 走到 4 才决定 resolve 还是 reject</h2>
+        <p>XMLHttpRequest 从 0 走到 4，每变一次就触发一次 readystatechange。切换例子，看成功、404、网络错误分别走哪一行；最后一个是原文档在回调里 throw 的写法，看 Promise 为什么永远等不到结果。</p>
+      </div>
+      <div class="demo-body">
+        <div class="code-col"><pre class="code" data-code="ajax"></pre><pre class="code" data-code="ajax-bad" hidden></pre></div>
+        <div class="stage">
+          <div class="controls">
+            <div class="seg" id="aj-mode" role="group" aria-label="选择例子">
+              <button type="button" data-value="ok" aria-pressed="true">200 成功</button>
+              <button type="button" data-value="nf" aria-pressed="false">404</button>
+              <button type="button" data-value="net" aria-pressed="false">网络错误</button>
+              <button type="button" data-value="bad" aria-pressed="false">回调里 throw（有 bug）</button>
+            </div>
+          </div>
+          <div class="panel"><div class="panel-label">readyState</div><div class="rs-chips" id="aj-rs"></div></div>
+          <div class="b-cols">
+            <div class="panel"><div class="panel-label">xhr</div><div class="panel-body" id="aj-xhr"></div></div>
+            <div class="panel"><div class="panel-label">Promise 和触发过的事件</div><div class="panel-body" id="aj-promise"></div></div>
+          </div>
+          <p class="note" data-note></p>
+          <div class="step-bar">
+            <button class="btn" type="button" data-act="reset">重置</button>
+            <button class="btn" type="button" data-act="prev">上一步</button>
+            <button class="btn primary" type="button" data-act="play" aria-pressed="false">自动播放</button>
+            <button class="btn" type="button" data-act="next">下一步</button>
+            <span class="spacer"></span>
+            <span class="counter" data-counter></span>
+          </div>
+        </div>
+      </div>
+      <ul class="takeaways">
+        <li><strong>readyState：</strong>0 还没 open，1 已 open，2 收到响应头，3 正在接收响应体，4 完成；只在 4 时判断结果。</li>
+        <li><strong>成功看 200–299，网络错误交给 onerror：</strong>网络错误时 status 是 0，readystatechange 照样会触发，然后才是 error 事件。</li>
+        <li><strong>回调里要 reject，不能 throw：</strong>回调是浏览器在事件循环里调用的，不在 Promise 的 executor 里，throw 出去的错误外面的 .catch 接不到。</li>
+      </ul>
+    </section>
   </main>
 </div>
 
@@ -1327,6 +1774,209 @@ function curry(fn) {
 /*@c1*/const add10 = sum3(10)
 /*@c2*/add10(1)(1)            // 12
 /*@c3*/add10(2)(2)            // 期望 14，实际报错
+</script>
+
+<script type="text/plain" id="src-flat">
+function flat(arr, depth = 1) {
+/*@res*/  const result = []
+/*@loop*/  for (const item of arr) {
+/*@check*/    if (Array.isArray(item) && depth > 0) {
+/*@rec*/      result.push(...flat(item, depth - 1))  // 还能展开：递归，depth - 1
+    } else {
+/*@push*/      result.push(item)                       // 不展开：原样放进去
+    }
+  }
+/*@ret*/  return result
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-ap-map">
+Array.prototype.myMap = function (callback, thisArg) {
+/*@new*/  const result = new Array(this.length)
+/*@loop*/  for (let i = 0; i < this.length; i++) {
+/*@cb*/    if (i in this) result[i] = callback.call(thisArg, this[i], i, this)
+  }
+/*@ret*/  return result
+}
+
+/*@call*/[1, 2, 3].myMap((x) => x * 2)              // [2, 4, 6]
+</script>
+
+<script type="text/plain" id="src-ap-filter">
+Array.prototype.myFilter = function (callback, thisArg) {
+/*@new*/  const result = []
+/*@loop*/  for (let i = 0; i < this.length; i++) {
+/*@cb*/    if (i in this && callback.call(thisArg, this[i], i, this)) {
+/*@push*/      result.push(this[i])
+    }
+  }
+/*@ret*/  return result
+}
+
+/*@call*/[1, 2, 3, 4].myFilter((x) => x % 2 === 1)  // [1, 3]
+</script>
+
+<script type="text/plain" id="src-ap-reduce">
+Array.prototype.myReduce = function (callback, initialValue) {
+/*@vars*/  let i = 0
+  let acc
+/*@argc*/  if (arguments.length >= 2) {
+/*@init*/    acc = initialValue              // 传了初始值（哪怕是 undefined）
+  } else {
+/*@skip*/    while (i < this.length && !(i in this)) i++
+/*@empty*/    if (i >= this.length) throw new TypeError('Reduce of empty array with no initial value')
+/*@first*/    acc = this[i]                    // 没传：第一项当初始值
+/*@inc*/    i++
+  }
+/*@loop*/  for (; i < this.length; i++) {
+/*@cb*/    if (i in this) acc = callback(acc, this[i], i, this)
+  }
+/*@ret*/  return acc
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-big-add">
+function addStrings(a, b) {
+/*@init*/  let i = a.length - 1
+/*@init2*/  let j = b.length - 1
+/*@init3*/  let carry = 0                          // 进位
+/*@init4*/  const digits = []
+/*@loop*/  while (i >= 0 || j >= 0 || carry > 0) {
+/*@xy*/    const x = i >= 0 ? Number(a[i]) : 0    // 短的走完了就当 0
+/*@xy2*/    const y = j >= 0 ? Number(b[j]) : 0
+/*@sum*/    const sum = x + y + carry
+/*@digit*/    digits.push(sum % 10)                 // 当前位
+/*@carry*/    carry = Math.floor(sum / 10)
+/*@move*/    i--
+/*@move2*/    j--
+  }
+/*@ret*/  return digits.reverse().join('')
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-thousands">
+function formatThousands(num) {
+/*@split*/  const [intPart, decPart] = String(num).split('.')
+/*@re*/  const grouped = intPart.replace(/\B(?=(\d{3})+$)/g, ',')
+/*@ret*/  return decPart === undefined ? grouped : `${grouped}.${decPart}`
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-parse-query">
+function parseQuery(url) {
+/*@hash*/  const noHash = url.split('#')[0]          // 先去掉 # 后面
+/*@query*/  const query = noHash.split('?')[1] ?? ''    // 再取 ? 后面
+  const result = {}
+/*@pairs*/  for (const pair of query.split('&')) {
+/*@eq*/    const eq = pair.indexOf('=')                // 第一个 =
+/*@kv*/    const key = decode(eq === -1 ? pair : pair.slice(0, eq))
+/*@kv2*/    const value = eq === -1 ? true : decode(pair.slice(eq + 1))
+/*@dup*/    if (Object.hasOwn(result, key)) result[key] = [].concat(result[key], value)
+/*@set*/    else result[key] = value
+  }
+/*@ret*/  return result
+}
+const decode = (s) => decodeURIComponent(s.replace(/\+/g, ' '))
+
+/*@call*/parseQuery('https://a.com/p?name=%E4%BD%A0&x=1&x=2&debug&t=a=b#top')
+</script>
+
+<script type="text/plain" id="src-async-add">
+// asyncAdd(a, b, cb)：每次 500ms
+const addAsync = (a, b) => new Promise((resolve) => asyncAdd(a, b, (err, sum) => resolve(sum)))
+
+async function sumSerial(...nums) {
+  let total = nums[0]
+/*@s-loop*/  for (let i = 1; i < nums.length; i++) {
+/*@s-await*/    total = await addAsync(total, nums[i])  // 等上一次算完
+  }
+/*@s-ret*/  return total
+}
+
+async function sumParallel(...nums) {
+/*@p-base*/  if (nums.length <= 1) return nums[0] ?? 0
+  const round = []
+/*@p-loop*/  for (let i = 0; i < nums.length; i += 2) {
+/*@p-push*/    round.push(i + 1 < nums.length ? addAsync(nums[i], nums[i + 1]) : nums[i])
+  }
+/*@p-all*/  return sumParallel(...(await Promise.all(round))) // 一轮算完进下一轮
+}
+
+/*@call*/sumSerial(1, 2, 3, 4, 5, 6, 7, 8)     // 36
+/*@call2*/sumParallel(1, 2, 3, 4, 5, 6, 7, 8)   // 36
+</script>
+
+<script type="text/plain" id="src-is-equal">
+function isEqual(a, b) {
+/*@same*/  if (a === b || (Number.isNaN(a) && Number.isNaN(b))) return true
+/*@obj*/  const bothObjects = a !== null && b !== null &&
+/*@obj2*/    typeof a === 'object' && typeof b === 'object'
+/*@objret*/  if (!bothObjects) return false
+/*@arr*/  if (Array.isArray(a) !== Array.isArray(b)) return false
+/*@keys*/  const keysA = Object.keys(a)
+/*@keys2*/  const keysB = Object.keys(b)
+/*@len*/  if (keysA.length !== keysB.length) return false
+/*@every*/  return keysA.every((key) =>
+/*@every2*/    Object.hasOwn(b, key) && isEqual(a[key], b[key]))
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-shuffle">
+function shuffle(arr) {
+/*@loop*/  for (let i = arr.length - 1; i > 0; i--) {
+/*@pick*/    const j = Math.floor(Math.random() * (i + 1)); // [0, i]
+/*@swap*/    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+/*@ret*/  return arr
+}
+
+/*@call*/shuffle(['A', 'B', 'C', 'D', 'E', 'F'])
+</script>
+
+<script type="text/plain" id="src-ajax">
+function request({ method = 'GET', url, data }) {
+/*@promise*/  return new Promise((resolve, reject) => {
+/*@new*/    const xhr = new XMLHttpRequest()
+/*@open*/    xhr.open(method, url, true)
+/*@ctype*/    if (data !== undefined) xhr.setRequestHeader('Content-Type', 'application/json')
+/*@onrsc*/    xhr.onreadystatechange = () => {
+/*@rs-check*/      if (xhr.readyState !== 4) return          // 还没结束
+/*@ok*/      if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.responseText)
+/*@fail*/      else if (xhr.status !== 0) reject(new Error(`Request failed with status ${xhr.status}`))
+    }
+/*@onerr*/    xhr.onerror = () => reject(new Error('Network error'))
+/*@send*/    xhr.send(data === undefined ? null : JSON.stringify(data))
+  })
+}
+
+/*@call*/__CALL__
+</script>
+
+<script type="text/plain" id="src-ajax-bad">
+function request({ method = 'GET', url }) {
+/*@promise*/  return new Promise((resolve) => {
+/*@new*/    const xhr = new XMLHttpRequest()
+/*@open*/    xhr.open(method, url, true)
+/*@onrsc*/    xhr.onreadystatechange = function () {
+/*@rs-check*/      if (this.readyState !== 4) return
+/*@ok*/      if (this.status === 200) resolve(this.response)
+/*@throw*/      else throw new Error(xhr.statusText)   // ❌ 在回调里 throw
+    }
+/*@send*/    xhr.send()
+  })
+}
+
+/*@call*/request({ url: '/missing' }).catch((e) => console.log('接住了', e))
 </script>
 
 <script>
@@ -3265,6 +3915,1019 @@ function curry(fn) {
     stepper.rebuild()
   }
 
+  /* ---------- 12. flat ---------- */
+  function initFlat() {
+    const root = $('#flat')
+    const pre = $('pre', root)
+    const inputEl = $('#fl-input')
+    const stackEl = $('#fl-stack')
+    const outEl = $('#fl-out')
+    const INPUT = [1, [2, [3, [4]]], 5]
+    let mode = '1'
+    let code = null
+    const depthOf = () => (mode === 'Infinity' ? Infinity : Number(mode))
+    const fmtDepth = (d) => (d === Infinity ? 'Infinity' : String(d))
+    const show = (v) => (Array.isArray(v) ? `[${v.map(show).join(', ')}]` : String(v))
+    const key = (path) => path.join('.')
+    const makeCode = () => createCode(pre, 'src-flat', (text) => text.replace('__CALL__', `flat(${show(INPUT)}, ${mode})`))
+
+    function buildSteps() {
+      const steps = []
+      const stack = []
+      const done = new Set()
+      const snap = (lines, note, extra = {}) => {
+        steps.push({
+          lines,
+          note,
+          stack: stack.map((f) => ({ arr: f.arr, depth: f.depth, result: f.result.slice() })),
+          done: new Set(done),
+          ...extra,
+        })
+      }
+      function run(arr, depth, path) {
+        const frame = { arr, depth, result: [] }
+        stack.push(frame)
+        const enterNote = stack.length === 1
+          ? `调用 <code>flat(${show(arr)}, ${fmtDepth(depth)})</code>：先新建一个空数组 result。`
+          : `递归进入 <code>flat(${show(arr)}, ${fmtDepth(depth)})</code>：depth 减了 1${depth === Infinity ? '（Infinity - 1 还是 Infinity）' : ''}，这一层也有自己的空 result。`
+        snap(['res'], enterNote, { cur: path.length ? key(path) : null })
+        arr.forEach((item, i) => {
+          const pth = [...path, i]
+          const k = key(pth)
+          if (Array.isArray(item) && depth > 0) {
+            snap(['loop', 'check'], `<code>${show(item)}</code> 是数组，depth = ${fmtDepth(depth)} &gt; 0，还能展开 → 递归。`, { cur: k })
+            const sub = run(item, depth - 1, pth)
+            frame.result.push(...sub)
+            done.add(k)
+            snap(['rec'], `递归返回 <code>${show(sub)}</code>，用 <code>...</code> 展开后 push 进这一层的 result。`, { cur: k, fresh: true })
+          } else if (Array.isArray(item)) {
+            frame.result.push(item)
+            done.add(k)
+            snap(['loop', 'check', 'push'], `<code>${show(item)}</code> 是数组，但 depth 已经是 0，不再展开，<b>整个原样</b> push 进 result。`, { cur: k, fresh: true })
+          } else {
+            frame.result.push(item)
+            done.add(k)
+            snap(['loop', 'check', 'push'], `<code>${item}</code> 不是数组，直接 push。`, { cur: k, fresh: true })
+          }
+        })
+        const isTop = stack.length === 1
+        snap(['ret'], isTop
+          ? `遍历完了，返回最终结果 <code>${show(frame.result)}</code>。`
+          : `这一层遍历完，返回 <code>${show(frame.result)}</code> 给上一层。`, { cur: path.length ? key(path) : null, finished: isTop })
+        stack.pop()
+        return frame.result
+      }
+      run(INPUT, depthOf(), [])
+      return steps
+    }
+
+    function renderValue(value, path, step) {
+      const k = key(path)
+      let cls = ''
+      if (step.cur === k) cls = 'on'
+      else if ([...step.done].some((d) => k === d || k.startsWith(`${d}.`))) cls = 'done'
+      if (Array.isArray(value)) {
+        const inner = value.map((v, i) => renderValue(v, [...path, i], step)).join(', ')
+        return path.length ? `<span class="fl-arr ${cls}">[${inner}]</span>` : `[${inner}]`
+      }
+      return `<span class="fl-el ${cls}">${esc(value)}</span>`
+    }
+
+    function render(step) {
+      inputEl.innerHTML = renderValue(INPUT, [], step)
+      const frames = step.stack.map((f, i) => {
+        const top = i === step.stack.length - 1
+        return boxHTML({
+          title: `flat(…, depth = ${fmtDepth(f.depth)})`,
+          sub: top ? '当前这层' : '',
+          tone: top ? 'focus' : '',
+          rows: [['arr', esc(show(f.arr))], ['result', esc(show(f.result)), top && step.fresh ? 'new' : '']],
+        })
+      }).reverse()
+      stackEl.innerHTML = frames.join('')
+      if (step.finished) {
+        const mine = step.stack[0].result
+        const native = INPUT.flat(depthOf())
+        const same = show(mine) === show(native)
+        outEl.innerHTML = `<div>flat → <b>${esc(show(mine))}</b></div><div class="${same ? 'ok' : ''}">原生 arr.flat(${esc(mode)}) → ${esc(show(native))} ${same ? '✓ 一致' : ''}</div>`
+      } else {
+        outEl.innerHTML = '<p class="empty-note">还没返回</p>'
+      }
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1500 })
+    segmented($('#fl-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 13. map / filter / reduce ---------- */
+  function initArrayApi() {
+    const root = $('#array-api')
+    const pres = {
+      map: $('pre[data-code="ap-map"]', root),
+      filter: $('pre[data-code="ap-filter"]', root),
+      reduce: $('pre[data-code="ap-reduce"]', root),
+    }
+    const srcEl = $('#ap-src')
+    const callEl = $('#ap-call')
+    const outEl = $('#ap-out')
+    const outLabel = $('#ap-out-label')
+    const CALLS = {
+      init: '[1, 2, 3].myReduce((acc, x) => acc + x, 10)  // 16',
+      noinit: '[1, 2, 3].myReduce((acc, x) => acc + x)      // 6',
+      empty: '[].myReduce((acc, x) => acc + x)             // TypeError',
+    }
+    let mode = 'map'
+    const codes = {
+      map: createCode(pres.map, 'src-ap-map'),
+      filter: createCode(pres.filter, 'src-ap-filter'),
+      reduce: null,
+    }
+    const kind = () => (mode === 'map' || mode === 'filter' ? mode : 'reduce')
+    const makeReduce = () => createCode(pres.reduce, 'src-ap-reduce', (text) => text.replace('__CALL__', CALLS[mode] || CALLS.init))
+
+    function stepsFor() {
+      if (mode === 'map') {
+        const arr = [1, 2, 3]
+        const steps = [
+          { lines: ['call'], arr, ptr: null, out: null, note: '<code>[1, 2, 3].myMap(fn)</code>：方法里的 <code>this</code> 就是 [1, 2, 3]。必须用普通 function 定义 myMap，箭头函数拿不到这个 this。' },
+          { lines: ['new'], arr, ptr: null, out: [null, null, null], note: '<code>new Array(this.length)</code>：先开好 3 个空位，第 i 项的结果就放在 result[i]。' },
+        ]
+        const out = [null, null, null]
+        arr.forEach((x, i) => {
+          out[i] = x * 2
+          steps.push({ lines: ['loop', 'cb'], arr, ptr: i, out: out.slice(), fresh: i, call: [['item', String(x)], ['index', String(i)], ['array', '[1, 2, 3]'], ['返回', String(x * 2), 'new']], note: `i = ${i}：<code>${i} in this</code> 为 true，调用 <code>callback(${x}, ${i}, arr)</code> 得到 ${x * 2}，存进 result[${i}]。` })
+        })
+        steps.push({ lines: ['ret'], arr, ptr: null, out: out.slice(), done: true, note: '返回新数组 <b>[2, 4, 6]</b>，原数组没有变。<code>i in this</code> 是为了跳过稀疏数组的空位，和原生一致。' })
+        return steps
+      }
+      if (mode === 'filter') {
+        const arr = [1, 2, 3, 4]
+        const steps = [
+          { lines: ['call'], arr, ptr: null, out: null, note: '<code>[1, 2, 3, 4].myFilter(x =&gt; x % 2 === 1)</code>：只保留奇数。' },
+          { lines: ['new'], arr, ptr: null, out: [], note: 'filter 的结果长度事先不知道，所以从空数组开始，用 push 往里加。' },
+        ]
+        const out = []
+        const marks = {}
+        arr.forEach((x, i) => {
+          const keep = x % 2 === 1
+          if (keep) out.push(x)
+          marks[i] = keep ? 'keep' : 'drop'
+          steps.push({ lines: keep ? ['loop', 'cb', 'push'] : ['loop', 'cb'], arr, ptr: i, out: out.slice(), marks: { ...marks }, call: [['item', String(x)], ['index', String(i)], ['返回', String(keep), keep ? 'new' : 'bad']], note: keep ? `i = ${i}：回调返回 true，把 ${x} push 进 result。` : `i = ${i}：回调返回 false，${x} 被过滤掉。` })
+        })
+        steps.push({ lines: ['ret'], arr, ptr: null, out: out.slice(), marks: { ...marks }, done: true, note: '返回 <b>[1, 3]</b>。和 map 一样要支持 thisArg：用 <code>callback.call(thisArg, …)</code> 调用。' })
+        return steps
+      }
+      if (mode === 'empty') {
+        return [
+          { lines: ['call'], arr: [], ptr: null, acc: null, note: '<code>[].myReduce(fn)</code>：空数组，而且没有传初始值。' },
+          { lines: ['vars', 'argc'], arr: [], ptr: null, acc: null, argc: 1, note: '<code>arguments.length</code> 是 1：只传了 callback，没传初始值，走 else 分支。' },
+          { lines: ['skip'], arr: [], ptr: null, acc: null, argc: 1, note: '想找第一个有元素的下标：i = 0，而数组长度是 0，while 一次都不执行。' },
+          { lines: ['empty'], arr: [], ptr: null, acc: null, argc: 1, error: "TypeError: Reduce of empty array with no initial value", note: '<code>i &gt;= this.length</code>：没有任何元素能当初始值，<b>抛出 TypeError</b>，和原生 <code>[].reduce(fn)</code> 一样。如果漏了这一步，会悄悄返回 undefined。' },
+        ]
+      }
+      const arr = [1, 2, 3]
+      const withInit = mode === 'init'
+      const steps = [
+        { lines: ['call'], arr, ptr: null, acc: null, note: withInit ? '<code>myReduce(fn, 10)</code>：传了初始值 10。回调收到 4 个参数：(acc, item, index, array)。' : '<code>myReduce(fn)</code>：<b>没传</b>初始值。' },
+        { lines: ['vars', 'argc'], arr, ptr: null, acc: null, argc: withInit ? 2 : 1, note: withInit ? '<code>arguments.length</code> 是 2：传了初始值。要用 arguments.length 判断，因为调用方也可能明确传一个 undefined。' : '<code>arguments.length</code> 是 1：没传初始值，走 else 分支。' },
+      ]
+      let acc
+      let start
+      if (withInit) {
+        acc = 10
+        start = 0
+        steps.push({ lines: ['init'], arr, ptr: null, acc: '10', accFresh: true, argc: 2, note: 'acc = 10，循环从下标 0 开始。' })
+      } else {
+        acc = 1
+        start = 1
+        steps.push({ lines: ['skip', 'empty'], arr, ptr: 0, acc: null, argc: 1, note: '下标 0 上有元素，不用跳过空位；数组也不是空的，不会抛错。' })
+        steps.push({ lines: ['first', 'inc'], arr, ptr: 0, acc: '1', accFresh: true, used: [0], argc: 1, note: '<b>第一项当初始值</b>：acc = this[0] = 1，然后 i++，循环从下标 1 开始。' })
+      }
+      for (let i = start; i < arr.length; i++) {
+        const next = acc + arr[i]
+        steps.push({ lines: ['loop', 'cb'], arr, ptr: i, acc: String(next), accFresh: true, used: withInit ? undefined : [0], argc: withInit ? 2 : 1, call: [['acc', String(acc)], ['item', String(arr[i])], ['index', String(i)], ['返回（新的 acc）', String(next), 'new']], note: `i = ${i}：<code>acc = callback(${acc}, ${arr[i]}, ${i}, arr)</code> = ${next}。` })
+        acc = next
+      }
+      steps.push({ lines: ['ret'], arr, ptr: null, acc: String(acc), argc: withInit ? 2 : 1, used: withInit ? undefined : [0], done: true, note: withInit ? '返回 <b>16</b>。传了初始值时，回调被调用了 3 次，下标是 0、1、2。' : '返回 <b>6</b>。没传初始值时，回调只被调用了 2 次，下标是 1、2：第 0 项直接当了初始值。' })
+      return steps
+    }
+
+    function cellsHTML(arr, step) {
+      if (!arr.length) return '<p class="empty-note">（空数组，length = 0）</p>'
+      return arr.map((v, i) => {
+        const cls = ['cell']
+        if (step.ptr === i) cls.push('ptr')
+        if (step.marks && step.marks[i]) cls.push(step.marks[i])
+        if (step.used && step.used.includes(i)) cls.push('hot')
+        return `<div class="${cls.join(' ')}"><span class="ptr-mark">${step.ptr === i ? `i = ${i} ↓` : ''}</span><span class="cell-box">${esc(v)}</span><small>[${i}]</small></div>`
+      }).join('')
+    }
+
+    function render(step) {
+      srcEl.innerHTML = cellsHTML(step.arr, step)
+      callEl.innerHTML = step.call
+        ? boxHTML({ title: kind() === 'reduce' ? 'callback(acc, item, index, array)' : 'callback(item, index, array)', rows: step.call })
+        : '<p class="empty-note">（还没有调用回调）</p>'
+      if (kind() === 'reduce') {
+        outLabel.textContent = 'acc 和 arguments.length'
+        const rows = [['arguments.length', step.argc ? String(step.argc) : '—', step.argc ? 'hot' : ''], ['acc', step.acc ?? '—', step.accFresh ? 'new' : '']]
+        if (step.done) rows.push(['返回值', step.acc, 'new'])
+        outEl.innerHTML = boxHTML({ title: 'myReduce 的变量', rows }) + (step.error ? `<p class="ap-error">${esc(step.error)}</p>` : '')
+      } else {
+        outLabel.textContent = 'result'
+        if (!step.out) {
+          outEl.innerHTML = '<p class="empty-note">还没创建 result</p>'
+        } else {
+          const cells = step.out.length
+            ? step.out.map((v, i) => `<div class="cell ${v === null ? 'empty' : step.fresh === i ? 'new' : ''}"><span class="ptr-mark"></span><span class="cell-box">${v === null ? '空位' : esc(v)}</span><small>[${i}]</small></div>`).join('')
+            : '<p class="empty-note">[]（空数组）</p>'
+          outEl.innerHTML = `<div class="ap-cells">${cells}</div>${step.done ? '<p class="empty-note">原数组没有被修改</p>' : ''}`
+        }
+      }
+    }
+
+    const stepper = createStepper(root, {
+      build: stepsFor,
+      render,
+      getCode: () => codes[kind()],
+      interval: 1700,
+    })
+    segmented($('#ap-mode'), (v) => {
+      mode = v
+      const k = kind()
+      if (k === 'reduce') codes.reduce = makeReduce()
+      for (const name of Object.keys(pres)) pres[name].hidden = name !== k
+      stepper.rebuild()
+    })
+    stepper.rebuild()
+  }
+
+  /* ---------- 14. big-number add ---------- */
+  function initBigAdd() {
+    const root = $('#big-add')
+    const pre = $('pre', root)
+    const gridEl = $('#ba-grid')
+    const varsEl = $('#ba-vars')
+    const MODELS = {
+      a: { a: '987', b: '65' },
+      b: { a: '999', b: '1' },
+      c: { a: '9007199254740993', b: '1', precision: true },
+    }
+    let mode = 'a'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-big-add', (text) => text.replace('__CALL__', `addStrings('${MODELS[mode].a}', '${MODELS[mode].b}')`))
+
+    function columnSteps(a, b) {
+      const steps = []
+      let i = a.length - 1
+      let j = b.length - 1
+      let carry = 0
+      const digits = []
+      const carryIn = {}
+      let pos = 0
+      while (i >= 0 || j >= 0 || carry > 0) {
+        const x = i >= 0 ? Number(a[i]) : 0
+        const y = j >= 0 ? Number(b[j]) : 0
+        const xs = i >= 0 ? String(x) : '0（a 已走完）'
+        const ys = j >= 0 ? String(y) : '0（b 已走完）'
+        const sum = x + y + carry
+        const before = carry
+        carryIn[pos] = carry
+        digits.push(sum % 10)
+        carry = Math.floor(sum / 10)
+        if (carry) carryIn[pos + 1] = carry
+        const extraRound = i < 0 && j < 0
+        steps.push({
+          lines: ['loop', 'xy', 'xy2', 'sum', 'digit', 'carry'],
+          pos,
+          digits: digits.slice(),
+          carryIn: { ...carryIn },
+          vars: { i, j, x: xs, y: ys, carryBefore: before, sum, carry },
+          note: extraRound
+            ? `i、j 都走完了，但 carry = ${before}，循环条件还成立：${x} + ${y} + ${before} = ${sum}，写出最高位 <b>${sum % 10}</b>。这就是循环条件里要带上 carry 的原因。`
+            : `第 ${pos + 1} 位：${x} + ${y} + 进位 ${before} = <b>${sum}</b>，当前位写 ${sum % 10}，进位 ${carry}。`,
+        })
+        i--
+        j--
+        pos++
+      }
+      return { steps, digits, result: digits.slice().reverse().join('') }
+    }
+
+    function buildSteps() {
+      const m = MODELS[mode]
+      const { steps: cols, digits, result } = columnSteps(m.a, m.b)
+      const intro = { lines: ['call', 'init', 'init2', 'init3', 'init4'], pos: null, digits: [], carryIn: {}, vars: { i: m.a.length - 1, j: m.b.length - 1, carry: 0 }, note: `<code>addStrings('${m.a}', '${m.b}')</code>：i、j 指向两个字符串的最后一位（个位），carry = 0，digits 用来倒着收集每一位。` }
+      if (m.precision) {
+        const naive = String(Number(m.a) + Number(m.b))
+        return [
+          { ...intro, note: `<code>addStrings('${m.a}', '${m.b}')</code>：a 比 Number.MAX_SAFE_INTEGER（9007199254740991）还大。` },
+          { lines: ['call'], pos: null, digits: [], carryIn: {}, naive: { asNumber: String(Number(m.a)), result: naive }, note: `如果偷懒写 <code>Number(a) + Number(b)</code>：<code>Number('${m.a}')</code> 得到的是 <b>${Number(m.a)}</b>，在转换的那一刻就丢了精度，再加 1 得到 ${naive}，<b>错了</b>。` },
+          { lines: ['ret'], pos: null, digits, carryIn: cols[cols.length - 1].carryIn, done: true, result, naive: { asNumber: String(Number(m.a)), result: naive }, note: `按位相加每次只处理 0 到 9 的小数字，永远不会丢精度：结果是 <b>'${result}'</b>。（逐位的过程和前两个例子一样，这里直接看结果。）` },
+        ]
+      }
+      return [
+        intro,
+        ...cols,
+        { lines: ['loop', 'ret'], pos: null, digits, carryIn: cols[cols.length - 1].carryIn, done: true, result, vars: { ...cols[cols.length - 1].vars, i: -1, j: -1 }, note: `i、j 都小于 0，carry 也是 0，循环结束。digits 是从个位开始收集的 [${digits.join(', ')}]，<code>reverse().join('')</code> 得到 <b>'${result}'</b>。` },
+      ]
+    }
+
+    function render(step) {
+      const m = MODELS[mode]
+      const width = Math.max(m.a.length, m.b.length) + 1
+      const cols = width + 1 // first column holds the + sign
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 30px)`
+      const cell = (text, cls = '') => `<div class="ba-cell ${cls}">${text}</div>`
+      const at = (str, pos) => (pos < str.length ? str[str.length - 1 - pos] : '')
+      const rows = []
+      // carry row
+      rows.push(cell(''))
+      for (let c = width - 1; c >= 0; c--) rows.push(cell(step.carryIn[c] ? String(step.carryIn[c]) : '', `carry${step.pos === c ? ' cur' : ''}`))
+      // a row
+      rows.push(cell(''))
+      for (let c = width - 1; c >= 0; c--) rows.push(cell(at(m.a, c), step.pos === c ? 'cur' : ''))
+      // b row
+      rows.push(cell('+', 'op'))
+      for (let c = width - 1; c >= 0; c--) rows.push(cell(at(m.b, c), step.pos === c ? 'cur' : ''))
+      rows.push('<div class="ba-line"></div>')
+      // result row
+      rows.push(cell(''))
+      for (let c = width - 1; c >= 0; c--) rows.push(cell(c < step.digits.length ? String(step.digits[c]) : '', `res${step.pos === c ? ' cur' : ''}`))
+      gridEl.innerHTML = rows.join('')
+
+      const boxes = []
+      if (step.vars) {
+        const v = step.vars
+        const rowsV = [['i', String(v.i)], ['j', String(v.j)]]
+        if (v.x !== undefined) {
+          rowsV.push(['x', v.x], ['y', v.y], ['sum', `${v.sum}（含进位 ${v.carryBefore}）`, 'hot'], ['写下', String(v.sum % 10), 'new'], ['carry', String(v.carry), v.carry ? 'hot' : ''])
+        } else {
+          rowsV.push(['carry', String(v.carry)])
+        }
+        rowsV.push(['digits', `[${step.digits.join(', ')}]`])
+        boxes.push(boxHTML({ title: 'addStrings 的变量', rows: rowsV }))
+      }
+      if (step.naive) {
+        boxes.push(boxHTML({
+          title: 'Number(a) + Number(b)',
+          sub: '错误做法',
+          rows: [['Number(a)', step.naive.asNumber, 'bad'], ['+ 1 得到', step.naive.result, 'bad']],
+        }))
+      }
+      if (step.done) boxes.push(boxHTML({ title: '返回值', rows: [['addStrings', `'${step.result}'`, 'new']] }))
+      varsEl.innerHTML = boxes.join('') || '<p class="empty-note">—</p>'
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1700 })
+    segmented($('#ba-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 15. thousands ---------- */
+  function initThousands() {
+    const root = $('#thousands')
+    const pre = $('pre', root)
+    const rowEl = $('#th-row')
+    const varsEl = $('#th-vars')
+    const resEl = $('#th-res')
+    const MODELS = { a: '1234567', b: '-1234567.891', c: '123456' }
+    let mode = 'a'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-thousands', (text) => text.replace('__CALL__', `formatThousands(${MODELS[mode]})`))
+
+    function buildSteps() {
+      const str = MODELS[mode]
+      const [intPart, decPart] = str.split('.')
+      const marks = {}
+      const base = { intPart, decPart }
+      const steps = [
+        { ...base, lines: ['call'], marks: {}, note: `调用 <code>formatThousands(${str})</code>。` },
+        { ...base, lines: ['split'], marks: {}, split: true, note: `<code>String(num).split('.')</code>：整数部分 <code>'${intPart}'</code>，小数部分${decPart === undefined ? '没有' : ` <code>'${decPart}'</code>`}。只给整数部分加逗号。` },
+      ]
+      for (let gap = 1; gap < intPart.length; gap++) {
+        const prev = intPart[gap - 1]
+        const rest = intPart.length - gap
+        let mark
+        let note
+        if (!/\d/.test(prev)) {
+          mark = 'skip'
+          note = `负号 <code>${prev}</code> 和数字之间是单词边界，<code>\\B</code> 不匹配，跳过。所以负号后面不会插逗号。`
+        } else if (rest % 3 === 0) {
+          mark = 'yes'
+          note = `这个空隙后面还剩 <b>${rest}</b> 位数字，是 3 的倍数，<code>(?=(\\d{3})+$)</code> 成立 → <b>插一个逗号</b>。`
+        } else {
+          mark = 'no'
+          note = `这个空隙后面还剩 ${rest} 位数字，不是 3 的倍数，不插。`
+        }
+        marks[gap] = mark
+        steps.push({ ...base, lines: ['re'], marks: { ...marks }, cur: gap, rest, split: true, note })
+      }
+      const grouped = intPart.replace(/\B(?=(\d{3})+$)/g, ',')
+      const startNote = intPart.length % 3 === 0 && /^\d/.test(intPart)
+        ? `注意第一位数字前面那个位置：后面正好剩 ${intPart.length} 位，也是 3 的倍数，但它是单词边界，<code>\\B</code> 不匹配，所以开头不会多出逗号。`
+        : '第一位数字前面那个位置是单词边界，<code>\\B</code> 不会匹配，所以开头永远不会插逗号。'
+      steps.push({ ...base, lines: ['re'], marks: { ...marks }, split: true, grouped, note: `整数部分替换完成：<code>'${grouped}'</code>。${startNote}` })
+      const result = decPart === undefined ? grouped : `${grouped}.${decPart}`
+      steps.push({ ...base, lines: ['ret'], marks: { ...marks }, split: true, grouped, result, note: decPart === undefined ? `没有小数部分，直接返回 <b>'${result}'</b>。` : `把小数部分原样拼回去，返回 <b>'${result}'</b>。如果整个字符串一起套正则，小数部分也会被加上逗号。` })
+      return steps
+    }
+
+    function render(step) {
+      const parts = []
+      const chars = step.intPart.split('')
+      chars.forEach((ch, i) => {
+        if (i > 0) {
+          const mark = step.marks[i]
+          const cls = ['th-gap']
+          if (mark === 'yes') cls.push('yes')
+          if (step.cur === i) cls.push('cur')
+          const label = step.cur === i ? `剩 ${step.rest} 位` : mark === 'skip' ? '边界' : ''
+          parts.push(`<div class="${cls.join(' ')}"><span class="mk">${mark === 'yes' ? ',' : ''}</span><small>${label}</small></div>`)
+        }
+        parts.push(`<div class="th-d">${esc(ch)}</div>`)
+      })
+      if (step.decPart !== undefined) {
+        parts.push('<div class="th-d dec">.</div>')
+        for (const ch of step.decPart) parts.push(`<div class="th-d dec">${esc(ch)}</div>`)
+      }
+      rowEl.innerHTML = parts.join('')
+      const rows = [['num', esc(MODELS[mode])]]
+      if (step.split) rows.push(['intPart', `'${esc(step.intPart)}'`, 'hot'], ['decPart', step.decPart === undefined ? 'undefined' : `'${esc(step.decPart)}'`])
+      if (step.cur) rows.push(['当前空隙后面', `${step.rest} 位数字`, step.rest % 3 === 0 && step.marks[step.cur] === 'yes' ? 'new' : ''])
+      varsEl.innerHTML = boxHTML({ title: 'formatThousands', rows })
+      if (step.result) resEl.innerHTML = `<span class="pick">'${esc(step.result)}'</span>`
+      else if (step.grouped) resEl.innerHTML = `grouped = <span class="pick">'${esc(step.grouped)}'</span>`
+      else resEl.innerHTML = '<span class="dim">还没算完</span>'
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1500 })
+    segmented($('#th-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 16. parse query ---------- */
+  function initParseQuery() {
+    const root = $('#parse-query')
+    const code = createCode($('pre', root), 'src-parse-query')
+    const urlEl = $('#qs-url')
+    const pairsEl = $('#qs-pairs')
+    const pairEl = $('#qs-pair')
+    const resultEl = $('#qs-result')
+    const PATH = 'https://a.com/p'
+    const QUERY = 'name=%E4%BD%A0&x=1&x=2&debug&t=a=b'
+    const HASH = 'top'
+    const PAIRS = QUERY.split('&')
+
+    function buildSteps() {
+      const steps = []
+      const result = []
+      const snap = (lines, note, extra = {}) => steps.push({ lines, note, result: result.map((r) => r.slice()), ...extra })
+      snap(['call'], '这个 URL 里有：中文（要解码）、同名参数 x、没有等号的 debug、值里还有等号的 t，最后带着 <code>#top</code>。', { stage: 0 })
+      snap(['hash'], '<code>split(\'#\')[0]</code>：先把 # 后面的 <code>top</code> 去掉。顺序很重要：如果先找 ?，hash 里出现的 ? 也会被当成查询参数。', { stage: 1 })
+      snap(['query'], '<code>split(\'?\')[1]</code>：取 ? 后面的部分，就是整个查询字符串。没有 ? 时得到 undefined，用 <code>?? \'\'</code> 兜底。', { stage: 2 })
+      snap(['pairs'], `<code>query.split('&amp;')</code>：拆成 ${PAIRS.length} 对，下面一对一对处理。`, { stage: 3 })
+      PAIRS.forEach((pair, idx) => {
+        for (const r of result) r[3] = '' // only the pair handled in this step is highlighted
+        const eq = pair.indexOf('=')
+        const rawKey = eq === -1 ? pair : pair.slice(0, eq)
+        const key = decodeURIComponent(rawKey.replace(/\+/g, ' '))
+        const value = eq === -1 ? true : decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' '))
+        const shown = value === true ? 'true' : `'${value}'`
+        const existing = result.find((r) => r[0] === key)
+        let action
+        let note
+        if (existing) {
+          const prev = existing[2]
+          const merged = Array.isArray(prev) ? [...prev, value] : [prev, value]
+          existing[2] = merged
+          existing[1] = `[${merged.map((v) => (v === true ? 'true' : `'${v}'`)).join(', ')}]`
+          existing[3] = 'hot'
+          action = '已有同名的键 → 合并成数组'
+          note = `<code>${pair}</code>：键 <code>${key}</code> 已经在 result 里了，用 <code>[].concat(old, value)</code> 把旧值和新值合并成数组。`
+        } else {
+          result.push([key, shown, value, 'new'])
+          action = '新建'
+          if (eq === -1) note = `<code>${pair}</code>：没有等号，<code>indexOf('=')</code> 是 -1，键就是整个字符串，值记为 <b>true</b>。`
+          else if (pair.indexOf('=', eq + 1) !== -1) note = `<code>${pair}</code>：第一个等号在下标 ${eq}，按它拆：键 <code>${key}</code>，值 <code>${value}</code>。值里的等号原样保留。`
+          else if (value !== pair.slice(eq + 1)) note = `<code>${pair}</code>：按等号拆开，值 <code>${pair.slice(eq + 1)}</code> 经过 decodeURIComponent 解码成 <b>${value}</b>。`
+          else note = `<code>${pair}</code>：按等号拆成键 <code>${key}</code> 和值 <code>'${value}'</code>，放进 result。`
+        }
+        const lines = existing ? ['eq', 'kv', 'kv2', 'dup'] : ['eq', 'kv', 'kv2', 'set']
+        snap(lines, note, { stage: 3, cur: idx, pair: { raw: pair, eq, key, value: shown, action } })
+      })
+      for (const r of result) r[3] = ''
+      snap(['ret'], `返回 result。x 出现了两次，所以是数组 <code>['1', '2']</code>；debug 没有等号，值是 true。`, { stage: 3, done: true })
+      return steps
+    }
+
+    function render(step) {
+      const q = step.stage >= 2 ? `<span class="pick">${esc(QUERY)}</span>` : esc(QUERY)
+      const hash = step.stage >= 1 ? `<span class="off">#${HASH}</span>` : `#${HASH}`
+      urlEl.innerHTML = `<span class="dim">${esc(PATH)}?</span>${q}${hash}`
+      pairsEl.innerHTML = step.stage >= 3
+        ? PAIRS.map((p, i) => `<span class="chip${step.cur === i ? ' done' : ''}">${esc(p)}</span>`).join('')
+        : '<span class="label">还没拆</span>'
+      pairEl.innerHTML = step.pair
+        ? boxHTML({
+          title: esc(step.pair.raw),
+          rows: [
+            ['indexOf(\'=\')', String(step.pair.eq), 'hot'],
+            ['key', `'${esc(step.pair.key)}'`],
+            ['value', esc(step.pair.value), 'new'],
+            ['处理', esc(step.pair.action)],
+          ],
+        })
+        : '<p class="empty-note">（还没开始逐对处理）</p>'
+      resultEl.innerHTML = boxHTML({
+        title: 'result',
+        empty: '{ }',
+        rows: step.result.map(([k, shown, , flag]) => [esc(k), esc(shown), flag]),
+      })
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1700 })
+    stepper.rebuild()
+  }
+
+  /* ---------- 17. async add (timeline) ---------- */
+  function initAsyncAdd() {
+    const root = $('#async-add')
+    const code = createCode($('pre', root), 'src-async-add')
+    const lanesEl = $('#aa-lanes')
+    const axisEl = $('#aa-axis')
+    const serialEl = $('#aa-serial')
+    const parEl = $('#aa-par')
+    const noteEl = $('#aa-note')
+    const clockEl = $('#aa-clock')
+    const playBtn = $('#aa-play')
+    const UNIT = 500
+    const NUMS = [1, 2, 3, 4, 5, 6, 7, 8]
+    const REAL_MS = 7000
+
+    const serial = []
+    let total = NUMS[0]
+    for (let i = 1; i < NUMS.length; i++) {
+      serial.push({ row: 0, start: (i - 1) * UNIT, end: i * UNIT, label: `${total}+${NUMS[i]}`, value: total + NUMS[i] })
+      total += NUMS[i]
+    }
+    const parallel = []
+    let level = NUMS.slice()
+    let round = 0
+    while (level.length > 1) {
+      const next = []
+      for (let i = 0; i < level.length; i += 2) {
+        if (i + 1 < level.length) {
+          parallel.push({ row: 1 + i / 2, start: round * UNIT, end: (round + 1) * UNIT, label: `${level[i]}+${level[i + 1]}`, value: level[i] + level[i + 1], round })
+          next.push(level[i] + level[i + 1])
+        } else {
+          next.push(level[i])
+        }
+      }
+      level = next
+      round += 1
+    }
+    const PAR_END = round * UNIT
+    const SERIAL_END = serial.length * UNIT
+    const END = SERIAL_END + 300
+    const ROWS = ['串行', '并行 ①', '并行 ②', '并行 ③', '并行 ④']
+    const bars = [...serial, ...parallel]
+
+    lanesEl.innerHTML = ROWS.map((name, r) => `
+      <div class="lane">
+        <span class="lane-name">${name}</span>
+        <div class="lane-track" data-row="${r}"></div>
+      </div>`).join('')
+    const tracks = [...lanesEl.querySelectorAll('.lane-track')]
+    const barEls = bars.map((b) => {
+      const el = document.createElement('div')
+      el.className = 'gbar'
+      el.style.left = `${(b.start / SERIAL_END) * 100}%`
+      el.textContent = `${b.label}=${b.value}`
+      tracks[b.row].append(el)
+      return el
+    })
+    axisEl.innerHTML = Array.from({ length: SERIAL_END / UNIT + 1 }, (_, k) => {
+      const pct = (k * UNIT / SERIAL_END) * 100
+      const edge = pct > 92 ? ';transform:translateX(-100%)' : ''
+      return `<span style="left:${pct}%${edge}">${k * UNIT}ms</span>`
+    }).join('')
+
+    const EVENTS = [
+      { t: 0, text: '两种写法同时开始。串行先算 1+2；并行第 1 轮同时算 4 组：1+2、3+4、5+6、7+8。' },
+      { t: 500, text: '500ms：并行第 1 轮完成，得到 [3, 7, 11, 15]，进入第 2 轮；串行才刚算完第 1 次加法。' },
+      { t: 1000, text: '1000ms：并行第 2 轮完成，得到 [10, 26]；串行完成第 2 次。' },
+      { t: 1500, text: `1500ms：并行算完了，结果 36，一共 ${round} 轮。串行还在算第 4 次加法。` },
+      { t: SERIAL_END, text: `${SERIAL_END}ms：串行也算完了，结果 36，一共 ${serial.length} 次加法，一个接一个，用时是并行的 ${(SERIAL_END / PAR_END).toFixed(1)} 倍。` },
+    ]
+    let prevT = -1
+
+    function render(t) {
+      if (t < prevT) prevT = -1
+      clockEl.textContent = `t = ${Math.round(t)}ms`
+      bars.forEach((b, k) => {
+        const el = barEls[k]
+        const started = t >= b.start
+        el.hidden = !started
+        el.style.width = `${((Math.min(t, b.end) - b.start) / SERIAL_END) * 100}%`
+        el.classList.toggle('done', t >= b.end)
+      })
+      const sDone = serial.filter((b) => t >= b.end)
+      const pDone = parallel.filter((b) => t >= b.end)
+      const sTotal = sDone.length ? sDone[sDone.length - 1].value : NUMS[0]
+      serialEl.innerHTML = boxHTML({
+        title: 'sumSerial',
+        sub: t >= SERIAL_END ? `完成，用时 ${SERIAL_END}ms` : '计算中',
+        tone: t >= SERIAL_END ? 'new' : '',
+        rows: [['已完成的加法', `${sDone.length} / ${serial.length}`], ['total', String(sTotal), sDone.length ? 'new' : '']],
+      })
+      const roundsDone = Math.min(round, Math.floor(t / UNIT))
+      parEl.innerHTML = boxHTML({
+        title: 'sumParallel',
+        sub: t >= PAR_END ? `完成，用时 ${PAR_END}ms` : '计算中',
+        tone: t >= PAR_END ? 'new' : '',
+        rows: [['已完成的轮数', `${roundsDone} / ${round}`], ['已完成的加法', `${pDone.length} / ${parallel.length}`], ['结果', t >= PAR_END ? '36' : '—', t >= PAR_END ? 'new' : '']],
+      })
+      const current = EVENTS.filter((e) => e.t <= t).pop()
+      noteEl.textContent = current ? current.text : ''
+      for (const e of EVENTS) {
+        if (e.t > prevT && e.t <= t) {
+          if (e.t < SERIAL_END) code.flash('s-await')
+          if (e.t <= PAR_END) code.flash('p-all')
+        }
+      }
+      prevT = t
+      const lines = []
+      if (t < SERIAL_END) lines.push('s-loop', 's-await')
+      else lines.push('s-ret')
+      if (t < PAR_END) lines.push('p-push', 'p-all')
+      else lines.push('p-base')
+      code.set(lines)
+    }
+
+    const playback = createPlayback({
+      getDuration: () => END,
+      getSpeed: () => END / REAL_MS,
+      onFrame: render,
+      onState: playLabel(playBtn),
+    })
+    playBtn.addEventListener('click', () => playback.toggle())
+    $('#aa-reset').addEventListener('click', () => playback.reset())
+    playback.reset()
+  }
+
+  /* ---------- 18. isEqual ---------- */
+  function initIsEqual() {
+    const root = $('#is-equal')
+    const pre = $('pre', root)
+    const aEl = $('#ie-a')
+    const bEl = $('#ie-b')
+    const stackEl = $('#ie-stack')
+    const MODELS = {
+      deep: { a: { a: 1, b: { x: [1, 2] } }, b: { b: { x: [1, 2] }, a: 1 }, call: 'isEqual({ a: 1, b: { x: [1, 2] } }, { b: { x: [1, 2] }, a: 1 })  // true' },
+      arrobj: { a: { list: [] }, b: { list: {} }, call: 'isEqual({ list: [] }, { list: {} })  // false' },
+      keys: { a: { a: undefined }, b: { b: undefined }, call: 'isEqual({ a: undefined }, { b: undefined })  // false' },
+      null: { a: null, b: {}, call: 'isEqual(null, {})  // false' },
+    }
+    let mode = 'deep'
+    let code = null
+    const makeCode = () => createCode(pre, 'src-is-equal', (text) => text.replace('__CALL__', MODELS[mode].call))
+    const fmt = (v) => {
+      if (v === undefined) return 'undefined'
+      if (Number.isNaN(v)) return 'NaN'
+      if (Array.isArray(v)) return `[${v.map(fmt).join(', ')}]`
+      if (v && typeof v === 'object') {
+        const keys = Object.keys(v)
+        return keys.length ? `{ ${keys.map((k) => `${k}: ${fmt(v[k])}`).join(', ')} }` : '{}'
+      }
+      return JSON.stringify(v)
+    }
+
+    function buildSteps() {
+      const { a: A, b: B } = MODELS[mode]
+      const steps = []
+      const stack = []
+      const snap = (lines, note, path, extra = {}) => steps.push({ lines, note, path, stack: stack.slice(), ...extra })
+      function cmp(a, b, path) {
+        const label = path ? `<code>${path}</code>` : '整个值'
+        stack.push({ path: path || '(根)', a: fmt(a), b: fmt(b) })
+        if (a === b || (Number.isNaN(a) && Number.isNaN(b))) {
+          snap(['same'], `${label}：<code>${fmt(a)} === ${fmt(b)}</code> → <b>true</b>。`, path, { verdict: true })
+          stack.pop()
+          return true
+        }
+        snap(['same'], `${label}：<code>${fmt(a)}</code> 和 <code>${fmt(b)}</code> 不是同一个值，继续判断。`, path)
+        const both = a !== null && b !== null && typeof a === 'object' && typeof b === 'object'
+        if (!both) {
+          const why = a === null || b === null
+            ? '其中一个是 null。<code>typeof null</code> 也是 \'object\'，必须单独排除，否则下面的 <code>Object.keys(null)</code> 会直接报错'
+            : '至少有一个不是对象，又不全等'
+          snap(['obj', 'obj2', 'objret'], `${label}：${why} → <b>false</b>。`, path, { verdict: false })
+          stack.pop()
+          return false
+        }
+        snap(['obj', 'obj2'], `${label}：两个都是对象，也都不是 null，继续。`, path)
+        if (Array.isArray(a) !== Array.isArray(b)) {
+          snap(['arr'], `${label}：一个是数组，一个是普通对象 → <b>false</b>。少了这一步，<code>[]</code> 和 <code>{}</code> 的键数都是 0，会被误判成相等。`, path, { verdict: false })
+          stack.pop()
+          return false
+        }
+        const ka = Object.keys(a)
+        const kb = Object.keys(b)
+        if (ka.length !== kb.length) {
+          snap(['keys', 'keys2', 'len'], `${label}：键数不同（${ka.length} 和 ${kb.length}）→ <b>false</b>。`, path, { verdict: false })
+          stack.pop()
+          return false
+        }
+        snap(['keys', 'keys2', 'len'], `${label}：键数都是 ${ka.length}（a 的键 [${ka.join(', ')}]，b 的键 [${kb.join(', ')}]），接下来逐个键比较。`, path)
+        for (const k of ka) {
+          const child = Array.isArray(a) ? `${path}[${k}]` : path ? `${path}.${k}` : k
+          if (!Object.hasOwn(b, k)) {
+            snap(['every', 'every2'], `b 自己没有键 <code>${k}</code>（b 的键是 [${kb.join(', ')}]）→ <b>false</b>。只比键数会漏掉这种情况：两边都只有 1 个键，值也都是 undefined。`, path, { verdict: false })
+            stack.pop()
+            return false
+          }
+          snap(['every', 'every2'], `b 也有键 <code>${k}</code>，递归比较 <code>${child}</code>。`, child)
+          const r = cmp(a[k], b[k], child)
+          if (!r) {
+            snap(['every', 'every2'], `<code>${child}</code> 不相等，every 立刻停下 → ${label}也不相等。`, path, { verdict: false })
+            stack.pop()
+            return false
+          }
+        }
+        snap(['every', 'every2'], `${label}的每个键都相等 → <b>true</b>。`, path, { verdict: true })
+        stack.pop()
+        return true
+      }
+      const res = cmp(A, B, '')
+      snap(['call'], `最终结果：<code>isEqual</code> 返回 <b>${res}</b>。`, null, { final: res })
+      return steps
+    }
+
+    function renderValue(v, path, cur) {
+      const on = cur !== null && cur !== undefined && path === cur
+      let inner
+      if (Array.isArray(v)) {
+        inner = `[${v.map((x, i) => renderValue(x, `${path}[${i}]`, cur)).join(', ')}]`
+      } else if (v && typeof v === 'object') {
+        const keys = Object.keys(v)
+        inner = keys.length
+          ? `{ ${keys.map((k) => `${esc(k)}: ${renderValue(v[k], path ? `${path}.${k}` : k, cur)}`).join(', ')} }`
+          : '{}'
+      } else {
+        inner = esc(fmt(v))
+      }
+      return on ? `<span class="on">${inner}</span>` : inner
+    }
+
+    function render(step) {
+      const { a, b } = MODELS[mode]
+      aEl.innerHTML = renderValue(a, '', step.path)
+      bEl.innerHTML = renderValue(b, '', step.path)
+      const frames = step.stack.map((f, i) => {
+        const top = i === step.stack.length - 1
+        const flag = top && step.verdict !== undefined ? (step.verdict ? 'new' : 'bad') : ''
+        return boxHTML({
+          title: `isEqual(${esc(f.path)})`,
+          sub: top ? '当前这层' : '',
+          tone: top ? 'focus' : '',
+          rows: [['a', esc(f.a)], ['b', esc(f.b)], ...(top && step.verdict !== undefined ? [['返回', String(step.verdict), flag]] : [])],
+        })
+      }).reverse()
+      stackEl.innerHTML = step.final !== undefined
+        ? boxHTML({ title: 'isEqual 的结果', rows: [['返回', String(step.final), step.final ? 'new' : 'bad']] })
+        : frames.join('')
+    }
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1700 })
+    segmented($('#ie-mode'), (v) => {
+      mode = v
+      code = makeCode()
+      stepper.rebuild()
+    })
+    code = makeCode()
+    stepper.rebuild()
+  }
+
+  /* ---------- 19. shuffle ---------- */
+  function initShuffle() {
+    const root = $('#shuffle')
+    const code = createCode($('pre', root), 'src-shuffle')
+    const cellsEl = $('#sh-cells')
+    const tableEl = $('#sh-table')
+    const runNote = $('#sh-run-note')
+    const START = ['A', 'B', 'C', 'D', 'E', 'F']
+    const PICKS = { 5: 2, 4: 4, 3: 0, 2: 1, 1: 1 } // fixed "random" j for a repeatable demo
+
+    function buildSteps() {
+      const arr = START.slice()
+      const settled = new Set()
+      const steps = [{ lines: ['call'], arr: arr.slice(), settled: new Set(), note: '从最后一位开始，每次在还没确定的范围 [0, i] 里随机挑一个，换到第 i 位，第 i 位就定下来了。' }]
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = PICKS[i]
+        steps.push({ lines: ['loop', 'pick'], arr: arr.slice(), settled: new Set(settled), range: i, j, i, note: `i = ${i}：<code>Math.floor(Math.random() * ${i + 1})</code> 得到 j = <b>${j}</b>（范围 0 到 ${i}，一共 ${i + 1} 种可能）。` })
+        const a = arr[i]
+        const b = arr[j];
+        [arr[i], arr[j]] = [arr[j], arr[i]]
+        settled.add(i)
+        steps.push({
+          lines: ['swap'],
+          arr: arr.slice(),
+          settled: new Set(settled),
+          i,
+          j,
+          swapped: true,
+          note: i === j
+            ? `j 刚好等于 i，<b>原地不动</b>，${a} 留在第 ${i} 位。所以 j 的范围必须包含 i 本身，否则最后一位一定会被换走，结果就不均匀了。`
+            : `交换 <code>arr[${i}]</code> 和 <code>arr[${j}]</code>：${a} ↔ ${b}。第 ${i} 位确定了（绿色），之后不会再动。`,
+        })
+      }
+      settled.add(0)
+      steps.push({ lines: ['ret'], arr: arr.slice(), settled: new Set(settled), note: `i 走到 0 时只剩一个元素，不用再换。Math.random 一共调用了 ${START.length - 1} 次（n - 1 次），每种排列的概率都是 1/${START.length}!。` })
+      return steps
+    }
+
+    function render(step) {
+      cellsEl.innerHTML = step.arr.map((v, idx) => {
+        const cls = ['cell']
+        if (step.settled.has(idx)) cls.push('keep')
+        else if (step.range !== undefined && idx <= step.range) cls.push('hot')
+        if (!step.swapped && step.j === idx) cls.push('ptr')
+        if (step.swapped && (idx === step.i || idx === step.j)) cls.push('new')
+        let mark = ''
+        if (step.i === idx && step.j === idx) mark = 'i = j'
+        else if (step.i === idx) mark = 'i'
+        else if (step.j === idx) mark = 'j'
+        return `<div class="${cls.join(' ')}"><span class="ptr-mark">${mark}</span><span class="cell-box">${esc(v)}</span><small>[${idx}]</small></div>`
+      }).join('')
+    }
+
+    function fisherYates(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]]
+      }
+      return arr
+    }
+    const PERMS = ['123', '132', '213', '231', '312', '321']
+    function renderTable(fy, sr, n) {
+      const cell = (count) => {
+        if (count === null) return '<td>—</td>'
+        const pct = (count / n) * 100
+        const off = Math.abs(pct - 100 / 6) > 2
+        return `<td class="${off ? 'bad' : 'ok'}">${count}（${pct.toFixed(1)}%）</td>`
+      }
+      tableEl.innerHTML = `<thead><tr><th>排列</th><th>Fisher–Yates</th><th>sort + random</th></tr></thead><tbody>${PERMS.map((p) => `<tr><td>${p}</td>${cell(fy ? fy[p] || 0 : null)}${cell(sr ? sr[p] || 0 : null)}</tr>`).join('')}</tbody>`
+    }
+    renderTable(null, null, 1)
+    $('#sh-run').addEventListener('click', () => {
+      const N = 30000
+      const fy = {}
+      const sr = {}
+      for (let k = 0; k < N; k++) {
+        const a = fisherYates([1, 2, 3]).join('')
+        fy[a] = (fy[a] || 0) + 1
+        const b = [1, 2, 3].sort(() => Math.random() - 0.5).join('')
+        sr[b] = (sr[b] || 0) + 1
+      }
+      renderTable(fy, sr, N)
+      runNote.textContent = '红色表示偏离 16.7% 超过 2 个百分点。每点一次都会重新统计。'
+    })
+
+    const stepper = createStepper(root, { build: buildSteps, render, getCode: () => code, interval: 1500 })
+    stepper.rebuild()
+  }
+
+  /* ---------- 20. ajax ---------- */
+  function initAjax() {
+    const root = $('#ajax')
+    const pres = { good: $('pre[data-code="ajax"]', root), bad: $('pre[data-code="ajax-bad"]', root) }
+    const rsEl = $('#aj-rs')
+    const xhrEl = $('#aj-xhr')
+    const promiseEl = $('#aj-promise')
+    const RS = ['0 UNSENT', '1 OPENED', '2 HEADERS_RECEIVED', '3 LOADING', '4 DONE']
+    const CALLS = {
+      ok: "request({ method: 'POST', url: '/api/user', data: { name: 'Tom' } })",
+      nf: "request({ url: '/missing' })",
+      net: "request({ url: '/api/user' })  // 断网",
+    }
+    let mode = 'ok'
+    let goodCode = null
+    const badCode = createCode(pres.bad, 'src-ajax-bad')
+    const makeGood = () => createCode(pres.good, 'src-ajax', (text) => text.replace('__CALL__', CALLS[mode] || CALLS.ok))
+
+    function buildSteps() {
+      const bad = mode === 'bad'
+      const isPost = mode === 'ok'
+      const method = isPost ? 'POST' : 'GET'
+      const url = isPost ? '/api/user' : mode === 'net' ? '/api/user' : '/missing'
+      const steps = []
+      let xhr = { method: '—', url: '—', status: '0', responseText: "''" }
+      const events = []
+      let promise = ['pending', '']
+      const snap = (lines, rs, note, extra = {}) => steps.push({ lines, rs, note, xhr: { ...xhr }, events: events.slice(), promise: promise.slice(), ...extra })
+
+      snap(['call', 'promise'], -1, `<code>request(...)</code> 立刻返回一个 <b>pending</b> 的 Promise，executor 里的代码同步执行。`)
+      snap(['new'], 0, '<code>new XMLHttpRequest()</code>：readyState 是 0（UNSENT）。')
+      xhr = { ...xhr, method, url }
+      events.push('readystatechange(1)')
+      snap(['open'], 1, `<code>open('${method}', '${url}', true)</code>：readyState 变成 1（OPENED），触发一次 readystatechange。第三个参数 true 表示异步。`)
+      if (isPost) {
+        xhr = { ...xhr, header: 'Content-Type: application/json' }
+        snap(['ctype'], 1, '有 data：设置 <code>Content-Type: application/json</code>。请求头必须在 open 之后、send 之前设置。')
+      }
+      snap(bad ? ['onrsc'] : ['onrsc', 'onerr'], 1, bad
+        ? '绑定 <code>onreadystatechange</code>。这个版本没有 onerror，也拿不到 reject。'
+        : '绑定回调：<code>onreadystatechange</code> 处理正常结束，<code>onerror</code> 处理网络错误。')
+      xhr = { ...xhr, body: isPost ? '\'{"name":"Tom"}\'' : 'null' }
+      snap(['send'], 1, `<code>send(${isPost ? 'JSON.stringify(data)' : ''})</code>：请求发出去了，executor 执行完毕。<b>之后发生的事情都在回调里</b>，由浏览器在事件循环里调用。`)
+
+      if (mode === 'net') {
+        events.push('readystatechange(4)')
+        snap(['rs-check'], 4, '断网：没有收到任何响应，readyState 直接变成 4，status 是 <b>0</b>。readystatechange 触发，两个分支都不满足（不是 2xx，也被 <code>status !== 0</code> 排除了），什么都不做。')
+        events.push('error')
+        promise = ['rejected', "Error('Network error')"]
+        snap(['onerr'], 4, '接着触发 <b>error</b> 事件：<code>onerror</code> 调用 reject，Promise 变成 rejected，调用方的 <code>.catch</code> 能收到。')
+        return steps
+      }
+
+      const status = mode === 'ok' ? 200 : 404
+      xhr = { ...xhr, status: String(status) }
+      events.push('readystatechange(2)')
+      snap(['rs-check'], 2, `收到响应头：readyState 变成 2，这时已经能拿到 status = ${status}，但请求还没结束，回调直接 return。`)
+      events.push('readystatechange(3)')
+      snap(['rs-check'], 3, 'readyState 3：正在接收响应体，还是 return。')
+      const body = mode === 'ok' ? '\'{"id":1}\'' : "'Not Found'"
+      xhr = { ...xhr, responseText: body }
+      events.push('readystatechange(4)')
+
+      if (mode === 'ok') {
+        promise = ['fulfilled', body]
+        snap(['rs-check', 'ok'], 4, 'readyState 4（DONE）：status 200 在 200–299 之间，<code>resolve(xhr.responseText)</code>，Promise 变成 <b>fulfilled</b>。')
+        events.push('load')
+        snap(['ok'], 4, '之后还会触发 load 事件。用 <code>onload</code> 写也可以，但要另外处理网络错误。判断成功别只写 <code>status === 200</code>，201、204 也是成功。')
+        return steps
+      }
+      if (!bad) {
+        promise = ['rejected', "Error('Request failed with status 404')"]
+        snap(['rs-check', 'fail'], 4, 'readyState 4：status 404 不在 200–299 之间，也不是 0 → <code>reject(new Error(...404))</code>，Promise 变成 <b>rejected</b>，错误信息里带着状态码。')
+        return steps
+      }
+      snap(['rs-check', 'throw'], 4, 'readyState 4：status 是 404，走到 <code>throw new Error(xhr.statusText)</code>。')
+      promise = ['pending', '永远等不到结果']
+      snap(['throw'], 4, '这个错误是在 <b>onreadystatechange 回调</b>里抛出的。回调由浏览器在事件循环里调用，已经不在 Promise 的 executor 里了，所以 Promise <b>永远停在 pending</b>，调用方的 <code>.catch</code> 什么也收不到；错误变成控制台里的 <code>Uncaught Error: Not Found</code>。正确做法是在回调里调用 reject。', { uncaught: true })
+      return steps
+    }
+
+    function render(step) {
+      rsEl.innerHTML = RS.map((label, i) => `<span class="rs-chip${i === step.rs ? ' on' : i < step.rs ? ' done' : ''}">${label}</span>`).join('')
+      const rows = [['method', esc(step.xhr.method)], ['url', esc(step.xhr.url)]]
+      if (step.xhr.header) rows.push(['请求头', esc(step.xhr.header)])
+      if (step.xhr.body) rows.push(['请求体', esc(step.xhr.body)])
+      rows.push(['status', esc(step.xhr.status), step.rs >= 2 ? 'hot' : ''], ['responseText', esc(step.xhr.responseText)])
+      xhrEl.innerHTML = boxHTML({ title: 'XMLHttpRequest', rows })
+      const [state, value] = step.promise
+      const flag = state === 'fulfilled' ? 'new' : state === 'rejected' ? 'bad' : step.uncaught ? 'bad' : ''
+      const pRows = [['状态', state, flag]]
+      if (value) pRows.push([state === 'fulfilled' ? '值' : state === 'rejected' ? '原因' : '说明', esc(value), flag])
+      if (step.uncaught) pRows.push(['控制台', 'Uncaught Error: Not Found', 'bad'])
+      promiseEl.innerHTML = boxHTML({ title: 'Promise', rows: pRows })
+        + boxHTML({ title: '触发过的事件', empty: '（还没有）', rows: step.events.map((e, i) => [String(i + 1), esc(e), i === step.events.length - 1 ? 'hot' : '']) })
+    }
+
+    const stepper = createStepper(root, {
+      build: buildSteps,
+      render,
+      getCode: () => (mode === 'bad' ? badCode : goodCode),
+      interval: 1800,
+    })
+    segmented($('#aj-mode'), (v) => {
+      mode = v
+      pres.good.hidden = v === 'bad'
+      pres.bad.hidden = v !== 'bad'
+      if (v !== 'bad') goodCode = makeGood()
+      stepper.rebuild()
+    })
+    goodCode = makeGood()
+    stepper.rebuild()
+  }
+
   initTiming()
   initPromiseAll()
   initPool()
@@ -3276,6 +4939,15 @@ function curry(fn) {
   initInstanceof()
   initInherit()
   initCurry()
+  initFlat()
+  initArrayApi()
+  initBigAdd()
+  initThousands()
+  initParseQuery()
+  initAsyncAdd()
+  initIsEqual()
+  initShuffle()
+  initAjax()
 })()
 </script>
 

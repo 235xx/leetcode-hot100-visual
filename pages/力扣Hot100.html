@@ -74,6 +74,9 @@ button svg{width:17px;height:17px;flex:none}
 .top h1{font-size:16px;white-space:nowrap}
 .top .sub{font-size:13px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .grow{flex:1}
+.site-nav{display:flex;gap:2px;flex:none}
+.site-nav a{font-size:13px;color:var(--text-secondary);text-decoration:none;padding:6px 10px;border-radius:var(--radius);white-space:nowrap}
+.site-nav a:hover{background:var(--surface-1);color:var(--text-primary)}
 .icon-btn{width:34px;padding:0}
 .menu-btn{display:inline-flex}
 .layout{display:grid;grid-template-columns:256px minmax(0,1fr);max-width:1560px;margin:0 auto}
@@ -232,6 +235,7 @@ main{padding:20px 16px 64px}
 .card{padding:14px 12px}
 .top{padding:0 12px;gap:8px}
 .top .sub{display:none}
+.site-nav a:not(:first-child){display:none}
 }
 </style>
 </head>
@@ -241,6 +245,7 @@ main{padding:20px 16px 64px}
 <h1>力扣 Hot 100 · 题解动画</h1>
 <span class="sub">代码来自 leetcode-hot100-summary.pdf，演示按 leetcode-js-explainer-2 的步进器规范</span>
 <span class="grow"></span>
+<nav class="site-nav" aria-label="网站"><a href="../index.html">主页</a><a href="手撕练习场.html">手撕练习场</a><a href="手写题慢放.html">手写题慢放</a></nav>
 <button class="icon-btn" id="theme" type="button" aria-label="切换深色 / 浅色"></button>
 </header>
 <div class="layout">
@@ -7462,10 +7467,210 @@ const attr=t=>String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</
 let curP=null,isDefault=true;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
-/* ===== 每日复习：按记忆曲线每天排 30 题，进度存在这个浏览器的 localStorage 里 =====
-   当天第一次打开时定下清单：先排到期的（过期最久的在前），再排没复习过的新题（按 PDF 顺序），不够 30 题用最久没复习的补齐。
+/* ===== 每日计划 开始：主页、手撕练习场、力扣 Hot100 三个页面里各有一份，内容完全相同，改的时候三处一起改 =====
+   每天的题量存在 localStorage 的 study:quota（{ hs: 手撕题道数, lc: 力扣题道数 }），三个页面共用。
+   当天第一次打开任意一个页面时定下清单：先排到期的（过期最久的在前），再排新题（按题目顺序），还不够就用最久没练的补齐。
+   清单当天固定；当天改了题量，只在清单末尾增减还没做的题，做过的保留。
+   力扣的清单存在 lc-srs 的 days[日期] 里（和原来的格式一样）；手撕的清单存在 hs:days[日期] 里。 */
+const DailyPlan = (() => {
+  const QUOTA_KEY = 'study:quota'
+  const HS_DAYS_KEY = 'hs:days'
+  const DEFAULT_QUOTA = { hs: 3, lc: 30 } // 和合并前一样：手撕每天 3 道，力扣每天 30 题
+  const MAX_QUOTA = { hs: 20, lc: 100 }
+  const KEEP_DAYS = 90
+
+  const read = (key) => {
+    try {
+      return JSON.parse(localStorage.getItem(key) ?? 'null')
+    } catch {
+      return null
+    }
+  }
+  const write = (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value))
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const pad2 = (n) => String(n).padStart(2, '0')
+  const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+  const parseDay = (t) => {
+    const [y, m, d] = t.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  const addDays = (t, n) => {
+    const d = parseDay(t)
+    d.setDate(d.getDate() + n)
+    return ymd(d)
+  }
+  const dayDiff = (a, b) => Math.round((parseDay(b) - parseDay(a)) / 864e5)
+  const ago = (t, today) => {
+    const n = dayDiff(t, today)
+    if (n <= 0) return '今天'
+    return n === 1 ? '昨天' : `${n} 天前`
+  }
+  const fmtDay = (t, today) => {
+    const d = parseDay(t)
+    const n = dayDiff(today, t)
+    let rel = ''
+    if (n === 1) rel = '（明天）'
+    else if (n === 2) rel = '（后天）'
+    else if (n > 0) rel = `（${n} 天后）`
+    return `${d.getMonth() + 1} 月 ${d.getDate()} 日${rel}`
+  }
+  const keepRecent = (days) => {
+    const out = {}
+    for (const k of Object.keys(days).sort().slice(-KEEP_DAYS)) out[k] = days[k]
+    return out
+  }
+
+  const clampQuota = (kind, value, fallback) => {
+    const n = Number(value)
+    return Number.isInteger(n) && n >= 0 ? Math.min(n, MAX_QUOTA[kind]) : fallback
+  }
+  function quota() {
+    const saved = read(QUOTA_KEY) || {}
+    // 合并前手撕练习场自己存过"每天几道新题"，第一次用这个值当手撕的题量
+    const legacyHs = clampQuota('hs', (read('hs:meta') || {}).target, DEFAULT_QUOTA.hs) || DEFAULT_QUOTA.hs
+    return { hs: clampQuota('hs', saved.hs, legacyHs), lc: clampQuota('lc', saved.lc, DEFAULT_QUOTA.lc) }
+  }
+  function setQuota(patch) {
+    const next = quota()
+    for (const kind of ['hs', 'lc']) if (kind in patch) next[kind] = clampQuota(kind, patch[kind], next[kind])
+    write(QUOTA_KEY, next)
+    return next
+  }
+
+  // 把当天的清单调整到 n 道：不够就按候选顺序往后补，多了就从末尾去掉还没做的题
+  function fit(day, n, candidates, isDone) {
+    let changed = false
+    if (day.list.length < n) {
+      for (const [id, why] of candidates()) {
+        if (day.list.length >= n) break
+        if (day.list.includes(id)) continue
+        day.list.push(id)
+        day.why[id] = why
+        changed = true
+      }
+    }
+    for (let i = day.list.length - 1; i >= 0 && day.list.length > n; i--) {
+      const id = day.list[i]
+      if (isDone(id)) continue
+      day.list.splice(i, 1)
+      delete day.why[id]
+      changed = true
+    }
+    return changed
+  }
+
+  /* ---- 力扣：卡片 { interval, reps, lapses, last, due, grade }，lc-srs = { cards, days } ---- */
+  function lcCandidates(srs, ids, t) {
+    const card = (id) => srs.cards[id]
+    const due = []
+    const fresh = []
+    const rest = []
+    for (const id of ids) {
+      const c = card(id)
+      if (!c) fresh.push(id)
+      else if (c.due <= t) due.push(id)
+      else rest.push(id)
+    }
+    due.sort((a, b) => card(a).due.localeCompare(card(b).due) || (card(b).lapses || 0) - (card(a).lapses || 0))
+    rest.sort((a, b) => card(a).last.localeCompare(card(b).last) || card(a).due.localeCompare(card(b).due))
+    const dueWhy = (c) => (c.due < t ? `到期（晚了 ${dayDiff(c.due, t)} 天）` : '今天到期')
+    return [
+      ...due.map((id) => [id, ['due', dueWhy(card(id))]]),
+      ...fresh.map((id) => [id, ['new', '新题']]),
+      ...rest.map((id) => [id, ['fill', `补齐 · 上次 ${ago(card(id).last, t)}，原定 ${fmtDay(card(id).due, t)}`]]),
+    ]
+  }
+  // 返回 { day, changed }；changed 为 true 时由调用方保存 srs
+  function lcDay(srs, ids, t, n) {
+    let changed = false
+    let day = srs.days[t]
+    if (!day || !Array.isArray(day.list)) {
+      day = { list: [], why: {}, done: {}, extra: {} }
+      srs.days[t] = day
+      changed = true
+    }
+    day.why = day.why || {}
+    day.done = day.done || {}
+    day.extra = day.extra || {}
+    const known = new Set(ids)
+    const kept = day.list.filter((id) => known.has(id) || day.done[id])
+    if (kept.length !== day.list.length) {
+      day.list = kept
+      changed = true
+    }
+    if (fit(day, n, () => lcCandidates(srs, ids, t), (id) => Boolean(day.done[id]))) changed = true
+    return { day, changed }
+  }
+  function lcRead() {
+    const raw = read('lc-srs')
+    return raw && typeof raw === 'object' ? { cards: raw.cards || {}, days: raw.days || {} } : { cards: {}, days: {} }
+  }
+  function lcWrite(srs) {
+    return write('lc-srs', { cards: srs.cards, days: keepRecent(srs.days) })
+  }
+
+  /* ---- 手撕：记录 { box, due, best, code, history: [{ day, result, ... }] }，hs:records = { id: 记录 } ---- */
+  const hsLast = (rec) => {
+    const h = rec && Array.isArray(rec.history) ? rec.history : []
+    return h.length > 0 ? h[h.length - 1].day : ''
+  }
+  const hsDoneOn = (rec, t) => Boolean(rec && Array.isArray(rec.history) && rec.history.some((h) => h.day === t))
+  function hsCandidates(records, ids, t) {
+    const due = []
+    const fresh = []
+    const rest = []
+    for (const id of ids) {
+      const rec = records[id]
+      if (!hsLast(rec)) fresh.push(id)
+      else if (rec.due && rec.due <= t) due.push(id)
+      else rest.push(id)
+    }
+    due.sort((a, b) => records[a].due.localeCompare(records[b].due))
+    rest.sort((a, b) => hsLast(records[a]).localeCompare(hsLast(records[b])))
+    const dueWhy = (rec) => (rec.due < t ? `到期（晚了 ${dayDiff(rec.due, t)} 天）` : '今天到期')
+    return [
+      ...due.map((id) => [id, ['due', dueWhy(records[id])]]),
+      ...fresh.map((id) => [id, ['new', '新题']]),
+      ...rest.map((id) => [id, ['fill', `巩固 · 上次 ${ago(hsLast(records[id]), t)}`]]),
+    ]
+  }
+  // 返回当天的清单 { list, why }，有变化时直接写回 hs:days
+  function hsDay(records, ids, t, n) {
+    const days = read(HS_DAYS_KEY) || {}
+    let changed = false
+    let day = days[t]
+    if (!day || !Array.isArray(day.list)) {
+      day = { list: [], why: {} }
+      days[t] = day
+      changed = true
+    }
+    day.why = day.why || {}
+    const known = new Set(ids)
+    const kept = day.list.filter((id) => known.has(id))
+    if (kept.length !== day.list.length) {
+      day.list = kept
+      changed = true
+    }
+    if (fit(day, n, () => hsCandidates(records, ids, t), (id) => hsDoneOn(records[id], t))) changed = true
+    if (changed) write(HS_DAYS_KEY, keepRecent(days))
+    return day
+  }
+  const hsReadDays = () => read(HS_DAYS_KEY) || {}
+
+  return { QUOTA_KEY, HS_DAYS_KEY, MAX_QUOTA, read, write, ymd, parseDay, addDays, dayDiff, quota, setQuota, lcDay, lcRead, lcWrite, hsDay, hsDoneOn, hsReadDays }
+})()
+/* ===== 每日计划 结束 ===== */
+/* ===== 每日复习：按记忆曲线排每天的题，每天几题在主页设置（study:quota 的 lc），进度存在这个浏览器的 localStorage 里 =====
+   清单由上面的 DailyPlan.lcDay 排：先排到期的（过期最久的在前），再排没复习过的新题（按 PDF 顺序），不够再用最久没复习的补齐。
    评分决定下次复习的间隔：不会 → 1 天；模糊 → 2 天起，之后约 ×1.5；会 → 4 天起，之后约 ×2.5（最多 60 天）。同一天改评分以当天第一次评分前的状态重算。 */
-const DAILY=30,GN={good:'会',hard:'模糊',again:'不会'},WEEK='日一二三四五六';
+const GN={good:'会',hard:'模糊',again:'不会'},WEEK='日一二三四五六';
 let NOW=null,SRS={cards:{},days:{}};
 const STORE_OK=(()=>{try{localStorage.setItem('lc-probe','1');localStorage.removeItem('lc-probe');return true}catch(e){return false}})();
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -7477,12 +7682,7 @@ const ago=t=>{const n=dayDiff(t,todayStr());return n<=0?'今天':n===1?'昨天':
 const fmtDay=t=>{const d=parseDay(t),n=dayDiff(todayStr(),t);return (d.getMonth()+1)+' 月 '+d.getDate()+' 日'+(n===1?'（明天）':n===2?'（后天）':n>0?'（'+n+' 天后）':'')};
 function srsLoad(){try{const o=JSON.parse(store.get('lc-srs')||'null');if(o&&typeof o==='object'){SRS={cards:o.cards||{},days:o.days||{}}}}catch(e){}}
 function srsSave(){const keep=Object.keys(SRS.days).sort().slice(-90),days={};for(const k of keep)days[k]=SRS.days[k];SRS.days=days;store.set('lc-srs',JSON.stringify(SRS))}
-function todayPlan(){const t=todayStr();if(SRS.days[t]&&Array.isArray(SRS.days[t].list))return SRS.days[t];
-const due=[],fresh=[],rest=[];for(const P of PROBLEMS){const c=SRS.cards[P.id];if(!c)fresh.push(P.id);else if(c.due<=t)due.push(P.id);else rest.push(P.id)}
-const C_=id=>SRS.cards[id];due.sort((a,b)=>C_(a).due.localeCompare(C_(b).due)||(C_(b).lapses||0)-(C_(a).lapses||0));rest.sort((a,b)=>C_(a).last.localeCompare(C_(b).last)||C_(a).due.localeCompare(C_(b).due));
-const list=[...due,...fresh,...rest].slice(0,DAILY),why={};
-for(const id of list){const c=C_(id);why[id]=!c?['new','新题']:c.due<=t?['due',c.due<t?'到期（晚了 '+dayDiff(c.due,t)+' 天）':'今天到期']:['fill','补齐 · 上次 '+ago(c.last)+'，原定 '+fmtDay(c.due)]}
-SRS.days[t]={list,why,done:{},extra:{}};srsSave();return SRS.days[t]}
+function todayPlan(){const {day,changed}=DailyPlan.lcDay(SRS,PROBLEMS.map(P=>P.id),todayStr(),DailyPlan.quota().lc);if(changed)srsSave();return day}
 function grade(id,g){const t=todayStr(),old=SRS.cards[id]||{},base=old.last===t&&old.base?old.base:{interval:old.interval||0,reps:old.reps||0,lapses:old.lapses||0};
 let iv=g==='again'?1:g==='hard'?(base.interval<=1?2:Math.round(base.interval*1.5)):(base.interval?Math.max(base.interval+1,Math.round(base.interval*2.5)):4);iv=Math.min(iv,60);
 SRS.cards[id]={interval:iv,reps:base.reps+1,lapses:base.lapses+(g==='again'?1:0),last:t,due:addDays(t,iv),grade:g,base};
@@ -7513,13 +7713,13 @@ const rows=day.list.map((id,i)=>{const P=PM[id],g=done[id];return `<li class="${
 const lc=[0,0,0,0,0,0];for(const P of PROBLEMS)lc[levelOf(P.id)]++;
 const lvSum=`<div class="lvsum"><span>全部 ${PROBLEMS.length} 题的熟练度：</span>${[5,4,3,2,1,0].map(l=>`<span>${lvBar(l)} ${LV[l]} <b>${lc[l]}</b></span>`).join('')}</div>`;
 $('main').innerHTML=`<article>
-<header class="phead"><div class="crumb">${d.getMonth()+1} 月 ${d.getDate()} 日 · 周${WEEK[d.getDay()]}</div><h2>今日复习</h2><div class="tags"><span>${L} 题</span>${kind.due?`<span>到期 ${kind.due}</span>`:''}${kind.new?`<span>新题 ${kind.new}</span>`:''}${kind.fill?`<span>补齐 ${kind.fill}</span>`:''}</div></header>
+<header class="phead"><div class="crumb">${d.getMonth()+1} 月 ${d.getDate()} 日 · 周${WEEK[d.getDay()]}</div><h2>今日复习</h2><div class="tags"><span>${L} 题</span><span>每天 ${DailyPlan.quota().lc} 题 · <a href="../index.html">在主页调整</a></span>${kind.due?`<span>到期 ${kind.due}</span>`:''}${kind.new?`<span>新题 ${kind.new}</span>`:''}${kind.fill?`<span>补齐 ${kind.fill}</span>`:''}</div></header>
 <section class="sec today"><div class="sum"><span>已复习 <b>${n} / ${L}</b></span>${n?`<span class="g-good">会 ${gc.good}</span><span class="g-hard">模糊 ${gc.hard}</span><span class="g-again">不会 ${gc.again}</span>`:''}<span>明天已到期 ${dueT} 题</span></div>
 <div class="bar" role="progressbar" aria-label="今日复习进度" aria-valuemin="0" aria-valuemax="${L}" aria-valuenow="${n}"><span style="width:${L?Math.round(n/L*100):0}%"></span></div>
-${first?`<a class="rv-next start" href="#${first}">${n?'接着复习：':'从第 1 题开始：'}${first}. ${PM[first].title} →</a>`:'<p>今天的 30 题都复习完了。</p>'}
+${first?`<a class="rv-next start" href="#${first}">${n?'接着复习：':'从第 1 题开始：'}${first}. ${PM[first].title} →</a>`:L?`<p>今天的 ${L} 题都复习完了。<a href="../index.html">回主页</a>看看手撕题做完没有。</p>`:'<p>每天的力扣题量设成了 0。想复习的话，可以在<a href="../index.html">主页</a>调整题量，或者直接从左边挑题。</p>'}
 ${STORE_OK?'':'<p class="warn">这个浏览器不让页面保存数据，关掉页面后今天的进度会丢失。</p>'}${lvSum}</section>
 <section class="sec today"><ol class="tlist">${rows}</ol>
-<p class="hint">每道题看完演示后，在题目顶部给自己打分：「不会」明天再来，「模糊」隔 2 天起，「会」隔 4 天起，之后每次间隔大约翻 2.5 倍。熟练度按最近一次打分和复习间隔算：不会 1 格、模糊 2 格、会了 3 格（间隔不到 10 天）、熟练 4 格（10～24 天）、精通 5 格（25 天以上），还没评过分的是新题。每天先排到期的题，不够 30 题再用新题和最久没复习的补齐；清单当天固定，第二天自动重排。进度保存在这个浏览器里，换浏览器或清除网站数据会重新开始。</p></section>
+<p class="hint">每道题看完演示后，在题目顶部给自己打分：「不会」明天再来，「模糊」隔 2 天起，「会」隔 4 天起，之后每次间隔大约翻 2.5 倍。熟练度按最近一次打分和复习间隔算：不会 1 格、模糊 2 格、会了 3 格（间隔不到 10 天）、熟练 4 格（10～24 天）、精通 5 格（25 天以上），还没评过分的是新题。每天先排到期的题，不够每天的题量（现在是 ${DailyPlan.quota().lc} 题，在主页调整）再用新题和最久没复习的补齐；清单当天固定，当天改题量只在末尾增减还没复习的题，第二天自动重排。进度保存在这个浏览器里，换浏览器或清除网站数据会重新开始。</p></section>
 </article>`;
 markNav('today');refreshNav();document.body.classList.remove('nav-open');syncMenu();scrollTo(0,0)}
 function route(){const h=location.hash.slice(1);if(!h||h==='today')showToday();else{show(+h);scrollTo(0,0)}}
@@ -7600,8 +7800,10 @@ $('theme').onclick=()=>{const t=document.documentElement.dataset.theme,dark=t?t=
 if(store.get('lc-nav')==='0')document.body.classList.add('nav-hidden');
 $('menu').onclick=()=>{if(isNarrow())document.body.classList.toggle('nav-open');else{const hid=document.body.classList.toggle('nav-hidden');store.set('lc-nav',hid?'0':'1');if(F.length){fitView();reserve();keepLineInView()}}syncMenu()};
 $('scrim').onclick=()=>{document.body.classList.remove('nav-open');syncMenu()};
+store.set('study:catalog:lc',JSON.stringify(PROBLEMS.map(P=>[P.id,P.title,P.cat,P.diff])));
 buildNav();
 addEventListener('hashchange',route);
+addEventListener('storage',e=>{if(e.key!=='lc-srs'&&e.key!==DailyPlan.QUOTA_KEY)return;srsLoad();refreshNav();if(curP)renderRV(curP.id);else if(!location.hash.slice(1)||location.hash==='#today')showToday()});
 let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(F.length){fitView();reserve()}syncMenu()},120)});
 document.addEventListener('keydown',e=>{const t=e.target;if(t.closest&&t.closest('input,textarea,select'))return;if(e.metaKey||e.ctrlKey||e.altKey||!F.length||!curP)return;if(e.key==='ArrowRight'){stop();go(s+1)}if(e.key==='ArrowLeft'){stop();go(s-1)}if(e.key===' '){e.preventDefault();timer?stop():play()}});
 route();

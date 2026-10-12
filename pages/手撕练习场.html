@@ -25,12 +25,14 @@
     --code-bg: #fbfcfd;
     --select: rgba(42, 85, 201, 0.18);
     --active-line: rgba(42, 85, 201, 0.05);
-    --t-k: #7a3eb1;
-    --t-s: #1e7a45;
-    --t-c: #8a93a3;
-    --t-n: #b5561a;
-    --t-def: #1f5fbf;
-    --t-prop: #2f4b80;
+    --t-k: #0000ff;
+    --t-k2: #af00db;
+    --t-s: #a31515;
+    --t-n: #098658;
+    --t-c: #008000;
+    --t-f: #795e26;
+    --t-v: #001080;
+    --t-t: #267f99;
     --heat-0: #e3e7ee;
     --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -58,12 +60,14 @@
       --code-bg: #10151d;
       --select: rgba(124, 156, 255, 0.26);
       --active-line: rgba(124, 156, 255, 0.06);
-      --t-k: #c79bff;
-      --t-s: #7fd6a0;
-      --t-c: #6b7586;
-      --t-n: #ffb27a;
-      --t-def: #82b1ff;
-      --t-prop: #a9c1f0;
+      --t-k: #569cd6;
+      --t-k2: #c586c0;
+      --t-s: #ce9178;
+      --t-n: #b5cea8;
+      --t-c: #6a9955;
+      --t-f: #dcdcaa;
+      --t-v: #9cdcfe;
+      --t-t: #4ec9b0;
       --heat-0: #1e2632;
     }
   }
@@ -88,12 +92,14 @@
     --code-bg: #10151d;
     --select: rgba(124, 156, 255, 0.26);
     --active-line: rgba(124, 156, 255, 0.06);
-    --t-k: #c79bff;
-    --t-s: #7fd6a0;
-    --t-c: #6b7586;
-    --t-n: #ffb27a;
-    --t-def: #82b1ff;
-    --t-prop: #a9c1f0;
+    --t-k: #569cd6;
+    --t-k2: #c586c0;
+    --t-s: #ce9178;
+    --t-n: #b5cea8;
+    --t-c: #6a9955;
+    --t-f: #dcdcaa;
+    --t-v: #9cdcfe;
+    --t-t: #4ec9b0;
     --heat-0: #1e2632;
   }
 
@@ -138,6 +144,11 @@
   .brand h1 { margin: 0; font-size: 20px; font-weight: 900; line-height: 1.2; letter-spacing: 0.01em; }
   .brand p { margin: 0; font-size: 12.5px; color: var(--muted); }
   .stats { display: flex; flex-wrap: wrap; gap: 8px; }
+  .top-right { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .site-nav { display: flex; gap: 2px; }
+  .site-nav a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+  .site-nav a:hover { background: var(--surface); color: var(--ink); }
+  .plan-empty a { color: var(--accent); }
   .stat {
     display: inline-flex;
     align-items: baseline;
@@ -291,10 +302,6 @@
   .answer-gate { display: grid; gap: 10px; justify-items: start; padding: 14px; border: 1px dashed var(--line); border-radius: 8px; }
   .answer-gate p { margin: 0; color: var(--muted); font-size: 13.5px; }
   .solution { margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; overflow-x: auto; white-space: pre; }
-  .solution .c { color: var(--t-c); font-style: italic; }
-  .solution .k { color: var(--t-k); }
-  .solution .s { color: var(--t-s); }
-  .solution .n { color: var(--t-n); }
 
   .boxes { display: flex; gap: 4px; }
   .boxes i { width: 26px; height: 8px; border-radius: 4px; background: var(--heat-0); }
@@ -389,10 +396,15 @@
   }
   .ed-input::selection { background: var(--select); color: transparent; -webkit-text-fill-color: transparent; }
   .ed:focus-within { box-shadow: inset 0 0 0 2px var(--accent-soft); }
-  .ed-hl .c { color: var(--t-c); }
-  .ed-hl .k { color: var(--t-k); }
-  .ed-hl .s { color: var(--t-s); }
-  .ed-hl .n { color: var(--t-n); }
+  /* syntax colors: same token classes and palette as the 力扣 Hot100 page (VS Code Light+ / Dark+) */
+  .tk-k { color: var(--t-k); }
+  .tk-k2 { color: var(--t-k2); }
+  .tk-s { color: var(--t-s); }
+  .tk-n { color: var(--t-n); }
+  .tk-c { color: var(--t-c); }
+  .tk-f { color: var(--t-f); }
+  .tk-v { color: var(--t-v); }
+  .tk-t { color: var(--t-t); }
 
   .results { border-top: 1px solid var(--line); padding: 12px 14px 14px; display: grid; gap: 10px; min-width: 0; }
   .res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
@@ -449,10 +461,13 @@
       <span class="brand-mark" aria-hidden="true">{ }</span>
       <div>
         <h1>手撕练习场</h1>
-        <p>前端手写题 · S 档 8 道 + A 档 6 道 · 每天默写，自动安排复习</p>
+        <p>前端手写题 · S / A / B 档共 20 道 · 每天默写，自动安排复习</p>
       </div>
     </div>
-    <div class="stats" id="stats"></div>
+    <div class="top-right">
+      <div class="stats" id="stats"></div>
+      <nav class="site-nav" aria-label="网站"><a href="../index.html">主页</a><a href="力扣Hot100.html">力扣 Hot100</a><a href="手写题慢放.html">手写题慢放</a></nav>
+    </div>
   </header>
 
   <div class="layout">
@@ -461,12 +476,18 @@
         <div class="rail-head">
           <h2 id="plan-title">今日练习</h2>
           <label for="target">每天 <select id="target">
+            <option value="0">0</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3" selected>3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-          </select> 道新题</label>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select> 道</label>
         </div>
         <ol class="plan" id="plan"></ol>
       </section>
@@ -1084,11 +1105,194 @@ function addStrings(a, b) {
 }
 </script>
 
+<script type="text/plain" id="starter-thousands">
+// 整数部分每三位加一个逗号，小数部分原样保留：1234567.891 → '1,234,567.891'
+function formatThousands(num) {
+
+}
+</script>
+<script type="text/plain" id="solution-thousands">
+function formatThousands(num) {
+  const [intPart, decPart] = String(num).split('.') // 只处理整数部分
+  // \B：不是单词边界（不会在开头插）；(?=(\d{3})+$)：这个位置后面到结尾的数字个数是 3 的倍数
+  const grouped = intPart.replace(/\B(?=(\d{3})+$)/g, ',')
+  return decPart === undefined ? grouped : `${grouped}.${decPart}`
+}
+
+// 不用正则：从个位往前数，每满三位且前面还有数字就加逗号
+function formatThousandsLoop(num) {
+  const [intPart, decPart] = String(num).split('.')
+  let out = ''
+  let count = 0
+  for (let i = intPart.length - 1; i >= 0; i--) {
+    out = intPart[i] + out
+    count++
+    const hasMoreDigits = i > 0 && intPart[i - 1] !== '-'
+    if (count % 3 === 0 && hasMoreDigits) out = ',' + out
+  }
+  return decPart === undefined ? out : `${out}.${decPart}`
+}
+</script>
+
+<script type="text/plain" id="starter-parse-query">
+// 把 ? 后面的查询参数解析成对象：值要解码，同名参数转数组，没有 = 的值为 true
+function parseQuery(url) {
+
+}
+</script>
+<script type="text/plain" id="solution-parse-query">
+function parseQuery(url) {
+  const query = url.split('#')[0].split('?')[1] ?? '' // 先去掉 # 后面，再取 ? 后面
+  const result = {}
+  for (const pair of query.split('&')) {
+    if (!pair) continue // 忽略空的 &&
+    const eq = pair.indexOf('=') // 按第一个 = 拆，值里可能还有 =
+    const decode = (s) => decodeURIComponent(s.replace(/\+/g, ' ')) // + 表示空格
+    const key = decode(eq === -1 ? pair : pair.slice(0, eq))
+    const value = eq === -1 ? true : decode(pair.slice(eq + 1))
+    if (Object.hasOwn(result, key)) result[key] = [].concat(result[key], value) // 同名参数转数组
+    else result[key] = value
+  }
+  return result
+}
+</script>
+
+<script type="text/plain" id="starter-async-add">
+// 题目给定的回调风格异步加法（不要修改）。原题每次 500ms，这里改成 50ms，让测试快一点
+function asyncAdd(a, b, callback) {
+  setTimeout(() => callback(null, a + b), 50)
+}
+
+// 串行求和：一次只算一个加法，返回 Promise
+async function sumSerial(...nums) {
+
+}
+
+// 并行求和：两两一组同时算，一轮一轮合并，直到只剩一个数
+async function sumParallel(...nums) {
+
+}
+
+// 进阶（可选）：通用 promisify
+function promisify(fn) {
+
+}
+</script>
+<script type="text/plain" id="solution-async-add">
+function asyncAdd(a, b, callback) {
+  setTimeout(() => callback(null, a + b), 50)
+}
+
+// 先把回调风格包成返回 Promise 的函数
+const addAsync = (a, b) =>
+  new Promise((resolve, reject) => {
+    asyncAdd(a, b, (err, sum) => (err ? reject(err) : resolve(sum)))
+  })
+
+async function sumSerial(...nums) {
+  if (nums.length === 0) return 0
+  let total = nums[0]
+  for (let i = 1; i < nums.length; i++) total = await addAsync(total, nums[i]) // 一次等一个
+  return total
+}
+
+async function sumParallel(...nums) {
+  if (nums.length <= 1) return nums[0] ?? 0
+  const round = []
+  for (let i = 0; i < nums.length; i += 2) {
+    // 两两一组同时开始；落单的直接进下一轮
+    round.push(i + 1 < nums.length ? addAsync(nums[i], nums[i + 1]) : nums[i])
+  }
+  return sumParallel(...(await Promise.all(round))) // 这一轮的结果再两两相加
+}
+
+function promisify(fn) {
+  return (...args) =>
+    new Promise((resolve, reject) => {
+      fn(...args, (err, value) => (err ? reject(err) : resolve(value)))
+    })
+}
+</script>
+
+<script type="text/plain" id="starter-is-equal">
+// 深比较：NaN 和 NaN 相等；数组和对象不相等；null 不能当对象；b 也要有同名的键
+function isEqual(a, b) {
+
+}
+</script>
+<script type="text/plain" id="solution-is-equal">
+function isEqual(a, b, seen = new WeakMap()) {
+  // 同一个引用、相等的基本类型、两个 NaN
+  if (a === b || (Number.isNaN(a) && Number.isNaN(b))) return true
+  // 排除 null，并且两个都得是对象
+  const bothObjects = a !== null && b !== null && typeof a === 'object' && typeof b === 'object'
+  if (!bothObjects) return false
+  // 进阶：Date 没有自有键，要按时间比
+  if (a instanceof Date || b instanceof Date) {
+    return a instanceof Date && b instanceof Date && a.getTime() === b.getTime()
+  }
+  if (Array.isArray(a) !== Array.isArray(b)) return false // 数组和对象不相等
+  // 进阶：循环引用，这一对已经在比较中了，直接当作相等
+  if (seen.get(a) === b) return true
+  seen.set(a, b)
+  const keysA = Object.keys(a)
+  const keysB = Object.keys(b)
+  if (keysA.length !== keysB.length) return false
+  return keysA.every((key) => Object.hasOwn(b, key) && isEqual(a[key], b[key], seen))
+}
+</script>
+
+<script type="text/plain" id="starter-shuffle">
+// Fisher–Yates：原地打乱并返回 arr，每种排列的概率相同
+function shuffle(arr) {
+
+}
+</script>
+<script type="text/plain" id="solution-shuffle">
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // 在 [0, i] 里随机选一个（包含 i）
+    [arr[i], arr[j]] = [arr[j], arr[i]] // 换到第 i 位；上一行的分号不能省
+  }
+  return arr
+}
+</script>
+
+<script type="text/plain" id="starter-ajax">
+// 用 XMLHttpRequest 封装一个返回 Promise 的请求函数
+// 2xx resolve 响应文本；其他状态码 reject Error（message 带状态码）；网络错误 reject
+// 有 data 时发送 JSON.stringify(data)，并设置 Content-Type: application/json
+function request({ method = 'GET', url, data, headers = {}, timeout = 0 }) {
+
+}
+</script>
+<script type="text/plain" id="solution-ajax">
+function request({ method = 'GET', url, data, headers = {}, timeout = 0 }) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, url, true) // 第三个参数 true：异步
+    // 请求头要在 open 之后、send 之前设置
+    for (const [key, value] of Object.entries(headers)) xhr.setRequestHeader(key, value)
+    if (data !== undefined) xhr.setRequestHeader('Content-Type', 'application/json')
+    xhr.timeout = timeout // 0 表示不限时
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return // 4 = 请求完成
+      if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.responseText)
+      else if (xhr.status !== 0) reject(new Error(`Request failed with status ${xhr.status}`))
+      // status 为 0：网络错误或超时，交给下面的 onerror / ontimeout
+    }
+    xhr.onerror = () => reject(new Error('Network error'))
+    xhr.ontimeout = () => reject(new Error(`Timeout after ${timeout}ms`))
+    xhr.send(data === undefined ? null : JSON.stringify(data))
+  })
+}
+</script>
+
 <script>
 (() => {
   'use strict'
 
-  const ANIM_URL = 'https://claude.ai/artifact/DBAZb4L1WCqvYreuW3WCWN'
+  const ANIM_URL = '手写题慢放.html'
   // Days until the next review after landing in each box (0 = needed help, 5 = long-term)
   const INTERVALS = [1, 1, 3, 7, 14, 30]
   const MAX_BOX = 5
@@ -2273,7 +2477,7 @@ function addStrings(a, b) {
       tier: 'A',
       title: '数组扁平化 flat',
       minutes: 8,
-      anim: null,
+      anim: 'flat',
       exports: ['flat', 'flattenObject'],
       task: `
         <p>实现 <code>flat(arr, depth = 1)</code>，行为和 <code>Array.prototype.flat</code> 一致：</p>
@@ -2366,7 +2570,7 @@ function addStrings(a, b) {
       tier: 'A',
       title: 'map / filter / reduce',
       minutes: 10,
-      anim: null,
+      anim: 'array-api',
       exports: [],
       task: `
         <p>在 <code>Array.prototype</code> 上实现 <code>myMap</code>、<code>myFilter</code>、<code>myReduce</code>，行为和原生一致：</p>
@@ -2492,7 +2696,7 @@ function addStrings(a, b) {
       tier: 'A',
       title: '大数加法',
       minutes: 8,
-      anim: null,
+      anim: 'big-add',
       exports: ['addStrings'],
       task: `
         <p>实现 <code>addStrings(a, b)</code>：</p>
@@ -2583,9 +2787,606 @@ function addStrings(a, b) {
         },
       ],
     },
+    {
+      id: 'thousands',
+      tier: 'B',
+      title: '千分位格式化',
+      minutes: 6,
+      anim: 'thousands',
+      exports: ['formatThousands'],
+      task: `
+        <p>实现 <code>formatThousands(num)</code>，返回字符串：</p>
+        <ul>
+          <li>整数部分<b>从右往左每三位加一个逗号</b>：<code>1234567</code> → <code>'1,234,567'</code>。</li>
+          <li>不足四位不加：<code>123</code> → <code>'123'</code>；开头不能出现逗号。</li>
+          <li><b>小数部分原样保留</b>：<code>1234567.891</code> → <code>'1,234,567.891'</code>。</li>
+          <li>负数：<code>-1234567</code> → <code>'-1,234,567'</code>。</li>
+        </ul>
+        <p class="bonus">进阶：参数也可能是字符串，要保留小数末尾的 0：<code>'1234567.10'</code> → <code>'1,234,567.10'</code>。</p>`,
+      idea: '拆成整数部分和小数部分，只处理整数部分：从右往左每三位插一个逗号。用正则是 \\B(?=(\\d{3})+$)，也可以用循环数位数。',
+      points: [
+        '先 <code>String(num).split(\'.\')</code>，只对整数部分加逗号，小数部分最后原样拼回去。',
+        '正则 <code>/\\B(?=(\\d{3})+$)/g</code>：<code>\\B</code> 是"不是单词边界的位置"，保证不会在开头插逗号；<code>(?=(\\d{3})+$)</code> 要求这个位置后面到结尾的数字个数是 3 的倍数。',
+        '负号和数字之间是单词边界，<code>\\B</code> 不匹配，所以负数不用特殊处理。',
+        '循环写法：从个位往前数，每数满三位、并且前面还有数字，就加一个逗号。',
+      ],
+      pitfalls: [
+        '整个数字一起套正则：<code>.</code> 挡住了先行断言，整数部分一个逗号都加不上，小数部分反而被加了：<code>1234.5678</code> 变成 <code>1234.5,678</code>。',
+        '分隔符写成了点号（原文档的笔误）。',
+        '<code>toLocaleString</code> 默认把小数四舍五入到 3 位：<code>(1234.56789).toLocaleString(\'en-US\')</code> 是 <code>\'1,234.568\'</code>。',
+      ],
+      followups: [
+        ['有原生方法吗？', '<code>num.toLocaleString(\'en-US\')</code>，或者 <code>new Intl.NumberFormat(\'en-US\', { maximumFractionDigits: 20 }).format(num)</code>；注意默认的小数位数限制。'],
+        ['正则里的 (?=...) 是什么？', '先行断言：只检查后面的内容是否满足条件，不消耗字符，所以逗号是插在"位置"上的。'],
+        ['数字特别大怎么办？', '超过 1e21 时 String(num) 会变成科学计数法，要让调用方直接传字符串。'],
+      ],
+      tests: [
+        {
+          name: '每三位一个逗号',
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands(1234567), '1,234,567')
+            eq(formatThousands(1000), '1,000')
+          },
+        },
+        {
+          name: '不足四位不加逗号',
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands(123), '123')
+            eq(formatThousands(0), '0')
+          },
+        },
+        {
+          name: '位数是 3 的倍数时开头不能有逗号',
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands(123456), '123,456')
+            eq(formatThousands(123456789), '123,456,789')
+          },
+        },
+        {
+          name: '小数部分原样保留',
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands(1234567.891), '1,234,567.891')
+            eq(formatThousands(1234.5678), '1,234.5678', '小数部分不能加逗号')
+          },
+        },
+        {
+          name: '负数',
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands(-1234567), '-1,234,567')
+            eq(formatThousands(-123), '-123')
+          },
+        },
+        {
+          name: '返回字符串',
+          run: ({ formatThousands }, { eq }) => {
+            eq(typeof formatThousands(1234), 'string')
+          },
+        },
+        {
+          name: '字符串参数保留小数末尾的 0',
+          bonus: true,
+          run: ({ formatThousands }, { eq }) => {
+            eq(formatThousands('1234567.10'), '1,234,567.10')
+          },
+        },
+      ],
+    },
+    {
+      id: 'parse-query',
+      tier: 'B',
+      title: 'URL 参数解析',
+      minutes: 8,
+      anim: 'parse-query',
+      exports: ['parseQuery'],
+      task: `
+        <p>实现 <code>parseQuery(url)</code>，把 URL 里 <code>?</code> 后面的查询参数解析成对象：</p>
+        <ul>
+          <li><code>'https://a.com/p?x=1&amp;y=2'</code> → <code>{ x: '1', y: '2' }</code>，值都是字符串。</li>
+          <li>值要解码：<code>%E4%BD%A0</code> → <code>你</code>；表单编码里 <code>+</code> 表示空格。</li>
+          <li><b>同名参数转成数组</b>：<code>x=1&amp;x=2</code> → <code>{ x: ['1', '2'] }</code>。</li>
+          <li>没有 <code>=</code> 的参数，值为 <code>true</code>：<code>?debug</code> → <code>{ debug: true }</code>。</li>
+          <li>值里可能还有 <code>=</code>：<code>t=a=b</code> → <code>{ t: 'a=b' }</code>，按第一个 <code>=</code> 拆。</li>
+          <li><code>#</code> 后面的部分不算；没有查询参数时返回 <code>{}</code>。</li>
+        </ul>
+        <p class="bonus">进阶：键也要解码；忽略空的 <code>&amp;&amp;</code>。</p>`,
+      idea: '先去掉 # 后面的部分，再取 ? 后面的部分；按 & 拆成一对对，再按第一个 = 拆成键和值，解码后放进对象，重复的键转成数组。',
+      points: [
+        '顺序：先 <code>split(\'#\')[0]</code> 再取 <code>?</code> 后面，否则 hash 里的 <code>?</code> 会被当成查询参数。',
+        '用 <code>indexOf(\'=\')</code> 找第一个等号，值里可能还有等号。',
+        '<code>decodeURIComponent</code> 解码；表单编码里 <code>+</code> 代表空格，要先 <code>replace(/\\+/g, \' \')</code>。',
+        '用 <code>Object.hasOwn(result, key)</code> 判断是否重复，再用 <code>[].concat(old, value)</code> 合并成数组。',
+      ],
+      pitfalls: [
+        '<code>split(\'=\')</code> 后只取 [0]、[1]：值里有等号时被截断。',
+        '忘了解码：中文和空格会变成 <code>%E4%BD%A0</code>、<code>%20</code>。',
+        '用 <code>if (result[key])</code> 判断是否已存在：值是空字符串时会误判。',
+      ],
+      followups: [
+        ['有原生 API 吗？', '<code>new URL(url).searchParams</code>：<code>get</code> 取第一个，<code>getAll</code> 取全部；<code>Object.fromEntries(searchParams)</code> 对同名参数只保留最后一个。'],
+        ['hash 路由里的参数（/#/page?id=1）怎么办？', '看需求：这类参数要单独从 <code>location.hash</code> 里解析。'],
+        ['反过来，把对象转成查询字符串？', '每个键和值都用 <code>encodeURIComponent</code> 编码，数组展开成多个同名参数，用 <code>&amp;</code> 连接。'],
+      ],
+      tests: [
+        {
+          name: '基本解析，值都是字符串',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/p?x=1&y=2'), { x: '1', y: '2' })
+          },
+        },
+        {
+          name: '解码：中文、%20、+',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?name=%E4%BD%A0%E5%A5%BD&q=a+b&s=c%20d'), { name: '你好', q: 'a b', s: 'c d' })
+          },
+        },
+        {
+          name: '同名参数转成数组',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?x=1&x=2&x=3'), { x: ['1', '2', '3'] })
+          },
+        },
+        {
+          name: '没有 = 的参数值为 true',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?debug&x=1'), { debug: true, x: '1' })
+          },
+        },
+        {
+          name: '值里有 = 时按第一个拆',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?t=a=b'), { t: 'a=b' })
+          },
+        },
+        {
+          name: '忽略 # 后面的部分',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?a=1#b=2'), { a: '1' })
+            eq(parseQuery('https://a.com/#/page?id=1'), {}, '? 出现在 # 后面时不算查询参数')
+          },
+        },
+        {
+          name: '没有查询参数时返回 {}',
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/path'), {})
+            eq(parseQuery('https://a.com/path?'), {})
+          },
+        },
+        {
+          name: '键也要解码，忽略空的 &&',
+          bonus: true,
+          run: ({ parseQuery }, { eq }) => {
+            eq(parseQuery('https://a.com/?name%20x=1&&y=2'), { 'name x': '1', y: '2' })
+          },
+        },
+      ],
+    },
+    {
+      id: 'async-add',
+      tier: 'B',
+      title: '异步加法',
+      minutes: 10,
+      anim: 'async-add',
+      exports: ['sumSerial', 'sumParallel', 'promisify'],
+      task: `
+        <p>只有一个回调风格的异步加法 <code>asyncAdd(a, b, callback)</code>，每次耗时 50ms（模板里已经给出，<b>不要修改</b>；原题是 500ms）。实现：</p>
+        <ul>
+          <li><code>sumSerial(...nums)</code>：<b>串行</b>求和，一次只算一个加法，返回 Promise。</li>
+          <li><code>sumParallel(...nums)</code>：<b>并行</b>求和：两两一组同时算，一轮一轮合并，直到只剩一个数。要明显快于串行。</li>
+          <li>没有参数时返回 0；只有一个参数时返回它本身。</li>
+        </ul>
+        <p class="bonus">进阶：实现通用的 <code>promisify(fn)</code>，把 <code>(...args, callback)</code> 风格的函数转成返回 Promise 的函数。</p>`,
+      idea: '先把回调风格的 asyncAdd 包成返回 Promise 的函数；串行就是在 for 循环里一个接一个 await；并行就是两两一组用 Promise.all 同时算，一轮轮合并。',
+      points: [
+        '包成 Promise：<code>new Promise((resolve, reject) =&gt; asyncAdd(a, b, (err, sum) =&gt; err ? reject(err) : resolve(sum)))</code>。',
+        '串行：n 个数要 n - 1 次加法，每次都等上一次，耗时是 (n - 1) × 单次耗时。',
+        '并行：每一轮把数量减半，轮数是 ⌈log₂ n⌉：10 个数只要 4 轮。',
+        '奇数个数时，落单的那个直接进下一轮，不用浪费一次 + 0。',
+      ],
+      pitfalls: [
+        '在回调里 return 结果：外面拿不到，回调的返回值没人接收。',
+        '串行用 forEach + async：forEach 不会等 await，实际变成了同时发出。',
+        '并行时想一次把所有数丢给 asyncAdd：它一次只能加两个数。',
+      ],
+      followups: [
+        ['用 reduce 怎么写串行？', '<code>nums.reduce((p, n) =&gt; p.then((sum) =&gt; addAsync(sum, n)), Promise.resolve(0))</code>。'],
+        ['一次最多只能同时算 k 个怎么办？', '每一轮的加法交给第 3 题的 asyncPool，限制并发数为 k。'],
+        ['相同的 a + b 会重复请求吗？', '可以加缓存：用 Map 以 <code>`${a},${b}`</code> 为键缓存结果。'],
+      ],
+      tests: [
+        {
+          name: 'sumSerial：结果正确，返回 Promise',
+          run: async ({ sumSerial }, { eq, ok }) => {
+            const p = sumSerial(1, 2, 3, 4, 5)
+            ok(p && typeof p.then === 'function', '应该返回 Promise')
+            eq(await p, 15)
+          },
+        },
+        {
+          name: 'sumParallel：结果正确',
+          run: async ({ sumParallel }, { eq }) => {
+            eq(await sumParallel(1, 2, 3, 4, 5, 8, 9, 10, 11, 12), 65)
+          },
+        },
+        {
+          name: '没有参数返回 0，一个参数返回它本身',
+          run: async ({ sumSerial, sumParallel }, { eq }) => {
+            eq(await sumSerial(), 0, 'sumSerial()')
+            eq(await sumSerial(7), 7, 'sumSerial(7)')
+            eq(await sumParallel(), 0, 'sumParallel()')
+            eq(await sumParallel(7), 7, 'sumParallel(7)')
+          },
+        },
+        {
+          name: '奇数个数也能并行求和',
+          run: async ({ sumParallel }, { eq }) => {
+            eq(await sumParallel(1, 2, 3), 6)
+            eq(await sumParallel(1, 2, 3, 4, 5, 6, 7), 28)
+          },
+        },
+        {
+          name: '串行：一次只算一个加法',
+          run: async ({ sumSerial }, { ok }) => {
+            const start = Date.now()
+            await sumSerial(1, 2, 3, 4, 5)
+            const ms = Date.now() - start
+            ok(ms >= 180, `5 个数串行至少要 4 次加法，约 200ms；实际只用了 ${ms}ms，是不是没有调用 asyncAdd，或者变成了同时发出？`)
+          },
+        },
+        {
+          name: '并行明显比串行快',
+          run: async ({ sumParallel }, { ok }) => {
+            const start = Date.now()
+            await sumParallel(1, 2, 3, 4, 5, 6, 7, 8)
+            const ms = Date.now() - start
+            ok(ms >= 130, `用了 ${ms}ms：8 个数并行也需要 3 轮加法（约 150ms），是不是没有调用 asyncAdd？`)
+            ok(ms < 260, `用了 ${ms}ms：8 个数串行约 350ms，并行应该约 150ms（3 轮）`)
+          },
+        },
+        {
+          name: 'promisify：把回调风格转成 Promise',
+          bonus: true,
+          run: async ({ promisify }, { eq, ok, rejects }) => {
+            ok(typeof promisify === 'function', '还没有实现 promisify')
+            const add = promisify((a, b, cb) => setTimeout(() => cb(null, a + b), 5))
+            eq(await add(2, 3), 5)
+            const fail = promisify((cb) => cb(new Error('boom')))
+            const err = await rejects(fail())
+            ok(err && err.message === 'boom', '回调第一个参数是错误时，应该 reject 这个错误')
+          },
+        },
+      ],
+    },
+    {
+      id: 'is-equal',
+      tier: 'B',
+      title: '对象深比较 isEqual',
+      minutes: 8,
+      anim: 'is-equal',
+      exports: ['isEqual'],
+      task: `
+        <p>实现 <code>isEqual(a, b)</code>，深比较两个值是否"长得一样"：</p>
+        <ul>
+          <li>基本类型用 <code>===</code> 比较，但 <b>NaN 和 NaN 相等</b>。</li>
+          <li>对象和数组递归比较每一个键，键的顺序无所谓。</li>
+          <li>键的数量要相同，并且 <b>b 自己也要有这个键</b>：<code>{ a: undefined }</code> 和 <code>{ b: undefined }</code> 不相等。</li>
+          <li><b>数组和对象不相等</b>：<code>[]</code> 和 <code>{}</code> 不相等。</li>
+          <li>null 不能当对象处理：<code>isEqual(null, {})</code> 返回 false，不能报错。</li>
+        </ul>
+        <p class="bonus">进阶：Date 按时间比较；遇到循环引用不陷入死循环。</p>`,
+      idea: '先处理能直接判断的情况（===、NaN、不是两个对象），剩下两个都是对象时，先比键的数量，再逐个键递归比较。',
+      points: [
+        '<code>a === b || (Number.isNaN(a) &amp;&amp; Number.isNaN(b))</code>：同一个引用、相等的基本类型、两个 NaN，直接返回 true。',
+        '判断"两个都是对象"时要排除 null：<code>typeof null === \'object\'</code>。',
+        '<code>Array.isArray(a) !== Array.isArray(b)</code> 时直接 false。',
+        '逐个键比较时先用 <code>Object.hasOwn(b, key)</code> 确认 b 也有这个键。',
+        '进阶：Date 没有自有键，按通用方式比较时任意两个 Date 都会"相等"，要单独用 getTime 比；循环引用用 WeakMap 记下比较过的那一对。',
+      ],
+      pitfalls: [
+        '没排除 null：<code>Object.keys(null)</code> 直接报 TypeError（原文档的坑）。',
+        '没区分数组和对象：<code>[]</code> 和 <code>{}</code> 键数都是 0，被判成相等。',
+        '只比键数不确认键名：<code>{ a: undefined }</code> 和 <code>{ b: undefined }</code> 被判成相等。',
+      ],
+      followups: [
+        ['能用 JSON.stringify 比较吗？', '不行：键顺序不同结果就不同；undefined 会被丢掉；NaN 变成 null；遇到循环引用直接报错。'],
+        ['React 里的 shallowEqual 是什么？', '只比较第一层：键数相同，并且每个键的值用 Object.is 相等。memo 和 PureComponent 用它判断要不要重新渲染。'],
+        ['lodash 的 isEqual 多做了什么？', '还比较了 Map、Set、正则、TypedArray、原型等，并处理循环引用。'],
+      ],
+      tests: [
+        {
+          name: '基本类型',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual(1, 1), true, 'isEqual(1, 1)')
+            eq(isEqual(1, '1'), false, "isEqual(1, '1')")
+            eq(isEqual('a', 'a'), true, "isEqual('a', 'a')")
+            eq(isEqual(undefined, undefined), true, 'isEqual(undefined, undefined)')
+          },
+        },
+        {
+          name: 'NaN 和 NaN 相等',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual(NaN, NaN), true)
+            eq(isEqual({ x: NaN }, { x: NaN }), true)
+          },
+        },
+        {
+          name: '嵌套对象和数组，键顺序无所谓',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual({ a: 1, b: { x: [1, 2] } }, { b: { x: [1, 2] }, a: 1 }), true, '相同结构、不同键顺序')
+            eq(isEqual({ a: 100 }, { a: 200 }), false, '值不同')
+            eq(isEqual([1, [2, 3]], [1, [2, 4]]), false, '嵌套数组里有一个值不同')
+          },
+        },
+        {
+          name: 'null 不报错',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual(null, {}), false, 'isEqual(null, {})')
+            eq(isEqual({}, null), false, 'isEqual({}, null)')
+            eq(isEqual(null, null), true, 'isEqual(null, null)')
+          },
+        },
+        {
+          name: '数组和对象不相等',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual([], {}), false, 'isEqual([], {})')
+            eq(isEqual(['a'], { 0: 'a' }), false, "isEqual(['a'], { 0: 'a' })")
+          },
+        },
+        {
+          name: '键数量不同、键名不同都不相等',
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual({ a: 1 }, { a: 1, b: 2 }), false, '键数量不同')
+            eq(isEqual({ a: undefined }, { b: undefined }), false, '键名不同，值都是 undefined')
+          },
+        },
+        {
+          name: 'Date 按时间比较',
+          bonus: true,
+          run: ({ isEqual }, { eq }) => {
+            eq(isEqual(new Date(0), new Date(0)), true, '时间相同')
+            eq(isEqual(new Date(0), new Date(1)), false, '时间不同：Date 没有自有键，不能按普通对象比')
+          },
+        },
+        {
+          name: '循环引用不陷入死循环',
+          bonus: true,
+          run: ({ isEqual }, { eq, fail }) => {
+            const a = { x: 1 }
+            a.self = a
+            const b = { x: 1 }
+            b.self = b
+            let result
+            try {
+              result = isEqual(a, b)
+            } catch (e) {
+              fail(`比较时报错：${e && e.name}。遇到循环引用会无限递归`)
+            }
+            eq(result, true)
+          },
+        },
+      ],
+    },
+    {
+      id: 'shuffle',
+      tier: 'B',
+      title: '洗牌算法',
+      minutes: 5,
+      anim: 'shuffle',
+      exports: ['shuffle'],
+      task: `
+        <p>实现 <code>shuffle(arr)</code>，用 Fisher–Yates 算法<b>原地</b>打乱数组：</p>
+        <ul>
+          <li><b>每种排列出现的概率相同</b>（测试会打乱 [1, 2, 3] 三万次，统计 6 种排列各出现几次）。</li>
+          <li>不能丢元素也不能多元素。</li>
+          <li>直接修改并返回传入的数组。</li>
+          <li>空数组、只有一个元素的数组不报错。</li>
+        </ul>
+        <p class="bonus">进阶：Math.random 只调用 n - 1 次。</p>`,
+      idea: '从最后一位往前：每次在还没确定的范围 [0, i] 里随机挑一个，换到第 i 位，第 i 位就定下来了。',
+      points: [
+        '<code>j = Math.floor(Math.random() * (i + 1))</code>：范围是 [0, i]，包含 i 本身（可以不换）。',
+        '每种排列的概率都是 1/n!：第一步 n 种选择，第二步 n - 1 种……正好 n! 种走法，每种一样可能。',
+        'Math.random 只调用 n - 1 次，时间 O(n)。',
+        '解构交换 <code>[arr[i], arr[j]] = [arr[j], arr[i]]</code> 这一行以 <code>[</code> 开头，上一行没写分号时会被连成一句。',
+      ],
+      pitfalls: [
+        '<code>sort(() =&gt; Math.random() - 0.5)</code>：结果不均匀，打乱 [1, 2, 3] 时 123 出现的次数远多于 1/6。',
+        'j 的范围写成整个数组 [0, n)：一共 n^n 种走法，不能被 n! 整除，也不均匀。',
+        '缺分号：<code>const j = ...</code> 下一行以 <code>[</code> 开头，会报 ReferenceError（原文档的坑）。',
+      ],
+      followups: [
+        ['不想修改原数组？', '先复制一份再打乱：<code>shuffle([...arr])</code>。'],
+        ['怎么验证是不是均匀？', '打乱 [1, 2, 3] 几万次，统计 6 种排列的次数，应该都接近总数的 1/6。'],
+        ['从数组里随机抽 k 个不重复的元素？', '只做 Fisher–Yates 的前 k 步，取最后 k 个位置。'],
+      ],
+      tests: [
+        {
+          name: '返回同一个数组，元素不丢不多',
+          run: ({ shuffle }, { eq, ok }) => {
+            const arr = [1, 2, 3, 4, 5, 6, 7, 8]
+            const res = shuffle(arr)
+            ok(res === arr, '应该原地修改并返回传入的数组')
+            eq([...res].sort((a, b) => a - b), [1, 2, 3, 4, 5, 6, 7, 8], '打乱后排个序，应该和原来一样')
+          },
+        },
+        {
+          name: '空数组和单元素数组',
+          run: ({ shuffle }, { eq }) => {
+            eq(shuffle([]), [])
+            eq(shuffle([42]), [42])
+          },
+        },
+        {
+          name: '确实会打乱',
+          run: ({ shuffle }, { ok }) => {
+            let changed = false
+            for (let k = 0; k < 20 && !changed; k++) {
+              const res = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+              changed = res.some((v, i) => v !== i + 1)
+            }
+            ok(changed, '打乱 20 次，顺序一次都没变')
+          },
+        },
+        {
+          name: '每种排列的概率相同',
+          timeout: 4000,
+          run: ({ shuffle }, { ok }) => {
+            const counts = {}
+            const N = 30000
+            for (let k = 0; k < N; k++) {
+              const key = shuffle([1, 2, 3]).join('')
+              counts[key] = (counts[key] || 0) + 1
+            }
+            const keys = Object.keys(counts)
+            const detail = keys.sort().map((k) => `${k}: ${counts[k]}`).join('，')
+            ok(keys.length === 6, `应该出现全部 6 种排列，实际只有 ${keys.length} 种（${detail}）`)
+            ok(keys.every((k) => Math.abs(counts[k] - N / 6) < 600), `每种应该约 5000 次，实际：${detail}。常见原因：用了 sort + Math.random，或者 j 的范围不是 [0, i]`)
+          },
+        },
+        {
+          name: '每个位置都可能出现每个元素',
+          run: ({ shuffle }, { ok }) => {
+            const firsts = new Set()
+            for (let k = 0; k < 600; k++) firsts.add(shuffle([1, 2, 3, 4, 5])[0])
+            ok(firsts.size === 5, `第一个位置只出现过 ${[...firsts].join('、')}：j 的范围应该是 [0, i]`)
+          },
+        },
+        {
+          name: 'Math.random 只调用 n - 1 次',
+          bonus: true,
+          run: ({ shuffle }, { eq }) => {
+            const real = Math.random
+            let calls = 0
+            Math.random = () => {
+              calls += 1
+              return real()
+            }
+            try {
+              shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+            } finally {
+              Math.random = real
+            }
+            eq(calls, 9, '10 个元素应该调用 9 次')
+          },
+        },
+      ],
+    },
+    {
+      id: 'ajax',
+      tier: 'B',
+      title: 'Ajax 封装',
+      minutes: 10,
+      anim: 'ajax',
+      exports: ['request'],
+      task: `
+        <p>用 <code>XMLHttpRequest</code> 封装 <code>request({ method = 'GET', url, data, headers, timeout })</code>，返回 Promise：</p>
+        <ul>
+          <li>用 <code>open(method, url, true)</code> 发异步请求，最后调用 <code>send</code>。</li>
+          <li>状态码 <b>200–299</b> 时 resolve 响应文本 <code>responseText</code>。</li>
+          <li>其他状态码 reject 一个 Error，<b>message 里带上状态码</b>。</li>
+          <li>网络错误（<code>onerror</code>）时 reject。</li>
+          <li>有 data 时发送 <code>JSON.stringify(data)</code>，并设置 <code>Content-Type: application/json</code>。</li>
+        </ul>
+        <p>测试会用一个模拟的 XMLHttpRequest 代替真实网络，不会真的发请求。</p>
+        <p class="bonus">进阶：支持 headers 自定义请求头；支持 timeout，超时 reject。</p>`,
+      idea: 'new 一个 XMLHttpRequest：open → 设置请求头 → 绑定回调 → send；外面用 Promise 包一层，在 readyState 变成 4 时根据状态码 resolve 或 reject。',
+      points: [
+        'readyState：0 还没调用 open，1 已 open，2 收到响应头，3 正在接收响应体，4 完成。',
+        '判断成功用 <code>status &gt;= 200 &amp;&amp; status &lt; 300</code>，不要只判断 200。',
+        '<code>setRequestHeader</code> 必须在 open 之后、send 之前调用。',
+        'onerror 处理网络错误（此时 status 是 0）；ontimeout 处理超时。',
+      ],
+      pitfalls: [
+        '在回调里 throw 错误：外面的 try/catch 和 .catch 都接不到，应该 reject（原文档的坑）。',
+        '发送对象时没有 JSON.stringify：请求体变成 "[object Object]"。',
+        '在 open 之前调用 setRequestHeader：直接报错。',
+      ],
+      followups: [
+        ['fetch 和 XHR 有什么区别？', 'fetch 基于 Promise；404、500 不会 reject（只有网络错误才会），要自己看 <code>response.ok</code>；默认不带跨域 cookie；没有上传进度事件（XHR 有 upload.onprogress）。'],
+        ['怎么取消请求？', 'XHR 用 <code>xhr.abort()</code>；fetch 用 AbortController。'],
+        ['怎么做失败重试？', '失败后再调一次 request 并记录次数，可以配合指数退避：每次等待时间翻倍。'],
+      ],
+      tests: [
+        {
+          name: '返回 Promise，用 open(method, url, true) 和 send 发请求',
+          run: async ({ request }, { ok, eq, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(200, 'ok'), async (calls) => {
+              const p = request({ url: '/api/user' })
+              ok(p && typeof p.then === 'function', '应该返回 Promise')
+              await p
+              eq(calls.length, 1, '应该创建一个 XMLHttpRequest')
+              eq([calls[0].method, calls[0].url, calls[0].async], ['GET', '/api/user', true], 'open 的参数：默认 GET、url、第三个参数 true')
+              ok(calls[0].sent, '应该调用 send')
+            })
+          },
+        },
+        {
+          name: '200 时 resolve 响应文本',
+          run: async ({ request }, { eq, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(200, 'hello'), async () => {
+              eq(await request({ url: '/a' }), 'hello')
+            })
+          },
+        },
+        {
+          name: '状态码不是 2xx 时 reject，错误信息带状态码',
+          run: async ({ request }, { ok, rejects, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(404, 'not found', 'Not Found'), async () => {
+              const err = await rejects(request({ url: '/missing' }), '404 时应该 reject')
+              ok(String(err && (err.message ?? err)).includes('404'), `错误信息里应该带上状态码 404，实际：${err && (err.message ?? err)}`)
+            })
+          },
+        },
+        {
+          name: '网络错误时 reject',
+          run: async ({ request }, { rejects, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(0), async () => {
+              await rejects(request({ url: '/a' }), '网络错误（onerror）时应该 reject')
+            })
+          },
+        },
+        {
+          name: '有 data 时发送 JSON，并设置 Content-Type',
+          run: async ({ request }, { eq, ok, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(200, '{}'), async (calls) => {
+              await request({ method: 'POST', url: '/a', data: { x: 1 } })
+              eq(calls[0].method, 'POST')
+              eq(calls[0].body, '{"x":1}', '请求体应该是 JSON.stringify(data)')
+              ok(String(calls[0].requestHeaders['content-type'] || '').includes('application/json'), '应该设置 Content-Type: application/json')
+            })
+          },
+        },
+        {
+          name: '2xx 都算成功',
+          run: async ({ request }, { eq, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(204, ''), async () => {
+              eq(await request({ url: '/a' }), '', '204 也应该 resolve')
+            })
+          },
+        },
+        {
+          name: '支持自定义 headers',
+          bonus: true,
+          run: async ({ request }, { eq, withFakeXHR }) => {
+            await withFakeXHR((xhr) => xhr.respond(200, 'ok'), async (calls) => {
+              await request({ url: '/a', headers: { Authorization: 'Bearer t' } })
+              eq(calls[0].requestHeaders.authorization, 'Bearer t')
+            })
+          },
+        },
+        {
+          name: '超时时 reject',
+          bonus: true,
+          run: async ({ request }, { rejects, timeout, withFakeXHR }) => {
+            await withFakeXHR(() => {}, async () => {
+              await timeout(rejects(request({ url: '/slow', timeout: 50 }), '超时后应该 reject'), 1000, '超过 1 秒还没有 reject：timeout 没有生效')
+            })
+          },
+        },
+      ],
+    },
   ]
   const QUESTION_IDS = new Set(QUESTIONS.map((q) => q.id))
-  const TIER_LABEL = { S: 'S 档 · 必须能默写', A: 'A 档 · 高频' }
+  const TIER_LABEL = { S: 'S 档 · 必须能默写', A: 'A 档 · 高频', B: 'B 档 · 中频' }
 
   /* ======================= worker (runs user code in isolation) ======================= */
   function workerMain() {
@@ -2593,6 +3394,12 @@ function addStrings(a, b) {
     class AssertError extends Error {}
     // a test's leftover rejected promise must not spam the worker console
     if ('onunhandledrejection' in self) self.onunhandledrejection = (event) => event.preventDefault()
+    if (typeof self.addEventListener === 'function') {
+      self.addEventListener('error', (event) => {
+        event.preventDefault()
+        send({ type: 'log', level: 'error', text: `未捕获的错误：${event.message}（在回调里 throw 的错误，外面的 Promise 接不到）` })
+      })
+    }
 
     const fmt = (value, depth = 0) => {
       if (typeof value === 'string') return depth === 0 ? JSON.stringify(value) : JSON.stringify(value)
@@ -2669,6 +3476,72 @@ function addStrings(a, b) {
           promise,
           new Promise((_, reject) => setTimeout(() => reject(new AssertError(msg || `${ms}ms 内没有完成`)), ms)),
         ])
+      },
+      async withFakeXHR(behavior, run) {
+        const calls = []
+        class FakeXHR {
+          constructor() {
+            Object.assign(this, { readyState: 0, status: 0, statusText: '', responseText: '', response: '', timeout: 0, requestHeaders: {}, listeners: {}, sent: false, done: false })
+            calls.push(this)
+          }
+          open(method, url, async = true) {
+            this.method = String(method).toUpperCase()
+            this.url = url
+            this.async = async
+            this.readyState = 1
+            this.fire('readystatechange')
+          }
+          setRequestHeader(key, value) {
+            if (this.readyState !== 1) throw new Error("Failed to execute 'setRequestHeader': the object's state must be OPENED.")
+            this.requestHeaders[String(key).toLowerCase()] = value
+          }
+          addEventListener(type, fn) {
+            (this.listeners[type] = this.listeners[type] || []).push(fn)
+          }
+          removeEventListener(type, fn) {
+            this.listeners[type] = (this.listeners[type] || []).filter((f) => f !== fn)
+          }
+          fire(type) {
+            const event = { type, target: this }
+            if (typeof this[`on${type}`] === 'function') this[`on${type}`](event)
+            for (const fn of this.listeners[type] || []) fn.call(this, event)
+          }
+          finish(type) {
+            if (this.done) return
+            this.done = true
+            clearTimeout(this.timer)
+            this.readyState = 4
+            this.fire('readystatechange')
+            this.fire(type)
+            this.fire('loadend')
+          }
+          respond(status, body = '', statusText = '') {
+            if (this.done || this.aborted) return
+            this.status = status
+            this.statusText = statusText
+            this.responseText = body
+            this.response = body
+            this.finish(status === 0 ? 'error' : 'load')
+          }
+          send(body = null) {
+            if (this.readyState !== 1) throw new Error("Failed to execute 'send': the object's state must be OPENED.")
+            this.sent = true
+            this.body = body
+            if (this.timeout > 0) this.timer = setTimeout(() => this.finish('timeout'), this.timeout)
+            setTimeout(() => behavior(this), 10)
+          }
+          abort() {
+            this.aborted = true
+            clearTimeout(this.timer)
+          }
+        }
+        const saved = self.XMLHttpRequest
+        self.XMLHttpRequest = FakeXHR
+        try {
+          return await run(calls)
+        } finally {
+          self.XMLHttpRequest = saved
+        }
       },
     }
 
@@ -2792,6 +3665,207 @@ function addStrings(a, b) {
   }
   const qById = (id) => QUESTIONS.find((q) => q.id === id)
 
+  /* ===== 每日计划 开始：主页、手撕练习场、力扣 Hot100 三个页面里各有一份，内容完全相同，改的时候三处一起改 =====
+     每天的题量存在 localStorage 的 study:quota（{ hs: 手撕题道数, lc: 力扣题道数 }），三个页面共用。
+     当天第一次打开任意一个页面时定下清单：先排到期的（过期最久的在前），再排新题（按题目顺序），还不够就用最久没练的补齐。
+     清单当天固定；当天改了题量，只在清单末尾增减还没做的题，做过的保留。
+     力扣的清单存在 lc-srs 的 days[日期] 里（和原来的格式一样）；手撕的清单存在 hs:days[日期] 里。 */
+  const DailyPlan = (() => {
+    const QUOTA_KEY = 'study:quota'
+    const HS_DAYS_KEY = 'hs:days'
+    const DEFAULT_QUOTA = { hs: 3, lc: 30 } // 和合并前一样：手撕每天 3 道，力扣每天 30 题
+    const MAX_QUOTA = { hs: 20, lc: 100 }
+    const KEEP_DAYS = 90
+
+    const read = (key) => {
+      try {
+        return JSON.parse(localStorage.getItem(key) ?? 'null')
+      } catch {
+        return null
+      }
+    }
+    const write = (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value))
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    const pad2 = (n) => String(n).padStart(2, '0')
+    const ymd = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+    const parseDay = (t) => {
+      const [y, m, d] = t.split('-').map(Number)
+      return new Date(y, m - 1, d)
+    }
+    const addDays = (t, n) => {
+      const d = parseDay(t)
+      d.setDate(d.getDate() + n)
+      return ymd(d)
+    }
+    const dayDiff = (a, b) => Math.round((parseDay(b) - parseDay(a)) / 864e5)
+    const ago = (t, today) => {
+      const n = dayDiff(t, today)
+      if (n <= 0) return '今天'
+      return n === 1 ? '昨天' : `${n} 天前`
+    }
+    const fmtDay = (t, today) => {
+      const d = parseDay(t)
+      const n = dayDiff(today, t)
+      let rel = ''
+      if (n === 1) rel = '（明天）'
+      else if (n === 2) rel = '（后天）'
+      else if (n > 0) rel = `（${n} 天后）`
+      return `${d.getMonth() + 1} 月 ${d.getDate()} 日${rel}`
+    }
+    const keepRecent = (days) => {
+      const out = {}
+      for (const k of Object.keys(days).sort().slice(-KEEP_DAYS)) out[k] = days[k]
+      return out
+    }
+
+    const clampQuota = (kind, value, fallback) => {
+      const n = Number(value)
+      return Number.isInteger(n) && n >= 0 ? Math.min(n, MAX_QUOTA[kind]) : fallback
+    }
+    function quota() {
+      const saved = read(QUOTA_KEY) || {}
+      // 合并前手撕练习场自己存过"每天几道新题"，第一次用这个值当手撕的题量
+      const legacyHs = clampQuota('hs', (read('hs:meta') || {}).target, DEFAULT_QUOTA.hs) || DEFAULT_QUOTA.hs
+      return { hs: clampQuota('hs', saved.hs, legacyHs), lc: clampQuota('lc', saved.lc, DEFAULT_QUOTA.lc) }
+    }
+    function setQuota(patch) {
+      const next = quota()
+      for (const kind of ['hs', 'lc']) if (kind in patch) next[kind] = clampQuota(kind, patch[kind], next[kind])
+      write(QUOTA_KEY, next)
+      return next
+    }
+
+    // 把当天的清单调整到 n 道：不够就按候选顺序往后补，多了就从末尾去掉还没做的题
+    function fit(day, n, candidates, isDone) {
+      let changed = false
+      if (day.list.length < n) {
+        for (const [id, why] of candidates()) {
+          if (day.list.length >= n) break
+          if (day.list.includes(id)) continue
+          day.list.push(id)
+          day.why[id] = why
+          changed = true
+        }
+      }
+      for (let i = day.list.length - 1; i >= 0 && day.list.length > n; i--) {
+        const id = day.list[i]
+        if (isDone(id)) continue
+        day.list.splice(i, 1)
+        delete day.why[id]
+        changed = true
+      }
+      return changed
+    }
+
+    /* ---- 力扣：卡片 { interval, reps, lapses, last, due, grade }，lc-srs = { cards, days } ---- */
+    function lcCandidates(srs, ids, t) {
+      const card = (id) => srs.cards[id]
+      const due = []
+      const fresh = []
+      const rest = []
+      for (const id of ids) {
+        const c = card(id)
+        if (!c) fresh.push(id)
+        else if (c.due <= t) due.push(id)
+        else rest.push(id)
+      }
+      due.sort((a, b) => card(a).due.localeCompare(card(b).due) || (card(b).lapses || 0) - (card(a).lapses || 0))
+      rest.sort((a, b) => card(a).last.localeCompare(card(b).last) || card(a).due.localeCompare(card(b).due))
+      const dueWhy = (c) => (c.due < t ? `到期（晚了 ${dayDiff(c.due, t)} 天）` : '今天到期')
+      return [
+        ...due.map((id) => [id, ['due', dueWhy(card(id))]]),
+        ...fresh.map((id) => [id, ['new', '新题']]),
+        ...rest.map((id) => [id, ['fill', `补齐 · 上次 ${ago(card(id).last, t)}，原定 ${fmtDay(card(id).due, t)}`]]),
+      ]
+    }
+    // 返回 { day, changed }；changed 为 true 时由调用方保存 srs
+    function lcDay(srs, ids, t, n) {
+      let changed = false
+      let day = srs.days[t]
+      if (!day || !Array.isArray(day.list)) {
+        day = { list: [], why: {}, done: {}, extra: {} }
+        srs.days[t] = day
+        changed = true
+      }
+      day.why = day.why || {}
+      day.done = day.done || {}
+      day.extra = day.extra || {}
+      const known = new Set(ids)
+      const kept = day.list.filter((id) => known.has(id) || day.done[id])
+      if (kept.length !== day.list.length) {
+        day.list = kept
+        changed = true
+      }
+      if (fit(day, n, () => lcCandidates(srs, ids, t), (id) => Boolean(day.done[id]))) changed = true
+      return { day, changed }
+    }
+    function lcRead() {
+      const raw = read('lc-srs')
+      return raw && typeof raw === 'object' ? { cards: raw.cards || {}, days: raw.days || {} } : { cards: {}, days: {} }
+    }
+    function lcWrite(srs) {
+      return write('lc-srs', { cards: srs.cards, days: keepRecent(srs.days) })
+    }
+
+    /* ---- 手撕：记录 { box, due, best, code, history: [{ day, result, ... }] }，hs:records = { id: 记录 } ---- */
+    const hsLast = (rec) => {
+      const h = rec && Array.isArray(rec.history) ? rec.history : []
+      return h.length > 0 ? h[h.length - 1].day : ''
+    }
+    const hsDoneOn = (rec, t) => Boolean(rec && Array.isArray(rec.history) && rec.history.some((h) => h.day === t))
+    function hsCandidates(records, ids, t) {
+      const due = []
+      const fresh = []
+      const rest = []
+      for (const id of ids) {
+        const rec = records[id]
+        if (!hsLast(rec)) fresh.push(id)
+        else if (rec.due && rec.due <= t) due.push(id)
+        else rest.push(id)
+      }
+      due.sort((a, b) => records[a].due.localeCompare(records[b].due))
+      rest.sort((a, b) => hsLast(records[a]).localeCompare(hsLast(records[b])))
+      const dueWhy = (rec) => (rec.due < t ? `到期（晚了 ${dayDiff(rec.due, t)} 天）` : '今天到期')
+      return [
+        ...due.map((id) => [id, ['due', dueWhy(records[id])]]),
+        ...fresh.map((id) => [id, ['new', '新题']]),
+        ...rest.map((id) => [id, ['fill', `巩固 · 上次 ${ago(hsLast(records[id]), t)}`]]),
+      ]
+    }
+    // 返回当天的清单 { list, why }，有变化时直接写回 hs:days
+    function hsDay(records, ids, t, n) {
+      const days = read(HS_DAYS_KEY) || {}
+      let changed = false
+      let day = days[t]
+      if (!day || !Array.isArray(day.list)) {
+        day = { list: [], why: {} }
+        days[t] = day
+        changed = true
+      }
+      day.why = day.why || {}
+      const known = new Set(ids)
+      const kept = day.list.filter((id) => known.has(id))
+      if (kept.length !== day.list.length) {
+        day.list = kept
+        changed = true
+      }
+      if (fit(day, n, () => hsCandidates(records, ids, t), (id) => hsDoneOn(records[id], t))) changed = true
+      if (changed) write(HS_DAYS_KEY, keepRecent(days))
+      return day
+    }
+    const hsReadDays = () => read(HS_DAYS_KEY) || {}
+
+    return { QUOTA_KEY, HS_DAYS_KEY, MAX_QUOTA, read, write, ymd, parseDay, addDays, dayDiff, quota, setQuota, lcDay, lcRead, lcWrite, hsDay, hsDoneOn, hsReadDays }
+  })()
+  /* ===== 每日计划 结束 ===== */
+
   let toastTimer = 0
   function toast(text) {
     const el = $('#toast')
@@ -2843,11 +3917,6 @@ function addStrings(a, b) {
   function persistRecord(qid) {
     cacheLocal()
     enqueueWrite(qid, clone(state.records[qid]))
-  }
-
-  function persistMeta() {
-    cacheLocal()
-    enqueueWrite('meta', clone(state.meta))
   }
 
   function setSync(mode) {
@@ -2917,22 +3986,18 @@ function addStrings(a, b) {
     return { key: 'learning', label: '学习中' }
   }
 
+  const REASON = { due: '复习', new: '新题', fill: '巩固' }
+
   function todayPlan() {
-    const target = Number(state.meta.target) || 3
-    const done = []
-    const due = []
-    const fresh = []
-    for (const q of QUESTIONS) {
-      const key = statusOf(q.id).key
-      if (key === 'today') done.push({ id: q.id, done: true, reason: '已完成' })
-      else if (key === 'due') due.push({ id: q.id, done: false, reason: '复习' })
-      else if (key === 'new') fresh.push({ id: q.id, done: false, reason: '新题' })
-    }
-    due.sort((a, b) => (state.records[a.id].due < state.records[b.id].due ? -1 : 1))
-    const newDoneToday = done.filter((d) => (state.records[d.id].history || []).every((h) => h.day === todayKey())).length
-    const plan = [...done, ...due]
-    for (const item of fresh.slice(0, Math.max(0, target - newDoneToday))) plan.push(item)
-    return plan
+    const t = todayKey()
+    const day = DailyPlan.hsDay(state.records, QUESTIONS.map((q) => q.id), t, DailyPlan.quota().hs)
+    return day.list
+      .filter((id) => QUESTION_IDS.has(id))
+      .map((id) => {
+        const [kind, detail] = day.why[id] || ['fill', '']
+        const done = statusOf(id).key === 'today'
+        return { id, done, kind, reason: REASON[kind] || '巩固', detail: kind === 'new' ? `建议 ${qById(id).minutes} 分钟` : detail }
+      })
   }
 
   function practiceCounts() {
@@ -3419,18 +4484,20 @@ function addStrings(a, b) {
       `<span class="stat">已掌握 <b>${mastered}</b> / ${QUESTIONS.length}</span>`,
     ].join('')
 
-    $('#target').value = String(state.meta.target || 3)
+    const quotaHs = DailyPlan.quota().hs
+    if (!$(`#target option[value="${quotaHs}"]`)) $('#target').insertAdjacentHTML('beforeend', `<option value="${quotaHs}">${quotaHs}</option>`)
+    $('#target').value = String(quotaHs)
     const planEl = $('#plan')
     planEl.innerHTML = plan.length
       ? plan.map((item) => {
         const q = qById(item.id)
         return `<li><button type="button" class="qbtn${item.done ? ' done' : ''}" data-q="${q.id}" aria-current="${q.id === state.current}">
             <span class="check" aria-hidden="true">${item.done ? '✓' : ''}</span>
-            <span class="name">${esc(q.title)}<span class="sub">${item.reason}</span></span>
-            <span class="pill ${item.done ? 'today' : item.reason === '复习' ? 'due' : 'new'}">${item.done ? '完成' : item.reason}</span>
+            <span class="name">${esc(q.title)}<span class="sub">${esc(item.detail)}</span></span>
+            <span class="pill ${item.done ? 'today' : { due: 'due', new: 'new' }[item.kind] || 'learning'}">${item.done ? '完成' : item.reason}</span>
           </button></li>`
-      }).join('')
-      : '<li><p class="plan-empty">今天没有到期的题。挑一道已掌握的再默写一遍，或者把每天新题调多一点。</p></li>'
+      }).join('') + (doneToday === plan.length ? '<li><p class="plan-empty">今天的手撕题都完成了。<a href="../index.html">回主页</a>看看力扣还剩几题。</p></li>' : '')
+      : '<li><p class="plan-empty">每天的手撕题设成了 0 道。想练的话，从下面的全部题目里挑一道，或者把上面的题量调高。</p></li>'
 
     $('#qlist').innerHTML = QUESTIONS.map((q, i) => {
       const tier = q.tier || 'S'
@@ -3494,15 +4561,36 @@ function addStrings(a, b) {
     el.classList.toggle('over', !attempt.done && ms > q.minutes * 60000)
   }
 
+  /* 语法着色：切词规则和配色同力扣 Hot100 页面（VS Code Light+ / Dark+）。
+     这里着色的是整段代码，所以多处理了跨行的块注释和模板字符串；没写完的注释、字符串一直着色到结尾 */
+  const JS_KW = new Set('var let const function class extends super new delete typeof instanceof in of void this null undefined true false'.split(' '))
+  const JS_CTRL = new Set('if else for while do return break continue switch case default try catch finally throw yield await async'.split(' '))
+  const TOKEN = /(\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$))|('(?:\\.|[^'\\\n])*'?|"(?:\\.|[^"\\\n])*"?|`(?:\\[\s\S]|[^`\\])*`?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g
+  const FN_AFTER = /^[ \t]*(\(|=[ \t]*(function\b|async\b|\([^)\n]*\)[ \t]*=>|[A-Za-z_$][\w$]*[ \t]*=>))/
+  const tokenClass = (id, rest) => {
+    if (JS_CTRL.has(id)) return 'tk-k2'
+    if (JS_KW.has(id)) return 'tk-k'
+    if (/^[A-Z]/.test(id)) return 'tk-t'
+    return FN_AFTER.test(rest) ? 'tk-f' : 'tk-v'
+  }
+
   function highlightCode(code) {
-    const re = /(\/\/.*$|\/\*[\s\S]*?\*\/)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)|\b(const|let|var|function|return|if|else|for|while|new|this|of|in|class|async|await|try|catch|finally|throw|null|undefined|typeof|instanceof|delete|true|false)\b|\b(\d+)\b/gm
     let out = ''
     let last = 0
-    for (const m of code.matchAll(re)) {
+    for (const m of code.matchAll(TOKEN)) {
+      const [text, comment, str, num, id] = m
       out += esc(code.slice(last, m.index))
-      const cls = m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : 'n'
-      out += `<span class="${cls}">${esc(m[0])}</span>`
-      last = m.index + m[0].length
+      last = m.index + text.length
+      let cls = 'tk-v'
+      if (comment) cls = 'tk-c'
+      else if (str) cls = 'tk-s'
+      else if (num) cls = 'tk-n'
+      else if (id) cls = tokenClass(id, code.slice(last, last + 120))
+      // multi-line tokens are split per line so every line of the overlay keeps its own spans
+      out += text
+        .split('\n')
+        .map((part) => (part ? `<span class="${cls}">${esc(part)}</span>` : ''))
+        .join('\n')
     }
     return out + esc(code.slice(last))
   }
@@ -3783,9 +4871,13 @@ function addStrings(a, b) {
   })
 
   $('#target').addEventListener('change', (e) => {
-    state.meta.target = Number(e.target.value) || 3
-    persistMeta()
+    DailyPlan.setQuota({ hs: Number(e.target.value) })
     renderChrome()
+  })
+
+  // the home page (another tab) can change the quota or build today's list
+  window.addEventListener('storage', (e) => {
+    if (e.key === DailyPlan.QUOTA_KEY || e.key === DailyPlan.HS_DAYS_KEY) renderChrome()
   })
 
   window.addEventListener('beforeunload', flushDraft)
@@ -3796,6 +4888,7 @@ function addStrings(a, b) {
 
   /* ======================= boot ======================= */
   if (!['task', 'explain', 'answer', 'record'].includes(state.tab)) state.tab = 'task'
+  ls.set('study:catalog:hs', QUESTIONS.map((q) => [q.id, q.title, q.tier || 'S', q.minutes]))
   const fromHash = location.hash.replace('#', '')
   const firstOpen = todayPlan().find((p) => !p.done)
   selectQuestion(QUESTION_IDS.has(fromHash) ? fromHash : firstOpen ? firstOpen.id : QUESTIONS[0].id)
