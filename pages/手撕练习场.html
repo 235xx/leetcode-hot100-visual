@@ -348,6 +348,13 @@
     line-height: 1.6;
   }
   @media (max-width: 899px) { .ed { height: 360px; } }
+  /* touch screens: iOS Safari zooms the whole page when a focused field is smaller than 16px */
+  @media (pointer: coarse) {
+    .ed { font-size: 16px; }
+    .rail select, .qpick select { font-size: 16px; }
+  }
+  /* phones: let the task / explanation / answer flow with the page instead of a short inner scroll box */
+  @media (max-width: 640px) { .tabpanel { max-height: none; overflow: visible; } }
   .ed-gutter, .ed-hl, .ed-input {
     font: inherit;
     line-height: inherit;

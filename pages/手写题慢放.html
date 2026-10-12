@@ -421,6 +421,8 @@
   .axis { position: relative; height: 18px; margin-left: 74px; font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); }
   .axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
   .axis span:first-child { transform: none; }
+  /* narrow screens: every other label, so 800ms / 1000ms / 1200ms don't run together */
+  @media (max-width: 520px) { .axis span:nth-child(even) { visibility: hidden; } }
   .out-row { display: grid; grid-template-columns: 66px minmax(0, 1fr); gap: 8px; align-items: center; }
   .out-row .slots { flex-wrap: wrap; }
 
